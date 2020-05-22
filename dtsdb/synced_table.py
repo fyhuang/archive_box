@@ -40,13 +40,17 @@ class SyncedTable(object):
     def __init__(self, conn: sqlite3.Connection, msg_descriptor: Descriptor) -> None:
         self.conn = conn
         self.msg_descriptor = msg_descriptor
+        table_name_from_proto = self.msg_descriptor.GetOptions().Extensions[pb2.table].name # type: ignore
+        if table_name_from_proto == "":
+            raise RuntimeError("No table name declared")
+        self.table_name = "m_" + table_name_from_proto
 
     def _columns(self) -> List[str]:
         id_field = None
         columns = []
         def recur_columns(descriptor, name_prefix):
             nonlocal id_field
-            for field in self.msg_descriptor.fields:
+            for field in descriptor.fields:
                 if field.message_type is not None:
                     recur_columns(field.message_type, name_prefix + field.name + "__")
                     continue
@@ -65,21 +69,23 @@ class SyncedTable(object):
                     raise NotImplementedError("repeated fields not implemented yet")
 
                 field_type = _protobuf_to_sqlite_type(field.type)
-                columns.append("{name} {type} {notnull} {pkey}".format(
-                    name=field.name,
+                raw_column_def = "{name} {type} {notnull} {pkey}".format(
+                    name=name_prefix + field.name,
                     type=field_type,
                     notnull=field_notnull,
                     pkey=field_pkey,
-                ))
+                )
+                columns.append(" ".join(raw_column_def.split()))
 
         recur_columns(self.msg_descriptor, "")
+        if id_field is None:
+            raise RuntimeError("No ID field was defined")
         return columns
 
     def _get_create_table_sql(self) -> str:
-        table_name = self.msg_descriptor.GetOptions().Extensions[pb2.table].name # type: ignore
         return 'CREATE TABLE IF NOT EXISTS {tname} ({columns})'.format(
-            tname=table_name,
-            columns=','.join(self._columns())
+            tname=self.table_name,
+            columns=', '.join(self._columns())
         )
 
     def ensure_table_matches_schema(self) -> None:

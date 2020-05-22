@@ -12,4 +12,27 @@ message Simple {
 }
 
 message Nested {
+    option (dtsdb.table).name = "Nested";
+    message Inner {
+        optional string f1 = 1;
+        required int32 f2 = 2;
+    }
+
+    required string id = 1 [(dtsdb.field).is_id = true];
+
+    enum Selection {
+        HELLO = 0;
+        WORLD = 1;
+    }
+    optional Selection selection = 2;
+
+    optional Inner inner = 3;
+}
+
+message NoTableName {
+    required string id = 1 [(dtsdb.field).is_id = true];
+}
+
+message NoId {
+    option (dtsdb.table).name = "NoId";
 }
