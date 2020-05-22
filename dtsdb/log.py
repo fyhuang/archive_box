@@ -86,16 +86,18 @@ class Log(object):
             self.conn.execute("INSERT OR IGNORE INTO metadata VALUES (?, ?)",
                 ("version", "1"))
 
-    def _register_node(self, node_config: NodeConfig):
+    def _register_node(self, node_config: NodeConfig, last_seen_ts: Optional[datetime] = None):
+        if last_seen_ts is None:
+            last_seen_ts = datetime.fromtimestamp(0)
         with self.conn:
             self.conn.execute('INSERT OR IGNORE INTO nodes VALUES (?, ?, ?)',
-                (node_config.clock_id, node_config.display_name, _dt_sqlite_ts(datetime(1970, 1, 1))))
+                (node_config.clock_id, node_config.display_name, _dt_sqlite_ts(last_seen_ts)))
 
-    def _get_known_nodes(self) -> List[NodeConfig]:
-        result = []
+    def _get_known_nodes(self) -> Dict[NodeConfig, datetime]:
+        result = {}
         c = self.conn.cursor()
-        for row in c.execute("SELECT clock_id, display_name FROM nodes"):
-            result.append(NodeConfig(row[0], row[1]))
+        for row in c.execute("SELECT * FROM nodes"):
+            result[NodeConfig(row[0], row[1])] = _sqlite_ts_dt(row[2])
         return result
 
     def _oldest_node_ts(self) -> datetime:
@@ -117,10 +119,11 @@ class Log(object):
             return VectorClock()
         return VectorClock.from_packed(result[0])
 
-    def _get_entries_since(self, dt: datetime) -> List[Entry]:
+    def _get_all_real_entries(self) -> List[Entry]:
+        # filters out merge entries
         result = []
         c = self.conn.cursor()
-        for row in c.execute("SELECT * FROM log WHERE timestamp >= ? ORDER BY timestamp ASC", (_dt_sqlite_ts(dt),)):
+        for row in c.execute("SELECT * FROM log WHERE entity_name IS NOT NULL ORDER BY timestamp ASC"):
             result.append(Entry(_sqlite_ts_dt(row[0]), row[1], row[2], row[3], VectorClock.from_packed(row[4])))
         return result
 
@@ -133,6 +136,7 @@ class Log(object):
           (
             SELECT MAX(timestamp) AS timestamp, entity_name, entity_id
             FROM log
+            WHERE entity_name IS NOT NULL
             GROUP BY entity_name, entity_id
           ) AS last_ts
         INNER JOIN log
@@ -143,6 +147,13 @@ class Log(object):
                 _sqlite_ts_dt(row[0]), row[1], row[2], row[3], VectorClock.from_packed(row[4])
             )
         return result
+
+    def _insert_entry(self, entry: Entry, allow_duplicate: bool = False) -> None:
+        or_ignore = ""
+        if allow_duplicate:
+            or_ignore = "OR IGNORE"
+        self.conn.execute("INSERT {} INTO log VALUES (?, ?, ?, ?, ?)".format(or_ignore),
+                (_dt_sqlite_ts(entry.timestamp), entry.entity_name, entry.entity_id, entry.entity, entry.vclock.to_packed()))
 
     def add_entry(self, node_config: NodeConfig, entity_name: str, entity_id: str, entity: Any) -> None:
         self._register_node(node_config)
@@ -155,10 +166,10 @@ class Log(object):
 
         new_clock = self._newest_vclock()
         new_clock.increment(node_config.clock_id)
+        entry = Entry(now, entity_name, entity_id, entity, new_clock)
 
         with self.conn:
-            self.conn.execute("INSERT INTO log VALUES (?, ?, ?, ?, ?)",
-                    (_dt_sqlite_ts(now), entity_name, entity_id, entity, new_clock.to_packed()))
+            self._insert_entry(entry)
             self.conn.execute("UPDATE nodes SET last_seen_ts = :ts WHERE clock_id = :id",
                     {"id": node_config.clock_id, "ts": _dt_sqlite_ts(now)})
 
@@ -194,8 +205,24 @@ class Log(object):
         return changes
 
     def merge_from(self, other: 'Log'):
-        # merge entries from other log and add a merge entry to indicate merge success
-        pass
+        # merge nodes from other log
+        for node_config, last_seen_ts in other._get_known_nodes().items():
+            self._register_node(node_config, last_seen_ts)
+
+        merged_vclock = self._newest_vclock()
+        merged_vclock.merge_from(other._newest_vclock())
+
+        # merge entries from other log
+        # TODO(fyhuang): find a way to do this more efficiently
+        other_entries = other._get_all_real_entries()
+        for e in other_entries:
+            with self.conn:
+                self._insert_entry(e, True)
+
+        # add a merge entry to indicate merge success
+        with self.conn:
+            self.conn.execute('INSERT INTO log VALUES (?, null, null, "merge", ?)',
+                    (_dt_sqlite_ts(self.utcnow()), merged_vclock.to_packed()))
 
     def collect_garbage(self):
         pass

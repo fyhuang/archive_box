@@ -47,6 +47,11 @@ class VectorClock(object):
         else: # all_less == all_more == False
             return "concurrent"
 
+    def merge_from(self, other: 'VectorClock'):
+        all_keys = set(self.clock.keys()) | set(other.clock.keys())
+        for k in all_keys:
+            self.clock[k] = max(self.clock[k], other.clock[k])
+
     def __eq__(self, other):
         if not isinstance(other, VectorClock):
             return False
