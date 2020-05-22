@@ -38,3 +38,10 @@ class VectorClockTests(unittest.TestCase):
         packed = c1.to_packed()
         c2 = VectorClock.from_packed(packed)
         self.assertEqual("equal", c1.compare(c2))
+
+    def test_merge_from(self) -> None:
+        c1 = VectorClock({1: 1, 2: 3})
+        c2 = VectorClock({1: 3, 2: 2})
+
+        c1.merge_from(c2)
+        self.assertEqual(VectorClock({1: 3, 2: 3}), c1)

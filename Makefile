@@ -1,8 +1,10 @@
 .PHONY: tags check_all test_all
 
+PACKAGES=archivebox dtsdb
+
 tags:
-	ctags -R .
+	ctags -R $(PACKAGES)
 
 checks:
-	mypy dtsdb
+	mypy $(PACKAGES)
 	python3 -m unittest

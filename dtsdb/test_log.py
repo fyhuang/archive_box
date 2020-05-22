@@ -81,10 +81,7 @@ class LogTests(unittest.TestCase):
             Entry(datetime.fromtimestamp(2), "Entity", "e2", b'', VectorClock({1: 1, 2: 1})),
             Entry(datetime.fromtimestamp(3), "Entity", "e3", b'', VectorClock({1: 2, 2: 1})),
         ]
-        self.assertEqual(all_entries, log._get_entries_since(datetime.fromtimestamp(0)))
-        self.assertEqual(all_entries, log._get_entries_since(datetime.fromtimestamp(1)))
-        self.assertEqual(all_entries[1:], log._get_entries_since(datetime.fromtimestamp(2)))
-        self.assertEqual(all_entries[2:], log._get_entries_since(datetime.fromtimestamp(3)))
+        self.assertEqual(all_entries, log._get_all_real_entries())
 
     def test_get_latest_entry_per_entity(self) -> None:
         self.timestamps = [datetime.fromtimestamp(1), datetime.fromtimestamp(2), datetime.fromtimestamp(3)]
@@ -140,3 +137,26 @@ class LogTests(unittest.TestCase):
             ]),
             set(log2.detect_changes(log1))
         )
+
+    def test_merge_from(self) -> None:
+        self.timestamps = [datetime.fromtimestamp(1), datetime.fromtimestamp(2), datetime.fromtimestamp(3), datetime.fromtimestamp(4)]
+        log1 = Log(self.conn, self.next_ts)
+        second_conn = sqlite3.connect(os.path.join(self.tempdir.name, "test2.db"))
+        log2 = Log(second_conn, self.next_ts)
+
+        log1.add_entry(NodeConfig(1, ""), "Int", "i0", b'a')
+        log1.add_entry(NodeConfig(1, ""), "Int", "i1", b'1')
+        log2.add_entry(NodeConfig(2, ""), "Int", "i0", b'b')
+
+        log2.merge_from(log1)
+        self.assertEqual(
+            [
+                Entry(datetime.fromtimestamp(1), "Int", "i0", b'a', VectorClock({1: 1})),
+                Entry(datetime.fromtimestamp(2), "Int", "i1", b'1', VectorClock({1: 2})),
+                Entry(datetime.fromtimestamp(3), "Int", "i0", b'b', VectorClock({2: 1})),
+            ],
+            log2._get_all_real_entries()
+        )
+
+        self.assertEqual(VectorClock({1: 2, 2: 1}), log2._newest_vclock())
+        self.assertEqual(datetime.fromtimestamp(4), log2._newest_timestamp())
