@@ -12,15 +12,17 @@ from .vector_clock import VectorClock
 
 class LogTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.tempdir = tempfile.TemporaryDirectory()
-        self.conn = sqlite3.connect(os.path.join(self.tempdir.name, "test.db"))
+        self.conn = sqlite3.connect(":memory:")
         self.timestamps: List[datetime] = []
-
-    def tearDown(self) -> None:
-        self.tempdir.cleanup()
+        self.last_second = 0
 
     def next_ts(self) -> datetime:
         return self.timestamps.pop(0)
+
+    def counter_ts(self) -> datetime:
+        dt = datetime.fromtimestamp(self.last_second)
+        self.last_second += 1
+        return dt
 
     def test_first_time_setup_duplicate(self) -> None:
         log = Log(self.conn)
@@ -53,20 +55,17 @@ class LogTests(unittest.TestCase):
 
     def test_advance_vclock(self) -> None:
         vc = VectorClock()
-        log = Log(self.conn)
-        self.assertEqual(vc, log._newest_vclock())
+        log = Log(self.conn, self.counter_ts)
+        self.assertEqual(VectorClock(), log._newest_vclock())
 
         log.add_entry(NodeConfig(1, ""), "Entity", "e0", b'')
-        vc.increment(1)
-        self.assertEqual(vc, log._newest_vclock())
+        self.assertEqual(VectorClock({1:1}), log._newest_vclock())
 
         log.add_entry(NodeConfig(2, ""), "Entity", "e1", b'')
-        vc.increment(2)
-        self.assertEqual(vc, log._newest_vclock())
+        self.assertEqual(VectorClock({1:1, 2:1}), log._newest_vclock())
 
         log.add_entry(NodeConfig(1, ""), "Entity", "e0", b'')
-        vc.increment(1)
-        self.assertEqual(vc, log._newest_vclock())
+        self.assertEqual(VectorClock({1:2, 2:1}), log._newest_vclock())
 
     def test_get_entries_since(self) -> None:
         self.timestamps = [datetime.fromtimestamp(1), datetime.fromtimestamp(2), datetime.fromtimestamp(3)]
@@ -105,9 +104,9 @@ class LogTests(unittest.TestCase):
         )
 
     def test_detect_changes_none(self) -> None:
-        log1 = Log(self.conn)
-        second_conn = sqlite3.connect(os.path.join(self.tempdir.name, "test2.db"))
-        log2 = Log(second_conn)
+        log1 = Log(self.conn, self.counter_ts)
+        second_conn = sqlite3.connect(":memory:")
+        log2 = Log(second_conn, self.counter_ts)
 
         log1.add_entry(NodeConfig(1, ""), "Int", "i0", b'')
         log1.add_entry(NodeConfig(2, ""), "Int", "i1", b'')
@@ -121,9 +120,9 @@ class LogTests(unittest.TestCase):
         self.assertEqual([], log1.detect_changes(log2))
 
     def test_detect_changes(self) -> None:
-        log1 = Log(self.conn)
-        second_conn = sqlite3.connect(os.path.join(self.tempdir.name, "test2.db"))
-        log2 = Log(second_conn)
+        log1 = Log(self.conn, self.counter_ts)
+        second_conn = sqlite3.connect(":memory:")
+        log2 = Log(second_conn, self.counter_ts)
 
         log1.add_entry(NodeConfig(1, ""), "Int", "i0", b'a')
         log1.add_entry(NodeConfig(2, ""), "Int", "i1", b'1')
@@ -141,7 +140,7 @@ class LogTests(unittest.TestCase):
     def test_merge_from(self) -> None:
         self.timestamps = [datetime.fromtimestamp(1), datetime.fromtimestamp(2), datetime.fromtimestamp(3), datetime.fromtimestamp(4)]
         log1 = Log(self.conn, self.next_ts)
-        second_conn = sqlite3.connect(os.path.join(self.tempdir.name, "test2.db"))
+        second_conn = sqlite3.connect(":memory:")
         log2 = Log(second_conn, self.next_ts)
 
         log1.add_entry(NodeConfig(1, ""), "Int", "i0", b'a')

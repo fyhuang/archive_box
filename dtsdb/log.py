@@ -33,7 +33,7 @@ class Entry(NamedTuple):
     timestamp: datetime
     entity_name: str
     entity_id: str
-    entity: Any
+    entity: Optional[bytes]
     vclock: VectorClock
 
 
@@ -43,7 +43,7 @@ class Change(NamedTuple):
     type: str
     entity_name: str
     entity_id: str
-    entity: Any
+    entity: Optional[bytes]
 
 
 class Log(object):
@@ -78,7 +78,7 @@ class Log(object):
             timestamp DATETIME NOT NULL PRIMARY KEY,
             entity_name TEXT,
             entity_id TEXT,
-            entity BLOB NOT NULL,
+            entity BLOB,
             vclock BLOB NOT NULL
         )''')
 
@@ -221,7 +221,7 @@ class Log(object):
 
         # add a merge entry to indicate merge success
         with self.conn:
-            self.conn.execute('INSERT INTO log VALUES (?, null, null, "merge", ?)',
+            self.conn.execute('INSERT INTO log VALUES (?, null, null, null, ?)',
                     (_dt_sqlite_ts(self.utcnow()), merged_vclock.to_packed()))
 
     def collect_garbage(self):
