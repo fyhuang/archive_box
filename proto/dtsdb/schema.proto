@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+package dtsdb;
+
+import "google/protobuf/descriptor.proto";
+
+message DtsdbFieldOptions {
+    // Marks a field as the ID field. The ID field must be a string, and there can be only one ID field.
+    optional bool is_id = 1;
+
+    /* Merge strategy if this field is in conflict.
+     *
+     *   error: (default) don't attempt any merge, just error out
+     *   latest: use the most recent (in wall clock time) value
+     *   set_union: (only for repeated fields) union of the values without retaining order or duplicates
+     *   list_union: (only for repeated fields) append the values while retaining duplicates
+     *   union_latest: (for maps with primitive values) union the keys, and use the latest value for any keys in conflict
+     */
+    optional string merge = 2;
+}
+
+extend google.protobuf.FieldOptions {
+    optional DtsdbFieldOptions field = 50000;
+}
+
+message DtsdbMessageOptions {
+    optional string name = 1;
+}
+
+extend google.protobuf.MessageOptions {
+    optional DtsdbMessageOptions table = 50000;
+}
