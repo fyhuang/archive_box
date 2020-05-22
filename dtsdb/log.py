@@ -164,12 +164,10 @@ class Log(object):
 
     def detect_changes(self, other: 'Log') -> List[Change]:
         our_latest = self._get_latest_entry_per_entity()
-        other_latest = self._get_latest_entry_per_entity()
+        other_latest = other._get_latest_entry_per_entity()
 
         all_entity_keys = set(our_latest.keys()) | set(other_latest.keys())
         changes: List[Change] = []
-
-        import pdb; pdb.set_trace()
 
         for key in all_entity_keys:
             default_entry = Entry(datetime.fromtimestamp(0), key.entity_name, key.entity_id, None, VectorClock())
