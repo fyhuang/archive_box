@@ -1,2 +1,5 @@
 mypy
 toml
+
+mypy-protobuf
+protobuf==3.12.1

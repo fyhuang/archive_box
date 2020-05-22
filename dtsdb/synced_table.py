@@ -1,8 +1,10 @@
 import sqlite3
 from typing import List, NamedTuple
+from google.protobuf.message import Message
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
 
 from . import schema_pb2 as pb2
+from .log import Log
 
 
 #class Column(NamedTuple):
@@ -40,10 +42,10 @@ class SyncedTable(object):
     def __init__(self, conn: sqlite3.Connection, msg_descriptor: Descriptor) -> None:
         self.conn = conn
         self.msg_descriptor = msg_descriptor
-        table_name_from_proto = self.msg_descriptor.GetOptions().Extensions[pb2.table].name # type: ignore
-        if table_name_from_proto == "":
-            raise RuntimeError("No table name declared")
-        self.table_name = "m_" + table_name_from_proto
+        self.entity_name = self.msg_descriptor.GetOptions().Extensions[pb2.table].name
+        if self.entity_name == "":
+            raise RuntimeError("No table name declared in proto schema")
+        self.table_name = "m_" + self.entity_name
 
     def _columns(self) -> List[str]:
         id_field = None
@@ -88,8 +90,11 @@ class SyncedTable(object):
             columns=', '.join(self._columns())
         )
 
-    def ensure_table_matches_schema(self) -> None:
+    def init_table(self) -> None:
         # throws exception if the db already contains a table whose schema doesn't match the one
         # implied by `msg_descriptor`
         create_table = self._get_create_table_sql()
         self.conn.execute(create_table)
+
+    def update(self, entity_id: str, updated_msg: Message, log: Log) -> None:
+        pass

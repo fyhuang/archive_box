@@ -1,5 +1,6 @@
 .PHONY: tags check_all test_all proto
 
+PROTOC=extern/protoc/bin/protoc
 PACKAGES=archivebox dtsdb
 
 tags:
@@ -12,12 +13,12 @@ checks:
 proto:
 	mkdir -p temp
 	
-	protoc -I proto/dtsdb --python_out=temp \
+	$(PROTOC) -I proto/dtsdb --python_out=temp --mypy_out=dtsdb \
 		proto/dtsdb/*.proto
 	./postprocess_proto.sh temp/schema_pb2.py dtsdb/schema_pb2.py
 	./postprocess_proto.sh temp/test_pb2.py dtsdb/test_pb2.py
 	
-	protoc \
+	$(PROTOC) \
 		-I proto \
 		--python_out=temp \
 		proto/archive_box.proto
