@@ -12,26 +12,31 @@ class SyncedTableTests(unittest.TestCase):
             st = SyncedTable(self.conn, test_pb2.NoTableName.DESCRIPTOR)
 
     def test_no_id(self) -> None:
-        st = SyncedTable(self.conn, test_pb2.NoId.DESCRIPTOR)
         with self.assertRaises(RuntimeError):
-            st.init_table()
+            st = SyncedTable(self.conn, test_pb2.NoId.DESCRIPTOR)
 
     def test_columns_simple(self) -> None:
         st = SyncedTable(self.conn, test_pb2.Simple.DESCRIPTOR)
         self.assertEqual([
+            ColumnDef("id", "TEXT", True, True),
+            ColumnDef("opt_string", "TEXT", False, False),
+            ColumnDef("req_bool", "BOOLEAN", True, False),
+        ], st.columns)
+
+        self.assertEqual([
             "id TEXT NOT NULL PRIMARY KEY",
             "opt_string TEXT",
             "req_bool BOOLEAN NOT NULL",
-        ],st._columns())
+        ], [c.to_sqlite_schema() for c in st.columns])
 
     def test_columns_nested(self) -> None:
         st = SyncedTable(self.conn, test_pb2.Nested.DESCRIPTOR)
         self.assertEqual([
-            "id TEXT NOT NULL PRIMARY KEY",
-            "selection TEXT",
-            "inner__f1 TEXT",
-            "inner__f2 INTEGER NOT NULL",
-        ], st._columns())
+            ColumnDef("id", "TEXT", True, True),
+            ColumnDef("selection", "TEXT", False, False),
+            ColumnDef("inner__f1", "TEXT", False, False),
+            ColumnDef("inner__f2", "INTEGER", True, False),
+        ], st.columns)
 
     def test_create_table_simple(self) -> None:
         st = SyncedTable(self.conn, test_pb2.Simple.DESCRIPTOR)
@@ -48,4 +53,12 @@ class SyncedTableTests(unittest.TestCase):
             st.init_table()
 
     def test_update(self) -> None:
-        pass
+        st = SyncedTable(self.conn, test_pb2.Simple.DESCRIPTOR)
+        st.init_table()
+
+        msg = test_pb2.Simple()
+        msg.id = "s0"
+        msg.opt_string = "str1"
+        msg.req_bool = True
+        st.update(msg, None) # type: ignore
+
