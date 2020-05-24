@@ -40,7 +40,21 @@ class MsgField(NamedTuple):
     id_field: bool
     db_column_name: str
     name_path: List[str]
-    value: Optional[Any]
+    proto_value: Optional[Any]
+
+    def to_sqlite_value(self):
+        if self.field_desc.type == FieldDescriptor.TYPE_ENUM:
+            enum_desc = self.field_desc.enum_type
+            return enum_desc.values_by_number[self.proto_value].name
+        else:
+            return self.proto_value
+
+    def from_sqlite_value(self, val) -> Any:
+        if self.field_desc.type == FieldDescriptor.TYPE_ENUM:
+            enum_desc = self.field_desc.enum_type
+            return enum_desc.values_by_name[val].number
+        else:
+            return val
 
 
 def _protobuf_to_sqlite_type(field_type):
@@ -88,10 +102,11 @@ class SyncedTable(object):
                 values_by_fnum.update({fd.number: value for fd, value in msg.ListFields()})
 
             for field in descriptor.fields:
+                field_value = values_by_fnum[field.number]
                 if field.message_type is not None:
                     yield from recur(
                         field.message_type,
-                        msg,
+                        field_value,
                         name_path_prefix + [field.name],
                         col_name_prefix + field.name + "__"
                     )
@@ -101,7 +116,6 @@ class SyncedTable(object):
                 if _is_id_field(field):
                     is_id = True
 
-                field_value = values_by_fnum[field.number]
                 yield MsgField(
                     field.name,
                     field,
@@ -176,7 +190,7 @@ class SyncedTable(object):
             container = msg
             for name in mf.name_path[:-1]:
                 container = getattr(container, name)
-            setattr(container, mf.name_path[-1], row[i])
+            setattr(container, mf.name_path[-1], mf.from_sqlite_value(row[i]))
 
         return msg
 
@@ -186,9 +200,9 @@ class SyncedTable(object):
         values_list = []
         for mf in self._iter_fields(updated_msg):
             column_names.append(mf.db_column_name)
-            values_list.append(mf.value)
+            values_list.append(mf.to_sqlite_value())
             if mf.id_field:
-                id_value = mf.value
+                id_value = mf.to_sqlite_value()
 
         query = "INSERT OR REPLACE INTO {} ({}) VALUES({})".format(
             self.table_name,
