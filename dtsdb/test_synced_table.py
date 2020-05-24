@@ -3,6 +3,15 @@ import unittest
 from .synced_table import *
 from . import test_pb2
 
+
+class MockLog(object):
+    def __init__(self):
+        self.entries = []
+
+    def add_entry(self, node_config, entity_name, entity_id, msg):
+        self.entries.append((node_config, entity_name, entity_id, msg))
+
+
 class SyncedTableTests(unittest.TestCase):
     def setUp(self) -> None:
         self.conn = sqlite3.connect(":memory:")
@@ -55,10 +64,22 @@ class SyncedTableTests(unittest.TestCase):
     def test_update(self) -> None:
         st = SyncedTable(self.conn, test_pb2.Simple)
         st.init_table()
+        log = MockLog()
 
         msg = test_pb2.Simple()
         msg.id = "s0"
         msg.opt_string = "str1"
         msg.req_bool = True
-        st.update(msg, NodeConfig(1, ""), None) # type: ignore
+
+        st.update(msg, NodeConfig(1, ""), log) # type: ignore
+
+        stored = st.get("s0")
+        self.assertEqual(msg, stored)
+        self.assertEqual(
+            (NodeConfig(1, ""), "Simple", "s0", msg.SerializeToString()),
+            log.entries[0]
+        )
+
+    def test_get_update_nested(self) -> None:
+        pass
 

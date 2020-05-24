@@ -39,6 +39,7 @@ class MsgField(NamedTuple):
     field_desc: FieldDescriptor
     id_field: bool
     db_column_name: str
+    name_path: List[str]
     value: Optional[Any]
 
 
@@ -68,7 +69,6 @@ def _is_id_field(field_desc):
     return field_desc.GetOptions().Extensions[pb2.field].is_id
 
 
-
 class SyncedTable(object):
     def __init__(self, conn: sqlite3.Connection, msg_class: Any) -> None:
         self.conn = conn
@@ -82,14 +82,19 @@ class SyncedTable(object):
         self._parse_schema()
 
     def _iter_fields(self, msg: Optional[Message] = None) -> Generator[MsgField, None, None]:
-        def recur(descriptor, msg, name_prefix):
+        def recur(descriptor, msg, name_path_prefix, col_name_prefix):
             values_by_fnum = collections.defaultdict(lambda: None)
             if msg is not None:
                 values_by_fnum.update({fd.number: value for fd, value in msg.ListFields()})
 
             for field in descriptor.fields:
                 if field.message_type is not None:
-                    yield from recur(field.message_type, msg, name_prefix + field.name + "__")
+                    yield from recur(
+                        field.message_type,
+                        msg,
+                        name_path_prefix + [field.name],
+                        col_name_prefix + field.name + "__"
+                    )
                     continue
 
                 is_id = False
@@ -101,13 +106,15 @@ class SyncedTable(object):
                     field.name,
                     field,
                     is_id,
-                    name_prefix + field.name,
+                    col_name_prefix + field.name,
+                    name_path_prefix + [field.name],
                     field_value
                 )
 
-        yield from recur(self.msg_descriptor, msg, "")
+        yield from recur(self.msg_descriptor, msg, [], "")
 
     def _parse_schema(self):
+        self.msg_fields_by_col = {}
         id_field_name = None
         columns = []
         for mf in self._iter_fields():
@@ -124,6 +131,7 @@ class SyncedTable(object):
 
             field_type = _protobuf_to_sqlite_type(mf.field_desc.type)
             columns.append(ColumnDef(mf.db_column_name, field_type, is_required, mf.id_field))
+            self.msg_fields_by_col[mf.db_column_name] = mf
 
         if id_field_name is None:
             raise RuntimeError("No ID field was defined")
@@ -155,9 +163,21 @@ class SyncedTable(object):
 
     def get(self, id: str) -> Message:
         c = self.conn.cursor()
-        row = c.execute("SELECT * FROM {} WHERE {}=?".format(self.table_name, self.id_field), (id,)).fetchone()
+        column_names = [col.name for col in self.columns]
+        row = c.execute("SELECT {} FROM {} WHERE {}=?".format(
+            ",".join(column_names),
+            self.table_name,
+            self.id_field
+        ), (id,)).fetchone()
 
         msg = self.msg_class()
+        for i, column in enumerate(self.columns):
+            mf = self.msg_fields_by_col[column.name]
+            container = msg
+            for name in mf.name_path[:-1]:
+                container = getattr(container, name)
+            setattr(container, mf.name_path[-1], row[i])
+
         return msg
 
     def update(self, updated_msg: Message, node_config: NodeConfig, log: Log) -> None:
