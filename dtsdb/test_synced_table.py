@@ -9,14 +9,14 @@ class SyncedTableTests(unittest.TestCase):
 
     def test_no_table_name(self) -> None:
         with self.assertRaises(RuntimeError):
-            st = SyncedTable(self.conn, test_pb2.NoTableName.DESCRIPTOR)
+            st = SyncedTable(self.conn, test_pb2.NoTableName)
 
     def test_no_id(self) -> None:
         with self.assertRaises(RuntimeError):
-            st = SyncedTable(self.conn, test_pb2.NoId.DESCRIPTOR)
+            st = SyncedTable(self.conn, test_pb2.NoId)
 
     def test_columns_simple(self) -> None:
-        st = SyncedTable(self.conn, test_pb2.Simple.DESCRIPTOR)
+        st = SyncedTable(self.conn, test_pb2.Simple)
         self.assertEqual([
             ColumnDef("id", "TEXT", True, True),
             ColumnDef("opt_string", "TEXT", False, False),
@@ -30,7 +30,7 @@ class SyncedTableTests(unittest.TestCase):
         ], [c.to_sqlite_schema() for c in st.columns])
 
     def test_columns_nested(self) -> None:
-        st = SyncedTable(self.conn, test_pb2.Nested.DESCRIPTOR)
+        st = SyncedTable(self.conn, test_pb2.Nested)
         self.assertEqual([
             ColumnDef("id", "TEXT", True, True),
             ColumnDef("selection", "TEXT", False, False),
@@ -39,7 +39,7 @@ class SyncedTableTests(unittest.TestCase):
         ], st.columns)
 
     def test_create_table_simple(self) -> None:
-        st = SyncedTable(self.conn, test_pb2.Simple.DESCRIPTOR)
+        st = SyncedTable(self.conn, test_pb2.Simple)
         self.assertEqual(
             'CREATE TABLE IF NOT EXISTS m_Simple (id TEXT NOT NULL PRIMARY KEY, opt_string TEXT, req_bool BOOLEAN NOT NULL)',
             st._get_create_table_sql()
@@ -48,17 +48,17 @@ class SyncedTableTests(unittest.TestCase):
     def test_init_table_throws(self) -> None:
         # create a conflicting version of the table
         self.conn.execute('CREATE TABLE m_Simple (id TEXT NOT NULL PRIMARY KEY, opt_string INTEGER, req_bool BOOLEAN)')
-        st = SyncedTable(self.conn, test_pb2.Simple.DESCRIPTOR)
+        st = SyncedTable(self.conn, test_pb2.Simple)
         with self.assertRaises(RuntimeError):
             st.init_table()
 
     def test_update(self) -> None:
-        st = SyncedTable(self.conn, test_pb2.Simple.DESCRIPTOR)
+        st = SyncedTable(self.conn, test_pb2.Simple)
         st.init_table()
 
         msg = test_pb2.Simple()
         msg.id = "s0"
         msg.opt_string = "str1"
         msg.req_bool = True
-        st.update(msg, None) # type: ignore
+        st.update(msg, NodeConfig(1, ""), None) # type: ignore
 
