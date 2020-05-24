@@ -81,5 +81,22 @@ class SyncedTableTests(unittest.TestCase):
         )
 
     def test_get_update_nested(self) -> None:
-        pass
+        st = SyncedTable(self.conn, test_pb2.Nested)
+        st.init_table()
+        log = MockLog()
+
+        msg = test_pb2.Nested()
+        msg.id = "s0"
+        msg.selection = test_pb2.Nested.WORLD
+        msg.inner.f1 = "f1"
+        msg.inner.f2 = 32
+
+        st.update(msg, NodeConfig(1, ""), log) # type: ignore
+
+        stored = st.get("s0")
+        self.assertEqual(msg, stored)
+        self.assertEqual(
+            (NodeConfig(1, ""), "Nested", "s0", msg.SerializeToString()),
+            log.entries[0]
+        )
 
