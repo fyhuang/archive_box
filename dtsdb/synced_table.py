@@ -194,7 +194,7 @@ class SyncedTable(object):
 
         return msg
 
-    def update(self, updated_msg: Message, node_config: NodeConfig, log: Log) -> None:
+    def update(self, updated_msg: Message, node_config: NodeConfig, log: Optional[Log]) -> None:
         id_value = None
         column_names = []
         values_list = []
@@ -213,4 +213,6 @@ class SyncedTable(object):
         assert id_value is not None
         with self.conn:
             self.conn.execute(query, tuple(values_list))
-        log.add_entry(node_config, self.entity_name, id_value, updated_msg.SerializeToString())
+
+        if log is not None:
+            log.add_entry(node_config, self.entity_name, id_value, updated_msg.SerializeToString())
