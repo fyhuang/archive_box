@@ -1,5 +1,7 @@
+import collections
 import sqlite3
-from typing import Any, List, NamedTuple
+from typing import Any, Optional, List, NamedTuple, Generator
+
 from google.protobuf.message import Message
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
 
@@ -30,6 +32,14 @@ class ColumnDef(NamedTuple):
             pkey=col_pkey,
         )
         return " ".join(raw_column_def.split())
+
+
+class MsgField(NamedTuple):
+    field_name: str
+    field_desc: FieldDescriptor
+    id_field: bool
+    db_column_name: str
+    value: Optional[Any]
 
 
 def _protobuf_to_sqlite_type(field_type):
@@ -71,33 +81,50 @@ class SyncedTable(object):
         self.table_name = "m_" + self.entity_name
         self._parse_schema()
 
-    def _parse_schema(self):
-        id_field_name = None
-        columns = []
-        def recur_columns(descriptor, name_prefix):
-            nonlocal id_field_name
+    def _iter_fields(self, msg: Optional[Message] = None) -> Generator[MsgField, None, None]:
+        def recur(descriptor, msg, name_prefix):
+            values_by_fnum = collections.defaultdict(lambda: None)
+            if msg is not None:
+                values_by_fnum.update({fd.number: value for fd, value in msg.ListFields()})
+
             for field in descriptor.fields:
                 if field.message_type is not None:
-                    recur_columns(field.message_type, name_prefix + field.name + "__")
+                    yield from recur(field.message_type, msg, name_prefix + field.name + "__")
                     continue
 
                 is_id = False
                 if _is_id_field(field):
-                    if id_field_name is not None:
-                        raise RuntimeError("Only one field may be the id field")
-                    id_field_name = name_prefix + field.name
                     is_id = True
 
-                is_required = False
-                if field.label == FieldDescriptor.LABEL_REQUIRED:
-                    is_required = True
-                elif field.label == FieldDescriptor.LABEL_REPEATED:
-                    raise NotImplementedError("repeated fields not implemented yet")
+                field_value = values_by_fnum[field.number]
+                yield MsgField(
+                    field.name,
+                    field,
+                    is_id,
+                    name_prefix + field.name,
+                    field_value
+                )
 
-                field_type = _protobuf_to_sqlite_type(field.type)
-                columns.append(ColumnDef(name_prefix + field.name, field_type, is_required, is_id))
+        yield from recur(self.msg_descriptor, msg, "")
 
-        recur_columns(self.msg_descriptor, "")
+    def _parse_schema(self):
+        id_field_name = None
+        columns = []
+        for mf in self._iter_fields():
+            if mf.id_field:
+                if id_field_name is not None:
+                    raise RuntimeError("Only one field may be the id field")
+                id_field_name = mf.field_name
+
+            is_required = False
+            if mf.field_desc.label == FieldDescriptor.LABEL_REQUIRED:
+                is_required = True
+            elif mf.field_desc.label == FieldDescriptor.LABEL_REPEATED:
+                raise NotImplementedError("repeated fields not implemented yet")
+
+            field_type = _protobuf_to_sqlite_type(mf.field_desc.type)
+            columns.append(ColumnDef(mf.db_column_name, field_type, is_required, mf.id_field))
+
         if id_field_name is None:
             raise RuntimeError("No ID field was defined")
 
@@ -131,32 +158,25 @@ class SyncedTable(object):
         row = c.execute("SELECT * FROM {} WHERE {}=?".format(self.table_name, self.id_field), (id,)).fetchone()
 
         msg = self.msg_class()
+        return msg
 
     def update(self, updated_msg: Message, node_config: NodeConfig, log: Log) -> None:
         id_value = None
         column_names = []
         values_list = []
-        def recur_fields(message: Message, name_prefix):
-            nonlocal id_value
-            for field_desc, field_val in message.ListFields():
-                if field_desc.message_type is not None:
-                    recur_fields(field_val, name_prefix + field_desc.name + "__")
-                    continue
-                column_name = name_prefix + field_desc.name
-                column_names.append(column_name)
-                values_list.append(field_val)
+        for mf in self._iter_fields(updated_msg):
+            column_names.append(mf.db_column_name)
+            values_list.append(mf.value)
+            if mf.id_field:
+                id_value = mf.value
 
-                if _is_id_field(field_desc):
-                    id_value = field_val
-
-        recur_fields(updated_msg, "")
         query = "INSERT OR REPLACE INTO {} ({}) VALUES({})".format(
             self.table_name,
             ', '.join(column_names),
             ', '.join(['?'] * len(column_names)),
         )
 
+        assert id_value is not None
         with self.conn:
             self.conn.execute(query, tuple(values_list))
-        assert id_value is not None
         log.add_entry(node_config, self.entity_name, id_value, updated_msg.SerializeToString())
