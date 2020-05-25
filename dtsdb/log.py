@@ -11,12 +11,14 @@ _SQLITE_TS_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 def _dt_sqlite_ts(dt: datetime):
     with_usecs = dt.strftime(_SQLITE_TS_FORMAT)
     # truncate to milliseconds
-    with_msecs = with_usecs[:-3]
+    #with_msecs = with_usecs[:-3]
+    with_msecs = with_usecs
     return with_msecs + "Z"
 
 
 def _sqlite_ts_dt(sqlite_ts: str):
-    with_usecs = sqlite_ts[:-1] + "000"
+    #with_usecs = sqlite_ts[:-1] + "000"
+    with_usecs = sqlite_ts[:-1]
     return datetime.strptime(with_usecs, _SQLITE_TS_FORMAT)
 
 
@@ -36,6 +38,16 @@ class Entry(NamedTuple):
     entity: Optional[bytes]
     vclock: VectorClock
 
+    @staticmethod
+    def from_row(row) -> 'Entry':
+        return Entry(
+            _sqlite_ts_dt(row[0]),
+            row[1],
+            row[2],
+            row[3],
+            VectorClock.from_packed(row[4])
+        )
+
 
 class Change(NamedTuple):
     # type is "modified", "deleted", "conflict"
@@ -52,8 +64,8 @@ class Log(object):
     def __init__(self, connection: sqlite3.Connection, utcnow: Callable[[], datetime] = _default_utcnow) -> None:
         self.conn = connection
         self.utcnow = utcnow
-        # check presence of tables
-        self.first_time_setup()
+
+        self._init_table()
         # make sure that version matches
         c = self.conn.cursor()
         c.execute("SELECT value FROM metadata WHERE key = ?", ("version",))
@@ -62,7 +74,7 @@ class Log(object):
             raise RuntimeError("Cannot load DB with version {} (code is version {})"
                     .format(version, Log.CURR_VERSION))
 
-    def first_time_setup(self):
+    def _init_table(self):
         self.conn.execute('''CREATE TABLE IF NOT EXISTS metadata (
             key TEXT NOT NULL PRIMARY KEY,
             value TEXT NOT NULL
@@ -124,7 +136,7 @@ class Log(object):
         result = []
         c = self.conn.cursor()
         for row in c.execute("SELECT * FROM log WHERE entity_name IS NOT NULL ORDER BY timestamp ASC"):
-            result.append(Entry(_sqlite_ts_dt(row[0]), row[1], row[2], row[3], VectorClock.from_packed(row[4])))
+            result.append(Entry.from_row(row))
         return result
 
     def _get_latest_entry_per_entity(self) -> Dict[EntityKey, Entry]:
@@ -143,9 +155,7 @@ class Log(object):
         ON log.timestamp = last_ts.timestamp
         """)
         for row in c:
-            result[EntityKey(row[1], row[2])] = Entry(
-                _sqlite_ts_dt(row[0]), row[1], row[2], row[3], VectorClock.from_packed(row[4])
-            )
+            result[EntityKey(row[1], row[2])] = Entry.from_row(row)
         return result
 
     def _insert_entry(self, entry: Entry, allow_duplicate: bool = False) -> None:
@@ -155,7 +165,22 @@ class Log(object):
         self.conn.execute("INSERT {} INTO log VALUES (?, ?, ?, ?, ?)".format(or_ignore),
                 (_dt_sqlite_ts(entry.timestamp), entry.entity_name, entry.entity_id, entry.entity, entry.vclock.to_packed()))
 
-    def add_entry(self, node_config: NodeConfig, entity_name: str, entity_id: str, entity: Any) -> None:
+    def get_newest_entry(self, entity_name: str, entity_id: str) -> Entry:
+        c = self.conn.cursor()
+        c.execute("""
+        SELECT * FROM log
+        WHERE entity_name=? AND entity_id=?
+        ORDER BY timestamp DESC
+        LIMIT 1
+        """, (entity_name, entity_id))
+        return Entry.from_row(c.fetchone())
+
+    def add_entry(self,
+            node_config: NodeConfig,
+            entity_name: str,
+            entity_id: str,
+            entity: Optional[bytes],
+            ) -> None:
         self._register_node(node_config)
 
         now = self.utcnow()
