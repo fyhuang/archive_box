@@ -1,5 +1,6 @@
 mypy
 toml
 
+typing_extensions
 mypy-protobuf
 protobuf==3.12.1
