@@ -13,15 +13,14 @@ checks:
 proto:
 	mkdir -p temp
 	
-	$(PROTOC) -I proto/dtsdb --python_out=temp --mypy_out=dtsdb \
+	$(PROTOC) -I proto --python_out=temp --mypy_out=. \
 		proto/dtsdb/*.proto
-	./postprocess_proto.sh temp/schema_pb2.py dtsdb/schema_pb2.py
-	./postprocess_proto.sh temp/test_pb2.py dtsdb/test_pb2.py
+	./postprocess_proto.sh temp/dtsdb/schema_pb2.py dtsdb/schema_pb2.py
+	./postprocess_proto.sh temp/dtsdb/test_pb2.py dtsdb/test_pb2.py
 	
-	$(PROTOC) \
-		-I proto \
-		--python_out=temp \
-		proto/archive_box.proto
+	$(PROTOC) -I proto --python_out=temp --mypy_out=. \
+		proto/archive_box/*.proto
+	./postprocess_proto.sh temp/archive_box/archive_box_pb2.py archive_box/archive_box_pb2.py
 	
 	# clean up
 	rm -rf temp

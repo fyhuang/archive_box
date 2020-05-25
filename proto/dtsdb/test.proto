@@ -2,7 +2,7 @@ syntax = "proto2";
 
 package dtsdb;
 
-import "schema.proto";
+import "dtsdb/schema.proto";
 
 message Simple {
     option (dtsdb.table).name = "Simple";
@@ -42,5 +42,7 @@ message MergeTest {
     required string id = 1 [(dtsdb.field).is_id = true];
     optional string s_error = 2 [(dtsdb.field).merge = "error"];
     optional string s_latest = 3 [(dtsdb.field).merge = "latest"];
-    //repeated int32 r_i32_union = 4 [(dtsdb.field).merge = "set_union"];
+    repeated int32 r_i32_union = 4 [(dtsdb.field).merge = "set_union"];
+    repeated int32 r_i32_lunion = 5 [(dtsdb.field).merge = "list_union"];
+    map<string, int32> m_union_latest = 6 [(dtsdb.field).merge = "union_latest"];
 }

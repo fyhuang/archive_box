@@ -5,12 +5,19 @@ from google.protobuf.descriptor import (
     EnumDescriptor as google___protobuf___descriptor___EnumDescriptor,
 )
 
+from google.protobuf.internal.containers import (
+    RepeatedScalarFieldContainer as google___protobuf___internal___containers___RepeatedScalarFieldContainer,
+)
+
 from google.protobuf.message import (
     Message as google___protobuf___message___Message,
 )
 
 from typing import (
+    Iterable as typing___Iterable,
     List as typing___List,
+    Mapping as typing___Mapping,
+    MutableMapping as typing___MutableMapping,
     Optional as typing___Optional,
     Text as typing___Text,
     Tuple as typing___Tuple,
@@ -160,15 +167,45 @@ global___NoId = NoId
 
 class MergeTest(google___protobuf___message___Message):
     DESCRIPTOR: google___protobuf___descriptor___Descriptor = ...
+    class MUnionLatestEntry(google___protobuf___message___Message):
+        DESCRIPTOR: google___protobuf___descriptor___Descriptor = ...
+        key = ... # type: typing___Text
+        value = ... # type: builtin___int
+
+        def __init__(self,
+            *,
+            key : typing___Optional[typing___Text] = None,
+            value : typing___Optional[builtin___int] = None,
+            ) -> None: ...
+        if sys.version_info >= (3,):
+            @classmethod
+            def FromString(cls, s: builtin___bytes) -> MergeTest.MUnionLatestEntry: ...
+        else:
+            @classmethod
+            def FromString(cls, s: typing___Union[builtin___bytes, builtin___buffer, builtin___unicode]) -> MergeTest.MUnionLatestEntry: ...
+        def MergeFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
+        def CopyFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
+        def HasField(self, field_name: typing_extensions___Literal[u"key",b"key",u"value",b"value"]) -> builtin___bool: ...
+        def ClearField(self, field_name: typing_extensions___Literal[u"key",b"key",u"value",b"value"]) -> None: ...
+    global___MUnionLatestEntry = MUnionLatestEntry
+
     id = ... # type: typing___Text
     s_error = ... # type: typing___Text
     s_latest = ... # type: typing___Text
+    r_i32_union = ... # type: google___protobuf___internal___containers___RepeatedScalarFieldContainer[builtin___int]
+    r_i32_lunion = ... # type: google___protobuf___internal___containers___RepeatedScalarFieldContainer[builtin___int]
+
+    @property
+    def m_union_latest(self) -> typing___MutableMapping[typing___Text, builtin___int]: ...
 
     def __init__(self,
         *,
         id : typing___Optional[typing___Text] = None,
         s_error : typing___Optional[typing___Text] = None,
         s_latest : typing___Optional[typing___Text] = None,
+        r_i32_union : typing___Optional[typing___Iterable[builtin___int]] = None,
+        r_i32_lunion : typing___Optional[typing___Iterable[builtin___int]] = None,
+        m_union_latest : typing___Optional[typing___Mapping[typing___Text, builtin___int]] = None,
         ) -> None: ...
     if sys.version_info >= (3,):
         @classmethod
@@ -179,5 +216,5 @@ class MergeTest(google___protobuf___message___Message):
     def MergeFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
     def CopyFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
     def HasField(self, field_name: typing_extensions___Literal[u"id",b"id",u"s_error",b"s_error",u"s_latest",b"s_latest"]) -> builtin___bool: ...
-    def ClearField(self, field_name: typing_extensions___Literal[u"id",b"id",u"s_error",b"s_error",u"s_latest",b"s_latest"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions___Literal[u"id",b"id",u"m_union_latest",b"m_union_latest",u"r_i32_lunion",b"r_i32_lunion",u"r_i32_union",b"r_i32_union",u"s_error",b"s_error",u"s_latest",b"s_latest"]) -> None: ...
 global___MergeTest = MergeTest

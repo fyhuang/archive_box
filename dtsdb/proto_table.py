@@ -1,6 +1,6 @@
 import collections
 import sqlite3
-from typing import Any, Optional, List, NamedTuple, Generator, Callable
+from typing import Any, Optional, Tuple, List, NamedTuple, Generator, Callable
 
 from google.protobuf.message import Message
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
@@ -8,6 +8,7 @@ from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from . import schema_pb2 as pb2
 from .node_config import NodeConfig
 from .log import Log
+from . import sqlite_util
 
 
 def _protobuf_to_sqlite_type(field_type):
@@ -82,9 +83,16 @@ class MsgField(NamedTuple):
     id_field: bool
     db_column_name: str
     name_path: List[str]
+
+    is_repeated: bool
+    is_map: bool
+    # could be a list or dict
     proto_value: Optional[Any]
 
     def to_sqlite_value(self):
+        if self.is_repeated or self.is_map:
+            raise RuntimeError("not supported")
+
         if self.field_desc.type == FieldDescriptor.TYPE_ENUM:
             enum_desc = self.field_desc.enum_type
             return enum_desc.values_by_number[self.proto_value].name
@@ -92,6 +100,9 @@ class MsgField(NamedTuple):
             return self.proto_value
 
     def from_sqlite_value(self, val) -> Any:
+        if self.is_repeated or self.is_map:
+            raise RuntimeError("not supported")
+
         if self.field_desc.type == FieldDescriptor.TYPE_ENUM:
             enum_desc = self.field_desc.enum_type
             return enum_desc.values_by_name[val].number
@@ -114,26 +125,37 @@ def iter_fields(
 
         for field in descriptor.fields:
             field_value = values_by_fnum[field.number]
+
             if field.message_type is not None:
-                yield from recur(
-                    field.message_type,
-                    field_value,
-                    name_path_prefix + [field.name],
-                    col_name_prefix + field.name + "__"
-                )
-                continue
+                if field.message_type.GetOptions().map_entry:
+                    # this field is actually a map<>
+                    raise NotImplemented("map not implemented")
+                else:
+                    yield from recur(
+                        field.message_type,
+                        field_value,
+                        name_path_prefix + [field.name],
+                        col_name_prefix + field.name + "__"
+                    )
+                    continue
 
             is_id = False
             if _is_id_field(field):
                 is_id = True
 
+            is_repeated = False
+            if field.label == FieldDescriptor.LABEL_REPEATED:
+                is_repeated = True
+
             yield MsgField(
-                field.name,
-                field,
-                is_id,
-                col_name_prefix + field.name,
-                name_path_prefix + [field.name],
-                field_value
+                field_name=field.name,
+                field_desc=field,
+                id_field=is_id,
+                db_column_name=col_name_prefix + field.name,
+                name_path=name_path_prefix + [field.name],
+                is_repeated=is_repeated,
+                is_map=False,
+                proto_value=field_value
             )
 
     yield from recur(msg_descriptor, msg, [], "")
@@ -155,13 +177,20 @@ class ProtoTable(object):
             raise RuntimeError("No table name declared in proto schema")
         self.table_name = "m_" + self.entity_name
         self._parse_schema()
+        self.columns_by_name = {c.name: c for c in self.columns}
+
         self._init_table()
 
     def _parse_schema(self) -> None:
         self.msg_fields_by_col = {}
         id_field_name = None
         columns = []
+        #repeated_tables = []
+        #map_tables = []
         for mf in iter_fields(self.msg_descriptor):
+            if mf.db_column_name.startswith("_"):
+                raise RuntimeError("Field names starting with \"_\" are reserved")
+
             if mf.id_field:
                 if id_field_name is not None:
                     raise RuntimeError("Only one field may be the id field")
@@ -169,13 +198,15 @@ class ProtoTable(object):
                     raise RuntimeError("ID field must be string type")
                 id_field_name = mf.field_name
 
+            field_type = _protobuf_to_sqlite_type(mf.field_desc.type)
+
             is_required = False
             if mf.field_desc.label == FieldDescriptor.LABEL_REQUIRED:
                 is_required = True
-            elif mf.field_desc.label == FieldDescriptor.LABEL_REPEATED:
+
+            if mf.is_repeated:
                 raise NotImplementedError("repeated fields not implemented yet")
 
-            field_type = _protobuf_to_sqlite_type(mf.field_desc.type)
             columns.append(ColumnDef(mf.db_column_name, field_type, is_required, mf.id_field))
             self.msg_fields_by_col[mf.db_column_name] = mf
 
@@ -183,7 +214,6 @@ class ProtoTable(object):
             raise RuntimeError("No ID field was defined")
 
         self.columns = columns
-        self.columns_by_name = {c.name: c for c in columns}
         self.id_field = id_field_name
 
     def _get_create_table_sql(self) -> str:
@@ -196,16 +226,7 @@ class ProtoTable(object):
         # throws exception if the db already contains a table whose schema doesn't match the one
         # implied by `msg_descriptor`
         create_table = self._get_create_table_sql()
-        self.conn.execute(create_table)
-
-        code_schema = create_table.replace("IF NOT EXISTS ", "")
-        c = self.conn.cursor()
-        c.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (self.table_name,))
-        existing_schema = c.fetchone()[0]
-        if existing_schema != code_schema:
-            #print("Schemas don't match:\n(database) {}\n(code) {}".format(
-            #    existing_schema, code_schema))
-            raise RuntimeError("Table in DB doesn't match declared schema")
+        sqlite_util.ensure_table_matches(self.conn, create_table)
 
     def get(self, id: str) -> Optional[Any]:
         c = self.conn.cursor()
