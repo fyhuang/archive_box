@@ -1,4 +1,5 @@
 import hashlib
+import datetime
 from pathlib import Path
 from typing import NamedTuple
 
@@ -25,3 +26,8 @@ def sdid_schema_01(filename: Path) -> StoredDataId:
 
 def file_to_sdid(filename: Path) -> StoredDataId:
     return sdid_schema_01(filename)
+
+
+class StoredStat(NamedTuple):
+    size_bytes: int
+    upload_time: datetime.datetime
