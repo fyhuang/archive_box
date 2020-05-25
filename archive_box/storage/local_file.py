@@ -42,7 +42,14 @@ class ByteRangeReader(object):
 
     def read(self, wanted_size = -1):
         remaining = self.max_bytes - self.read_so_far
-        read_size = min(remaining, wanted_size)
+        if remaining <= 0:
+            return b''
+
+        if wanted_size < 0:
+            read_size = remaining
+        else:
+            read_size = min(remaining, wanted_size)
+
         result = self.wrapped_stream.read(read_size)
         self.read_so_far += len(result)
         return result
@@ -97,10 +104,11 @@ class LocalFileStorage(object):
         pass
 
     def download_bytes(self, sdid: StoredDataId, byte_range: Optional[Tuple[int, int]] = None) -> Reader:
+        # Both ends of the byte range are inclusive (like HTTP)
         path = self._to_path(sdid)
         f = path.open("rb")
         if byte_range is not None:
             f.seek(byte_range[0])
-            return ByteRangeReader(f, byte_range[1] - byte_range[0])
+            return ByteRangeReader(f, byte_range[1] - byte_range[0] + 1)
         else:
             return f
