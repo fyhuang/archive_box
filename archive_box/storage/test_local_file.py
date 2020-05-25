@@ -22,7 +22,7 @@ class LocalFileStorageTests(unittest.TestCase):
             local_file._common_ancestor(Path("/a/b/c"), Path("/a/b/def"))
         )
 
-    def test_upload_contains(self) -> None:
+    def test_upload_contains_stat(self) -> None:
         lfs = LocalFileStorage(self.path / "store")
         sdid = file_to_sdid(self.path / "test.txt")
         lfs.upload(sdid, self.path / "test.txt")
@@ -35,3 +35,7 @@ class LocalFileStorageTests(unittest.TestCase):
 
         with lfs.download_bytes(sdid) as f:
             self.assertEqual(b'Hello, world!', f.read())
+        with lfs.download_bytes(sdid, (0, 4)) as f:
+            self.assertEqual(b'Hello', f.read())
+        with lfs.download_bytes(sdid, (7, 12)) as f:
+            self.assertEqual(b'world!', f.read())
