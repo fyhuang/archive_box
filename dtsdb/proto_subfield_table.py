@@ -7,14 +7,13 @@ class ProtoSubfieldTable(object):
     def __init__(self,
             conn: sqlite3.Connection,
             table_name_prefix: str,
-            field_id: int,
+            field_name_flat: str,
+            key_type: str,
             value_type: str,
-            # key_type is only required for map fields
-            key_type: str = "BLOB"
             ) -> None:
         self.conn = conn
-        self.table_name = "{}__sub_{}".format(table_name_prefix, field_id)
-        self.field_id = field_id
+        self.table_name = "{}__sub_{}".format(table_name_prefix, field_name_flat)
+        self.field_name_flat = field_name_flat
         self.value_type = value_type
         self.key_type = key_type
 

@@ -8,6 +8,7 @@ from google.protobuf.descriptor import Descriptor, FieldDescriptor
 from . import schema_pb2 as pb2
 from .node_config import NodeConfig
 from .log import Log
+from .proto_subfield_table import ProtoSubfieldTable
 from . import sqlite_util
 
 
@@ -124,12 +125,17 @@ def iter_fields(
             values_by_fnum.update({fd.number: value for fd, value in msg.ListFields()})
 
         for field in descriptor.fields:
+            if field.name.startswith("_"):
+                raise RuntimeError("Field names starting with \"_\" are reserved")
+            if "__" in field.name:
+                raise RuntimeError("Field names containing \"__\" are reserved")
+
             field_value = values_by_fnum[field.number]
 
             if field.message_type is not None:
                 if field.message_type.GetOptions().map_entry:
                     # this field is actually a map<>
-                    raise NotImplemented("map not implemented")
+                    raise NotImplementedError("map not implemented")
                 else:
                     yield from recur(
                         field.message_type,
@@ -185,12 +191,8 @@ class ProtoTable(object):
         self.msg_fields_by_col = {}
         id_field_name = None
         columns = []
-        #repeated_tables = []
-        #map_tables = []
+        subfield_tables = {}
         for mf in iter_fields(self.msg_descriptor):
-            if mf.db_column_name.startswith("_"):
-                raise RuntimeError("Field names starting with \"_\" are reserved")
-
             if mf.id_field:
                 if id_field_name is not None:
                     raise RuntimeError("Only one field may be the id field")
@@ -198,23 +200,36 @@ class ProtoTable(object):
                     raise RuntimeError("ID field must be string type")
                 id_field_name = mf.field_name
 
-            field_type = _protobuf_to_sqlite_type(mf.field_desc.type)
-
             is_required = False
             if mf.field_desc.label == FieldDescriptor.LABEL_REQUIRED:
                 is_required = True
 
-            if mf.is_repeated:
-                raise NotImplementedError("repeated fields not implemented yet")
+            if not mf.is_repeated and not mf.is_map:
+                field_type = _protobuf_to_sqlite_type(mf.field_desc.type)
+                columns.append(ColumnDef(mf.db_column_name, field_type, is_required, mf.id_field))
+                self.msg_fields_by_col[mf.db_column_name] = mf
+            else:
+                if mf.is_repeated:
+                    key_type = "BLOB"
+                    value_type = _protobuf_to_sqlite_type(mf.field_desc.type)
+                else:
+                    key_type = _protobuf_to_sqlite_type(mf.field_desc.message_type.fields_by_number[1].type)
+                    value_type = _protobuf_to_sqlite_type(mf.field_desc.message_type.fields_by_number[2].type)
 
-            columns.append(ColumnDef(mf.db_column_name, field_type, is_required, mf.id_field))
-            self.msg_fields_by_col[mf.db_column_name] = mf
+                subfield_tables[mf.db_column_name] = ProtoSubfieldTable(
+                    self.conn,
+                    self.table_name,
+                    mf.db_column_name,
+                    key_type,
+                    value_type,
+                )
 
         if id_field_name is None:
             raise RuntimeError("No ID field was defined")
 
         self.columns = columns
         self.id_field = id_field_name
+        self.subfield_tables = subfield_tables
 
     def _get_create_table_sql(self) -> str:
         return 'CREATE TABLE IF NOT EXISTS {tname} ({columns})'.format(

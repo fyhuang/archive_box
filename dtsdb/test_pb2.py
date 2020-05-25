@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x10\x64tsdb/test.proto\x12\x05\x64tsdb\x1a\x12\x64tsdb/schema.proto\"^\n\x06Simple\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\x12 \n\nopt_string\x18\x02 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x10\n\x08req_bool\x18\x03 \x02(\x08:\x0c\x82\xb5\x18\x08\n\x06Simple\"\xbe\x01\n\x06Nested\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\x12*\n\tselection\x18\x02 \x01(\x0e\x32\x17.dtsdb.Nested.Selection\x12\"\n\x05inner\x18\x03 \x01(\x0b\x32\x13.dtsdb.Nested.Inner\x1a\x1f\n\x05Inner\x12\n\n\x02\x66\x31\x18\x01 \x01(\t\x12\n\n\x02\x66\x32\x18\x02 \x02(\x05\"!\n\tSelection\x12\t\n\x05HELLO\x10\x00\x12\t\n\x05WORLD\x10\x01:\x0c\x82\xb5\x18\x08\n\x06Nested\"!\n\x0bNoTableName\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\"\x12\n\x04NoId:\n\x82\xb5\x18\x06\n\x04NoId\"\xc1\x02\n\tMergeTest\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\x12\x1c\n\x07s_error\x18\x02 \x01(\tB\x0b\x82\xb5\x18\x07\x12\x05\x65rror\x12\x1e\n\x08s_latest\x18\x03 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12$\n\x0br_i32_union\x18\x04 \x03(\x05\x42\x0f\x82\xb5\x18\x0b\x12\tset_union\x12&\n\x0cr_i32_lunion\x18\x05 \x03(\x05\x42\x10\x82\xb5\x18\x0c\x12\nlist_union\x12N\n\x0em_union_latest\x18\x06 \x03(\x0b\x32\".dtsdb.MergeTest.MUnionLatestEntryB\x12\x82\xb5\x18\x0e\x12\x0cunion_latest\x1a\x33\n\x11MUnionLatestEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01:\x0f\x82\xb5\x18\x0b\n\tMergeTest'
+  serialized_pb=b'\n\x10\x64tsdb/test.proto\x12\x05\x64tsdb\x1a\x12\x64tsdb/schema.proto\"^\n\x06Simple\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\x12 \n\nopt_string\x18\x02 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x10\n\x08req_bool\x18\x03 \x02(\x08:\x0c\x82\xb5\x18\x08\n\x06Simple\"\xbe\x01\n\x06Nested\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\x12*\n\tselection\x18\x02 \x01(\x0e\x32\x17.dtsdb.Nested.Selection\x12\"\n\x05inner\x18\x03 \x01(\x0b\x32\x13.dtsdb.Nested.Inner\x1a\x1f\n\x05Inner\x12\n\n\x02\x66\x31\x18\x01 \x01(\t\x12\n\n\x02\x66\x32\x18\x02 \x02(\x05\"!\n\tSelection\x12\t\n\x05HELLO\x10\x00\x12\t\n\x05WORLD\x10\x01:\x0c\x82\xb5\x18\x08\n\x06Nested\"!\n\x0bNoTableName\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\"\x12\n\x04NoId:\n\x82\xb5\x18\x06\n\x04NoId\"\xbc\x01\n\tMergeTest\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\x12\x1c\n\x07s_error\x18\x02 \x01(\tB\x0b\x82\xb5\x18\x07\x12\x05\x65rror\x12\x1e\n\x08s_latest\x18\x03 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12$\n\x0br_i32_union\x18\x04 \x03(\x05\x42\x0f\x82\xb5\x18\x0b\x12\tset_union\x12&\n\x0cr_i32_lunion\x18\x05 \x03(\x05\x42\x10\x82\xb5\x18\x0c\x12\nlist_union:\x0f\x82\xb5\x18\x0b\n\tMergeTest'
   ,
   dependencies=[dtsdb_dot_schema__pb2.DESCRIPTOR,])
 
@@ -241,44 +241,6 @@ _NOID = _descriptor.Descriptor(
 )
 
 
-_MERGETEST_MUNIONLATESTENTRY = _descriptor.Descriptor(
-  name='MUnionLatestEntry',
-  full_name='dtsdb.MergeTest.MUnionLatestEntry',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='key', full_name='dtsdb.MergeTest.MUnionLatestEntry.key', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='dtsdb.MergeTest.MUnionLatestEntry.value', index=1,
-      number=2, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=b'8\001',
-  is_extendable=False,
-  syntax='proto2',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=645,
-  serialized_end=696,
-)
-
 _MERGETEST = _descriptor.Descriptor(
   name='MergeTest',
   full_name='dtsdb.MergeTest',
@@ -322,17 +284,10 @@ _MERGETEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=b'\202\265\030\014\022\nlist_union', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='m_union_latest', full_name='dtsdb.MergeTest.m_union_latest', index=5,
-      number=6, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\202\265\030\016\022\014union_latest', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
-  nested_types=[_MERGETEST_MUNIONLATESTENTRY, ],
+  nested_types=[],
   enum_types=[
   ],
   serialized_options=b'\202\265\030\013\n\tMergeTest',
@@ -342,15 +297,13 @@ _MERGETEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=392,
-  serialized_end=713,
+  serialized_end=580,
 )
 
 _NESTED_INNER.containing_type = _NESTED
 _NESTED.fields_by_name['selection'].enum_type = _NESTED_SELECTION
 _NESTED.fields_by_name['inner'].message_type = _NESTED_INNER
 _NESTED_SELECTION.containing_type = _NESTED
-_MERGETEST_MUNIONLATESTENTRY.containing_type = _MERGETEST
-_MERGETEST.fields_by_name['m_union_latest'].message_type = _MERGETEST_MUNIONLATESTENTRY
 DESCRIPTOR.message_types_by_name['Simple'] = _SIMPLE
 DESCRIPTOR.message_types_by_name['Nested'] = _NESTED
 DESCRIPTOR.message_types_by_name['NoTableName'] = _NOTABLENAME
@@ -395,19 +348,11 @@ NoId = _reflection.GeneratedProtocolMessageType('NoId', (_message.Message,), {
 _sym_db.RegisterMessage(NoId)
 
 MergeTest = _reflection.GeneratedProtocolMessageType('MergeTest', (_message.Message,), {
-
-  'MUnionLatestEntry' : _reflection.GeneratedProtocolMessageType('MUnionLatestEntry', (_message.Message,), {
-    'DESCRIPTOR' : _MERGETEST_MUNIONLATESTENTRY,
-    '__module__' : 'dtsdb.test_pb2'
-    # @@protoc_insertion_point(class_scope:dtsdb.MergeTest.MUnionLatestEntry)
-    })
-  ,
   'DESCRIPTOR' : _MERGETEST,
   '__module__' : 'dtsdb.test_pb2'
   # @@protoc_insertion_point(class_scope:dtsdb.MergeTest)
   })
 _sym_db.RegisterMessage(MergeTest)
-_sym_db.RegisterMessage(MergeTest.MUnionLatestEntry)
 
 
 _SIMPLE.fields_by_name['id']._options = None
@@ -417,12 +362,10 @@ _NESTED.fields_by_name['id']._options = None
 _NESTED._options = None
 _NOTABLENAME.fields_by_name['id']._options = None
 _NOID._options = None
-_MERGETEST_MUNIONLATESTENTRY._options = None
 _MERGETEST.fields_by_name['id']._options = None
 _MERGETEST.fields_by_name['s_error']._options = None
 _MERGETEST.fields_by_name['s_latest']._options = None
 _MERGETEST.fields_by_name['r_i32_union']._options = None
 _MERGETEST.fields_by_name['r_i32_lunion']._options = None
-_MERGETEST.fields_by_name['m_union_latest']._options = None
 _MERGETEST._options = None
 # @@protoc_insertion_point(module_scope)
