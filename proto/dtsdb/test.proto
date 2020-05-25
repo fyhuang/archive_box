@@ -36,3 +36,11 @@ message NoTableName {
 message NoId {
     option (dtsdb.table).name = "NoId";
 }
+
+message MergeTest {
+    option (dtsdb.table).name = "MergeTest";
+    required string id = 1 [(dtsdb.field).is_id = true];
+    optional string s_error = 2 [(dtsdb.field).merge = "error"];
+    optional string s_latest = 3 [(dtsdb.field).merge = "latest"];
+    //repeated int32 r_i32_union = 4 [(dtsdb.field).merge = "set_union"];
+}

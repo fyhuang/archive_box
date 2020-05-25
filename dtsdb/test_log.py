@@ -24,11 +24,10 @@ class LogTests(unittest.TestCase):
         self.last_second += 1
         return dt
 
-    def test_first_time_setup_duplicate(self) -> None:
+    def test_init_table_duplicate(self) -> None:
         log = Log(self.conn)
-        log.first_time_setup()
-        # performing setup multiple times should not result in error
-        log.first_time_setup()
+        # performing init multiple times should not result in error
+        log._init_table()
 
     def test_register_node_duplicate(self) -> None:
         log = Log(self.conn)

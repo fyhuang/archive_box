@@ -31,8 +31,6 @@ class LocalFileStorageTests(unittest.TestCase):
         stat = lfs.download_stat(sdid)
         self.assertEqual(13, stat.size_bytes)
         ts_diff = datetime.datetime.now() - stat.upload_time
-        print(stat.upload_time)
-        print(ts_diff)
         self.assertTrue(ts_diff <= datetime.timedelta(minutes=1))
 
     def test_download_bytes(self) -> None:
