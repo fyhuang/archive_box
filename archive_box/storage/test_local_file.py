@@ -28,6 +28,13 @@ class LocalFileStorageTests(unittest.TestCase):
         lfs.upload(sdid, self.path / "test.txt")
         self.assertTrue(lfs.contains(sdid))
 
+        stat = lfs.download_stat(sdid)
+        self.assertEqual(13, stat.size_bytes)
+        ts_diff = datetime.datetime.now() - stat.upload_time
+        print(stat.upload_time)
+        print(ts_diff)
+        self.assertTrue(ts_diff <= datetime.timedelta(minutes=1))
+
     def test_download_bytes(self) -> None:
         lfs = LocalFileStorage(self.path / "store")
         sdid = file_to_sdid(self.path / "test.txt")
@@ -39,3 +46,12 @@ class LocalFileStorageTests(unittest.TestCase):
             self.assertEqual(b'Hello', f.read())
         with lfs.download_bytes(sdid, (7, 12)) as f:
             self.assertEqual(b'world!', f.read())
+
+    def test_download_to(self) -> None:
+        lfs = LocalFileStorage(self.path / "store")
+        sdid = file_to_sdid(self.path / "test.txt")
+        lfs.upload(sdid, self.path / "test.txt")
+
+        lfs.download_to(sdid, self.path / "out.txt")
+        with (self.path / "out.txt").open("r") as f:
+            self.assertEqual("Hello, world!", f.read())

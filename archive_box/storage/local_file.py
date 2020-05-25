@@ -2,11 +2,12 @@ import os
 import io
 import shutil
 import functools
+import datetime
 from pathlib import Path
 from typing import Optional, Tuple, Any
 from typing_extensions import Protocol
 
-from .stored_data import StoredDataId
+from .stored_data import StoredDataId, StoredStat
 
 
 def _common_ancestor(p1: Path, p2: Path) -> Path:
@@ -97,11 +98,14 @@ class LocalFileStorage(object):
             return
         os.rename(src_file, path)
 
-    def download_stat(self, sdid: StoredDataId) -> os.stat_result:
-        pass
-
-    def download_to(self, sdid: StoredDataId, dest_filename: Path) -> None:
-        pass
+    def download_stat(self, sdid: StoredDataId) -> StoredStat:
+        path = self._to_path(sdid)
+        stat_result = os.stat(path)
+        return StoredStat(
+            stat_result.st_size,
+            # TODO(fyhuang): what timezone? seems like local time in WSL
+            datetime.datetime.fromtimestamp(stat_result.st_ctime)
+        )
 
     def download_bytes(self, sdid: StoredDataId, byte_range: Optional[Tuple[int, int]] = None) -> Reader:
         # Both ends of the byte range are inclusive (like HTTP)
@@ -112,3 +116,8 @@ class LocalFileStorage(object):
             return ByteRangeReader(f, byte_range[1] - byte_range[0] + 1)
         else:
             return f
+
+    def download_to(self, sdid: StoredDataId, dest_filename: Path) -> None:
+        with self.download_bytes(sdid) as src_f:
+            with dest_filename.open("wb") as dest_f:
+                shutil.copyfileobj(src_f, dest_f)
