@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Optional, Tuple, Any
 from typing_extensions import Protocol
 
-from .stored_data import StoredDataId, StoredStat
+from archive_box.archive_box_pb2 import StoredDataId
+from .stored_data import *
 
 
 def _common_ancestor(p1: Path, p2: Path) -> Path:
@@ -82,7 +83,7 @@ class LocalFileStorage(object):
         os.makedirs(path.parent, exist_ok=True)
 
         # Copy to a temp file first and then atomically move
-        temp_path = self.tempdir / (sdid.to_strid() + ".tmp")
+        temp_path = self.tempdir / (sdid_to_str(sdid) + ".tmp")
         shutil.copy2(src_file, temp_path)
         os.rename(temp_path, path)
 
