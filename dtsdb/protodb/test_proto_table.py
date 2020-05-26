@@ -49,3 +49,25 @@ class ProtoTableTests(unittest.TestCase):
         # make sure callback can be disabled
         st.update(msg, False)
         self.assertEqual(1, len(entries))
+
+    def test_queryall(self) -> None:
+        pt = ProtoTable(self.conn, test_pb2.Simple)
+
+        msg1 = test_pb2.Simple()
+        msg1.id = "m1"
+        msg1.opt_string = "b"
+        msg1.req_bool = True
+        pt.update(msg1)
+
+        msg2 = test_pb2.Simple()
+        msg2.id = "m2"
+        msg2.opt_string = "a"
+        msg2.req_bool = False
+        pt.update(msg2)
+
+        self.assertEqual([msg1], pt.queryall(lambda m: m.req_bool))
+        self.assertEqual([msg2, msg1],
+                pt.queryall(lambda m: True, lambda m: m.opt_string))
+        self.assertEqual([msg1, msg2],
+                pt.queryall(lambda m: True, lambda m: m.opt_string, reverse=True))
+

@@ -98,9 +98,28 @@ class ProtoTable(object):
             raise RuntimeError("Requested entity with ID {} but none found".format(id))
         return result
 
-    def filter(self, filter_func: Callable[[Any], bool]) -> List[Any]:
-        """Filter documents, in software, with the provided filter func."""
-        return []
+    def queryall(self,
+            filter_func: Callable[[Any], bool],
+            sortkey_func: Optional[Callable[[Any], Any]] = None,
+            reverse: bool = False
+            ) -> List[Any]:
+        """Filter and order documents, in software, with the provided filter func."""
+        results = []
+        c = self.conn.cursor()
+
+        # query and filter
+        for row in c.execute("SELECT serialized_pb FROM {}".format(self.table_name)):
+            msg = self.new()
+            msg.ParseFromString(row[0])
+            if not filter_func(msg):
+                continue
+            results.append(msg)
+
+        # sort
+        if sortkey_func:
+            return sorted(results, key=sortkey_func, reverse=reverse)
+        else:
+            return results
 
     def update(self, updated_msg: Message, call_cb: bool = True) -> None:
         serialized_msg = updated_msg.SerializeToString()
