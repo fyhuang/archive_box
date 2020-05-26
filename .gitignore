@@ -1,6 +1,10 @@
 # development stuff
 tags
 
+# extern
+extern/ffmpeg*
+extern/protoc*
+
 # python
 .mypy_cache
 __pycache__
