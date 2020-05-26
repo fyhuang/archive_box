@@ -16,9 +16,13 @@ message Collection {
 
 message Document {
     required string id = 1;
-    optional StoredDataId data_id = 2;
+    required string collection_id = 2;
+    required StoredDataId data_id = 3;
 
-    optional string display_name = 3 [(dtsdb.field).merge = "latest"];
-    repeated string tags = 4 [(dtsdb.field).merge = "set_union"];
-    map<string, string> metadata = 5 [(dtsdb.field).merge = "union_latest"];
+    optional uint64 create_timestamp_ms = 10;
+    optional uint64 update_timestamp_ms = 11;
+
+    optional string display_name = 20 [(dtsdb.field).merge = "latest"];
+    repeated string tags = 21 [(dtsdb.field).merge = "set_union"];
+    map<string, string> metadata = 22 [(dtsdb.field).merge = "union_latest"];
 }

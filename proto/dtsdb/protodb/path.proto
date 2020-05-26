@@ -1,0 +1,26 @@
+syntax = "proto2";
+
+package dtsdb.protodb;
+
+message Path {
+    message Component {
+        message Repeated {
+            required string field = 1;
+            required uint32 index = 2;
+        }
+
+        message Map {
+            required string field = 1;
+            // TODO(fyhuang): support keys other than string
+            required string key = 2;
+        }
+
+        oneof type {
+            string normal_field = 1;
+            Repeated repeated_field = 2;
+            Map map_field = 3;
+        }
+    }
+
+    repeated Component components = 1;
+}

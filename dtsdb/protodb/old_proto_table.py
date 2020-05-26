@@ -35,22 +35,6 @@ def _is_id_field(field_desc):
     return field_desc.name == "id"
 
 
-class Pathfinder(object):
-    def __init__(self, msg: Message, name_path: List[str]):
-        self.msg = msg
-        self.name_path = name_path
-
-        self.container = msg
-        for name in name_path[:-1]:
-            self.container = getattr(self.container, name)
-
-    def get(self) -> Any:
-        return getattr(self.container, self.name_path[-1])
-
-    def set(self, value: Any) -> None:
-        setattr(self.container, self.name_path[-1], value)
-
-
 class ColumnDef(NamedTuple):
     name: str
     data_type: str
