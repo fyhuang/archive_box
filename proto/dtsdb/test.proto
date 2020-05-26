@@ -5,20 +5,18 @@ package dtsdb;
 import "schema.proto";
 
 message Simple {
-    option (dtsdb.table).name = "Simple";
-    required string id = 1 [(dtsdb.field).is_id = true];
+    required string id = 1;
     optional string opt_string = 2 [(dtsdb.field).merge = "latest"];
     required bool req_bool = 3;
 }
 
 message Nested {
-    option (dtsdb.table).name = "Nested";
     message Inner {
         optional string f1 = 1;
         required int32 f2 = 2;
     }
 
-    required string id = 1 [(dtsdb.field).is_id = true];
+    required string id = 1;
 
     enum Selection {
         HELLO = 0;
@@ -29,18 +27,18 @@ message Nested {
     optional Inner inner = 3;
 }
 
-message NoTableName {
-    required string id = 1 [(dtsdb.field).is_id = true];
-}
-
 message NoId {
     option (dtsdb.table).name = "NoId";
 }
 
 message MergeTest {
-    option (dtsdb.table).name = "MergeTest";
-    required string id = 1 [(dtsdb.field).is_id = true];
+    required string id = 1;
     optional string s_error = 2 [(dtsdb.field).merge = "error"];
     optional string s_latest = 3 [(dtsdb.field).merge = "latest"];
-    //repeated int32 r_i32_union = 4 [(dtsdb.field).merge = "set_union"];
+
+    repeated int32 r_i32_error = 20 [(dtsdb.field).merge = "error"];
+    repeated int32 r_i32_sunion = 21 [(dtsdb.field).merge = "set_union"];
+    repeated int32 r_i32_lunion = 22 [(dtsdb.field).merge = "list_union"];
+
+    map<string, int32> m_si32_ul = 40 [(dtsdb.field).merge = "union_latest"];
 }
