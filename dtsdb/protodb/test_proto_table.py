@@ -1,16 +1,12 @@
 import unittest
 
 from .proto_table import *
-from . import test_pb2
+from dtsdb import test_pb2
 
 
 class ProtoTableTests(unittest.TestCase):
     def setUp(self) -> None:
         self.conn = sqlite3.connect(":memory:")
-
-    def test_no_table_name(self) -> None:
-        with self.assertRaises(RuntimeError):
-            st = ProtoTable(self.conn, test_pb2.NoTableName)
 
     def test_no_id(self) -> None:
         with self.assertRaises(RuntimeError):
@@ -87,4 +83,15 @@ class ProtoTableTests(unittest.TestCase):
         st.update(msg)
 
         stored = st.get("s0")
+        self.assertEqual(msg, stored)
+
+    def test_get_update_repeated(self) -> None:
+        pt = ProtoTable(self.conn, test_pb2.AdvancedTest)
+        msg = test_pb2.AdvancedTest()
+        msg.id = "m0"
+        msg.r_str.append("a")
+        msg.r_str.append("b")
+        pt.update(msg)
+
+        stored = pt.get("m0")
         self.assertEqual(msg, stored)

@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x10\x64tsdb/test.proto\x12\x05\x64tsdb\x1a\x12\x64tsdb/schema.proto\"^\n\x06Simple\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\x12 \n\nopt_string\x18\x02 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x10\n\x08req_bool\x18\x03 \x02(\x08:\x0c\x82\xb5\x18\x08\n\x06Simple\"\xbe\x01\n\x06Nested\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\x12*\n\tselection\x18\x02 \x01(\x0e\x32\x17.dtsdb.Nested.Selection\x12\"\n\x05inner\x18\x03 \x01(\x0b\x32\x13.dtsdb.Nested.Inner\x1a\x1f\n\x05Inner\x12\n\n\x02\x66\x31\x18\x01 \x01(\t\x12\n\n\x02\x66\x32\x18\x02 \x02(\x05\"!\n\tSelection\x12\t\n\x05HELLO\x10\x00\x12\t\n\x05WORLD\x10\x01:\x0c\x82\xb5\x18\x08\n\x06Nested\"!\n\x0bNoTableName\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\"\x12\n\x04NoId:\n\x82\xb5\x18\x06\n\x04NoId\"\xbc\x01\n\tMergeTest\x12\x12\n\x02id\x18\x01 \x02(\tB\x06\x82\xb5\x18\x02\x08\x01\x12\x1c\n\x07s_error\x18\x02 \x01(\tB\x0b\x82\xb5\x18\x07\x12\x05\x65rror\x12\x1e\n\x08s_latest\x18\x03 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12$\n\x0br_i32_union\x18\x04 \x03(\x05\x42\x0f\x82\xb5\x18\x0b\x12\tset_union\x12&\n\x0cr_i32_lunion\x18\x05 \x03(\x05\x42\x10\x82\xb5\x18\x0c\x12\nlist_union:\x0f\x82\xb5\x18\x0b\n\tMergeTest'
+  serialized_pb=b'\n\x10\x64tsdb/test.proto\x12\x05\x64tsdb\x1a\x12\x64tsdb/schema.proto\"H\n\x06Simple\x12\n\n\x02id\x18\x01 \x02(\t\x12 \n\nopt_string\x18\x02 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x10\n\x08req_bool\x18\x03 \x02(\x08\"\xa8\x01\n\x06Nested\x12\n\n\x02id\x18\x01 \x02(\t\x12*\n\tselection\x18\x02 \x01(\x0e\x32\x17.dtsdb.Nested.Selection\x12\"\n\x05inner\x18\x03 \x02(\x0b\x32\x13.dtsdb.Nested.Inner\x1a\x1f\n\x05Inner\x12\n\n\x02\x66\x31\x18\x01 \x01(\t\x12\n\n\x02\x66\x32\x18\x02 \x02(\x05\"!\n\tSelection\x12\t\n\x05HELLO\x10\x00\x12\t\n\x05WORLD\x10\x01\")\n\x0c\x41\x64vancedTest\x12\n\n\x02id\x18\x01 \x02(\t\x12\r\n\x05r_str\x18\x02 \x03(\t\"\x15\n\x04NoId\x12\r\n\x05my_id\x18\x01 \x02(\t\"\xa3\x01\n\tMergeTest\x12\n\n\x02id\x18\x01 \x02(\t\x12\x1c\n\x07s_error\x18\x02 \x01(\tB\x0b\x82\xb5\x18\x07\x12\x05\x65rror\x12\x1e\n\x08s_latest\x18\x03 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12$\n\x0br_i32_union\x18\x04 \x03(\x05\x42\x0f\x82\xb5\x18\x0b\x12\tset_union\x12&\n\x0cr_i32_lunion\x18\x05 \x03(\x05\x42\x10\x82\xb5\x18\x0c\x12\nlist_union'
   ,
   dependencies=[dtsdb_dot_schema__pb2.DESCRIPTOR,])
 
@@ -47,8 +47,8 @@ _NESTED_SELECTION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=287,
-  serialized_end=320,
+  serialized_start=257,
+  serialized_end=290,
 )
 _sym_db.RegisterEnumDescriptor(_NESTED_SELECTION)
 
@@ -67,7 +67,7 @@ _SIMPLE = _descriptor.Descriptor(
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=b'\202\265\030\002\010\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='opt_string', full_name='dtsdb.Simple.opt_string', index=1,
       number=2, type=9, cpp_type=9, label=1,
@@ -88,14 +88,14 @@ _SIMPLE = _descriptor.Descriptor(
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=b'\202\265\030\010\n\006Simple',
+  serialized_options=None,
   is_extendable=False,
   syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
   serialized_start=47,
-  serialized_end=141,
+  serialized_end=119,
 )
 
 
@@ -133,8 +133,8 @@ _NESTED_INNER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=254,
-  serialized_end=285,
+  serialized_start=224,
+  serialized_end=255,
 )
 
 _NESTED = _descriptor.Descriptor(
@@ -151,7 +151,7 @@ _NESTED = _descriptor.Descriptor(
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=b'\202\265\030\002\010\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='selection', full_name='dtsdb.Nested.selection', index=1,
       number=2, type=14, cpp_type=8, label=1,
@@ -161,7 +161,7 @@ _NESTED = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='inner', full_name='dtsdb.Nested.inner', index=2,
-      number=3, type=11, cpp_type=10, label=1,
+      number=3, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -173,32 +173,39 @@ _NESTED = _descriptor.Descriptor(
   enum_types=[
     _NESTED_SELECTION,
   ],
-  serialized_options=b'\202\265\030\010\n\006Nested',
+  serialized_options=None,
   is_extendable=False,
   syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=144,
-  serialized_end=334,
+  serialized_start=122,
+  serialized_end=290,
 )
 
 
-_NOTABLENAME = _descriptor.Descriptor(
-  name='NoTableName',
-  full_name='dtsdb.NoTableName',
+_ADVANCEDTEST = _descriptor.Descriptor(
+  name='AdvancedTest',
+  full_name='dtsdb.AdvancedTest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='dtsdb.NoTableName.id', index=0,
+      name='id', full_name='dtsdb.AdvancedTest.id', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=b'\202\265\030\002\010\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='r_str', full_name='dtsdb.AdvancedTest.r_str', index=1,
+      number=2, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -211,8 +218,8 @@ _NOTABLENAME = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=336,
-  serialized_end=369,
+  serialized_start=292,
+  serialized_end=333,
 )
 
 
@@ -224,20 +231,27 @@ _NOID = _descriptor.Descriptor(
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
+    _descriptor.FieldDescriptor(
+      name='my_id', full_name='dtsdb.NoId.my_id', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=b'\202\265\030\006\n\004NoId',
+  serialized_options=None,
   is_extendable=False,
   syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=371,
-  serialized_end=389,
+  serialized_start=335,
+  serialized_end=356,
 )
 
 
@@ -255,7 +269,7 @@ _MERGETEST = _descriptor.Descriptor(
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=b'\202\265\030\002\010\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='s_error', full_name='dtsdb.MergeTest.s_error', index=1,
       number=2, type=9, cpp_type=9, label=1,
@@ -290,14 +304,14 @@ _MERGETEST = _descriptor.Descriptor(
   nested_types=[],
   enum_types=[
   ],
-  serialized_options=b'\202\265\030\013\n\tMergeTest',
+  serialized_options=None,
   is_extendable=False,
   syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=392,
-  serialized_end=580,
+  serialized_start=359,
+  serialized_end=522,
 )
 
 _NESTED_INNER.containing_type = _NESTED
@@ -306,7 +320,7 @@ _NESTED.fields_by_name['inner'].message_type = _NESTED_INNER
 _NESTED_SELECTION.containing_type = _NESTED
 DESCRIPTOR.message_types_by_name['Simple'] = _SIMPLE
 DESCRIPTOR.message_types_by_name['Nested'] = _NESTED
-DESCRIPTOR.message_types_by_name['NoTableName'] = _NOTABLENAME
+DESCRIPTOR.message_types_by_name['AdvancedTest'] = _ADVANCEDTEST
 DESCRIPTOR.message_types_by_name['NoId'] = _NOID
 DESCRIPTOR.message_types_by_name['MergeTest'] = _MERGETEST
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -333,12 +347,12 @@ Nested = _reflection.GeneratedProtocolMessageType('Nested', (_message.Message,),
 _sym_db.RegisterMessage(Nested)
 _sym_db.RegisterMessage(Nested.Inner)
 
-NoTableName = _reflection.GeneratedProtocolMessageType('NoTableName', (_message.Message,), {
-  'DESCRIPTOR' : _NOTABLENAME,
+AdvancedTest = _reflection.GeneratedProtocolMessageType('AdvancedTest', (_message.Message,), {
+  'DESCRIPTOR' : _ADVANCEDTEST,
   '__module__' : 'dtsdb.test_pb2'
-  # @@protoc_insertion_point(class_scope:dtsdb.NoTableName)
+  # @@protoc_insertion_point(class_scope:dtsdb.AdvancedTest)
   })
-_sym_db.RegisterMessage(NoTableName)
+_sym_db.RegisterMessage(AdvancedTest)
 
 NoId = _reflection.GeneratedProtocolMessageType('NoId', (_message.Message,), {
   'DESCRIPTOR' : _NOID,
@@ -355,17 +369,9 @@ MergeTest = _reflection.GeneratedProtocolMessageType('MergeTest', (_message.Mess
 _sym_db.RegisterMessage(MergeTest)
 
 
-_SIMPLE.fields_by_name['id']._options = None
 _SIMPLE.fields_by_name['opt_string']._options = None
-_SIMPLE._options = None
-_NESTED.fields_by_name['id']._options = None
-_NESTED._options = None
-_NOTABLENAME.fields_by_name['id']._options = None
-_NOID._options = None
-_MERGETEST.fields_by_name['id']._options = None
 _MERGETEST.fields_by_name['s_error']._options = None
 _MERGETEST.fields_by_name['s_latest']._options = None
 _MERGETEST.fields_by_name['r_i32_union']._options = None
 _MERGETEST.fields_by_name['r_i32_lunion']._options = None
-_MERGETEST._options = None
 # @@protoc_insertion_point(module_scope)

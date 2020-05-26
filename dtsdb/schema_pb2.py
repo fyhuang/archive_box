@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x12\x64tsdb/schema.proto\x12\x05\x64tsdb\x1a google/protobuf/descriptor.proto\"1\n\x11\x44tsdbFieldOptions\x12\r\n\x05is_id\x18\x01 \x01(\x08\x12\r\n\x05merge\x18\x02 \x01(\t\"#\n\x13\x44tsdbMessageOptions\x12\x0c\n\x04name\x18\x01 \x01(\t:H\n\x05\x66ield\x12\x1d.google.protobuf.FieldOptions\x18\xd0\x86\x03 \x01(\x0b\x32\x18.dtsdb.DtsdbFieldOptions:L\n\x05table\x12\x1f.google.protobuf.MessageOptions\x18\xd0\x86\x03 \x01(\x0b\x32\x1a.dtsdb.DtsdbMessageOptions'
+  serialized_pb=b'\n\x12\x64tsdb/schema.proto\x12\x05\x64tsdb\x1a google/protobuf/descriptor.proto\"\"\n\x11\x44tsdbFieldOptions\x12\r\n\x05merge\x18\x02 \x01(\t\"\x15\n\x13\x44tsdbMessageOptions:H\n\x05\x66ield\x12\x1d.google.protobuf.FieldOptions\x18\xd0\x86\x03 \x01(\x0b\x32\x18.dtsdb.DtsdbFieldOptions:L\n\x05table\x12\x1f.google.protobuf.MessageOptions\x18\xd0\x86\x03 \x01(\x0b\x32\x1a.dtsdb.DtsdbMessageOptions'
   ,
   dependencies=[google_dot_protobuf_dot_descriptor__pb2.DESCRIPTOR,])
 
@@ -53,14 +53,7 @@ _DTSDBFIELDOPTIONS = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='is_id', full_name='dtsdb.DtsdbFieldOptions.is_id', index=0,
-      number=1, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='merge', full_name='dtsdb.DtsdbFieldOptions.merge', index=1,
+      name='merge', full_name='dtsdb.DtsdbFieldOptions.merge', index=0,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -79,7 +72,7 @@ _DTSDBFIELDOPTIONS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=63,
-  serialized_end=112,
+  serialized_end=97,
 )
 
 
@@ -91,13 +84,6 @@ _DTSDBMESSAGEOPTIONS = _descriptor.Descriptor(
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
-    _descriptor.FieldDescriptor(
-      name='name', full_name='dtsdb.DtsdbMessageOptions.name', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -110,8 +96,8 @@ _DTSDBMESSAGEOPTIONS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=114,
-  serialized_end=149,
+  serialized_start=99,
+  serialized_end=120,
 )
 
 DESCRIPTOR.message_types_by_name['DtsdbFieldOptions'] = _DTSDBFIELDOPTIONS

@@ -3,7 +3,8 @@ from typing import Optional, List, Any, Callable
 
 from google.protobuf.message import Message
 
-from . import proto_table, log, schema_pb2
+from . import log, schema_pb2
+from .protodb import proto_table
 from .node_config import NodeConfig
 
 

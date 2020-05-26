@@ -6,7 +6,7 @@ import "google/protobuf/descriptor.proto";
 
 message DtsdbFieldOptions {
     // Marks a field as the ID field. The ID field must be a string, and there can be only one ID field.
-    optional bool is_id = 1;
+    //optional bool is_id = 1;
 
     /* Merge strategy if this field is in conflict.
      *
@@ -24,7 +24,7 @@ extend google.protobuf.FieldOptions {
 }
 
 message DtsdbMessageOptions {
-    optional string name = 1;
+    //optional string name = 1;
 }
 
 extend google.protobuf.MessageOptions {

@@ -5,11 +5,8 @@ from typing import Any, Optional, Tuple, List, NamedTuple, Generator, Callable
 from google.protobuf.message import Message
 from google.protobuf.descriptor import Descriptor, FieldDescriptor
 
-from . import schema_pb2 as pb2
-from .node_config import NodeConfig
-from .log import Log
+from dtsdb import sqlite_util
 from .proto_subfield_table import ProtoSubfieldTable
-from . import sqlite_util
 
 
 def _protobuf_to_sqlite_type(field_type):
@@ -35,7 +32,7 @@ def _protobuf_to_sqlite_type(field_type):
 
 
 def _is_id_field(field_desc):
-    return field_desc.GetOptions().Extensions[pb2.field].is_id
+    return field_desc.name == "id"
 
 
 class Pathfinder(object):
@@ -87,18 +84,16 @@ class MsgField(NamedTuple):
 
     is_repeated: bool
     is_map: bool
-    # could be a list or dict
-    proto_value: Optional[Any]
 
-    def to_sqlite_value(self):
+    def to_sqlite_value(self, val) -> Any:
         if self.is_repeated or self.is_map:
             raise RuntimeError("not supported")
 
         if self.field_desc.type == FieldDescriptor.TYPE_ENUM:
             enum_desc = self.field_desc.enum_type
-            return enum_desc.values_by_number[self.proto_value].name
+            return enum_desc.values_by_number[val].name
         else:
-            return self.proto_value
+            return val
 
     def from_sqlite_value(self, val) -> Any:
         if self.is_repeated or self.is_map:
@@ -112,17 +107,13 @@ class MsgField(NamedTuple):
 
 
 def entity_name(msg_class) -> str:
-    return msg_class.DESCRIPTOR.GetOptions().Extensions[pb2.table].name
+    return msg_class.DESCRIPTOR.name
 
 
-def iter_fields(
-        msg_descriptor: Descriptor,
-        msg: Optional[Message] = None
-        ) -> Generator[MsgField, None, None]:
-    def recur(descriptor, msg, name_path_prefix, col_name_prefix):
-        values_by_fnum = collections.defaultdict(lambda: None)
-        if msg is not None:
-            values_by_fnum.update({fd.number: value for fd, value in msg.ListFields()})
+def iter_fields(msg_descriptor: Descriptor) -> Generator[MsgField, None, None]:
+    def recur(descriptor: Descriptor,
+            name_path_prefix: List[str],
+            col_name_prefix: str):
 
         for field in descriptor.fields:
             if field.name.startswith("_"):
@@ -130,16 +121,15 @@ def iter_fields(
             if "__" in field.name:
                 raise RuntimeError("Field names containing \"__\" are reserved")
 
-            field_value = values_by_fnum[field.number]
-
             if field.message_type is not None:
                 if field.message_type.GetOptions().map_entry:
                     # this field is actually a map<>
                     raise NotImplementedError("map not implemented")
                 else:
+                    if field.label != FieldDescriptor.LABEL_REQUIRED:
+                        raise RuntimeError("Nested message fields must be required")
                     yield from recur(
                         field.message_type,
-                        field_value,
                         name_path_prefix + [field.name],
                         col_name_prefix + field.name + "__"
                     )
@@ -161,10 +151,9 @@ def iter_fields(
                 name_path=name_path_prefix + [field.name],
                 is_repeated=is_repeated,
                 is_map=False,
-                proto_value=field_value
             )
 
-    yield from recur(msg_descriptor, msg, [], "")
+    yield from recur(msg_descriptor, [], "")
 
 
 class ProtoTable(object):
@@ -210,7 +199,7 @@ class ProtoTable(object):
                 self.msg_fields_by_col[mf.db_column_name] = mf
             else:
                 if mf.is_repeated:
-                    key_type = "BLOB"
+                    key_type = "INT"
                     value_type = _protobuf_to_sqlite_type(mf.field_desc.type)
                 else:
                     key_type = _protobuf_to_sqlite_type(mf.field_desc.message_type.fields_by_number[1].type)
@@ -272,11 +261,12 @@ class ProtoTable(object):
         id_value = None
         column_names = []
         values_list = []
-        for mf in iter_fields(self.msg_descriptor, updated_msg):
+        for _, mf in self.msg_fields_by_col.items():
             column_names.append(mf.db_column_name)
-            values_list.append(mf.to_sqlite_value())
+            value = mf.to_sqlite_value(Pathfinder(updated_msg, mf.name_path).get())
+            values_list.append(value)
             if mf.id_field:
-                id_value = mf.to_sqlite_value()
+                id_value = value
 
         query = "INSERT OR REPLACE INTO {} ({}) VALUES({})".format(
             self.table_name,
@@ -284,8 +274,13 @@ class ProtoTable(object):
             ', '.join(['?'] * len(column_names)),
         )
 
+        # fill in repeated fields
+
         with self.conn:
             self.conn.execute(query, tuple(values_list))
+            for name, subt in self.subfield_tables.items():
+                subt.update_from()
+
         assert id_value is not None
         if self.update_cb is not None and call_cb:
             self.update_cb(id_value, updated_msg.SerializeToString())

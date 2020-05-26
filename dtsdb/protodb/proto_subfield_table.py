@@ -1,6 +1,6 @@
 import sqlite3
 
-from . import sqlite_util
+from dtsdb import sqlite_util
 
 # TODO(fyhuang): doesn't support message-typed values
 class ProtoSubfieldTable(object):
@@ -23,3 +23,12 @@ class ProtoSubfieldTable(object):
             value {}
         )'''.format(self.table_name, key_type, value_type)
         sqlite_util.ensure_table_matches(self.conn, create_table)
+
+    def update_from(self, id: str, container) -> None:
+        if isinstance(container, list):
+            print("A list")
+        else:
+            print("A map")
+
+    def get_and_fill(self, id: str, container) -> None:
+        pass
