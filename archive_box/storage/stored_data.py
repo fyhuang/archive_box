@@ -1,15 +1,24 @@
 import hashlib
 import datetime
 from pathlib import Path
-from typing import NamedTuple
+from typing import Tuple, NamedTuple
+
+from archive_box.archive_box_pb2 import StoredDataId
 
 
-class StoredDataId(NamedTuple):
-    schema: str
-    id: str
+def make_sdid(schema: str, id: str) -> StoredDataId:
+    result = StoredDataId()
+    result.schema = schema
+    result.id = id
+    return result
 
-    def to_strid(self):
-        return self.schema + self.id
+
+def sdid_to_tuple(sdid: StoredDataId) -> Tuple[str, str]:
+    return (sdid.schema, sdid.id)
+
+
+def sdid_to_str(sdid: StoredDataId):
+    return "{}_{}".format(sdid.schema, sdid.id)
 
 
 def sdid_schema_01(filename: Path) -> StoredDataId:
@@ -21,7 +30,7 @@ def sdid_schema_01(filename: Path) -> StoredDataId:
                 # EOF reached
                 break
             h.update(chunk)
-    return StoredDataId("01", h.digest().hex())
+    return make_sdid("01", h.digest().hex())
 
 
 def file_to_sdid(filename: Path) -> StoredDataId:

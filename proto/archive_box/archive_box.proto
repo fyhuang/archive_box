@@ -5,8 +5,8 @@ package archive_box;
 import "dtsdb/schema.proto";
 
 message StoredDataId {
-    optional string schema = 1;
-    optional string blob = 2;
+    required string schema = 1;
+    required string id = 2;
 }
 
 message Collection {
