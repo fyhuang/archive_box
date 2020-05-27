@@ -30,3 +30,7 @@ def resync():
     with open(sync_file, "wb") as f:
         pass
     shutdown_server()
+
+
+# other views
+from . import collection

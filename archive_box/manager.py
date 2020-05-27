@@ -2,7 +2,8 @@ import os
 import sqlite3
 import threading
 import secrets
-from typing import Dict
+import socket
+from typing import Dict, NamedTuple
 from pathlib import Path
 
 import toml
@@ -11,6 +12,18 @@ from dtsdb.node_config import NodeConfig
 from dtsdb.synced_db import SyncedDb
 
 from . import archive_box_pb2 as pb2
+
+
+def _default_node_name():
+    hostname = socket.gethostname()
+    if len(hostname) == 0:
+        return "unknown node"
+    else:
+        return hostname
+
+
+class Collection(NamedTuple):
+    pass
 
 
 class ColPool(object):
@@ -28,6 +41,9 @@ class ColPool(object):
 
 class CollectionManager(object):
     def __init__(self, workspace: Path):
+        if not workspace.exists():
+            raise RuntimeError("workspace {} must exist already".format(workspace))
+
         self.workspace = workspace
         self.internal = workspace / "internal"
         os.makedirs(self.internal, exist_ok=True)
@@ -37,15 +53,18 @@ class CollectionManager(object):
             with node_config_path.open("r") as f:
                 self.node_config = NodeConfig.from_toml(f.read())
         else:
-            self.node_config = NodeConfig(secrets.randbelow(2**63), os.getenv("HOSTNAME"))
+            self.node_config = NodeConfig(secrets.randbelow(2**63), _default_node_name())
             with node_config_path.open("w") as f:
                 f.write(self.node_config.to_toml())
+
+        print("Starting node: {}".format(self.node_config))
 
         with open(workspace / "config.toml", "r") as f:
             self.config = toml.load(f)
 
         self.pools: Dict[str, ColPool] = {}
         for cid in self.config.get("collections", {}).keys():
+            print("Found collection {}".format(cid))
             pool = ColPool(self._new_db_func(cid))
             pool.first_time_setup()
             self.pools[cid] = pool
@@ -53,15 +72,17 @@ class CollectionManager(object):
         self.lock = threading.Lock()
 
     def _new_db_func(self, cid: str):
-        db_path = self.internal / (cid + ".db")
-        conn = sqlite3.connect(str(db_path))
-        return SyncedDb(conn, self.node_config, [pb2.Collection, pb2.Document])
+        def func():
+            db_path = self.internal / (cid + ".db")
+            conn = sqlite3.connect(str(db_path))
+            return SyncedDb(conn, self.node_config, [pb2.Collection, pb2.Document])
+        return func
 
     # TODO(fyhuang): add new collection at runtime
 
     # TODO(fyhuang): sync
-    def maybe_sync(self) -> None:
-        pass
+    def maybe_sync(self) -> bool:
+        return False
 
     def col(self, cid: str):
         with self.lock:
