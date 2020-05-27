@@ -9,11 +9,6 @@ message StoredDataId {
     required string id = 2;
 }
 
-message Collection {
-    required string id = 1;
-    optional string display_name = 2 [(dtsdb.field).merge = "latest"];
-}
-
 message Document {
     required string id = 1;
     optional StoredDataId data_id = 2;
