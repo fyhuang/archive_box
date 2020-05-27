@@ -35,50 +35,6 @@ if sys.version_info < (3,):
     builtin___unicode = unicode
 
 
-class StoredDataId(google___protobuf___message___Message):
-    DESCRIPTOR: google___protobuf___descriptor___Descriptor = ...
-    schema = ... # type: typing___Text
-    id = ... # type: typing___Text
-
-    def __init__(self,
-        *,
-        schema : typing___Optional[typing___Text] = None,
-        id : typing___Optional[typing___Text] = None,
-        ) -> None: ...
-    if sys.version_info >= (3,):
-        @classmethod
-        def FromString(cls, s: builtin___bytes) -> StoredDataId: ...
-    else:
-        @classmethod
-        def FromString(cls, s: typing___Union[builtin___bytes, builtin___buffer, builtin___unicode]) -> StoredDataId: ...
-    def MergeFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
-    def CopyFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
-    def HasField(self, field_name: typing_extensions___Literal[u"id",b"id",u"schema",b"schema"]) -> builtin___bool: ...
-    def ClearField(self, field_name: typing_extensions___Literal[u"id",b"id",u"schema",b"schema"]) -> None: ...
-global___StoredDataId = StoredDataId
-
-class Collection(google___protobuf___message___Message):
-    DESCRIPTOR: google___protobuf___descriptor___Descriptor = ...
-    id = ... # type: typing___Text
-    display_name = ... # type: typing___Text
-
-    def __init__(self,
-        *,
-        id : typing___Optional[typing___Text] = None,
-        display_name : typing___Optional[typing___Text] = None,
-        ) -> None: ...
-    if sys.version_info >= (3,):
-        @classmethod
-        def FromString(cls, s: builtin___bytes) -> Collection: ...
-    else:
-        @classmethod
-        def FromString(cls, s: typing___Union[builtin___bytes, builtin___buffer, builtin___unicode]) -> Collection: ...
-    def MergeFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
-    def CopyFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
-    def HasField(self, field_name: typing_extensions___Literal[u"display_name",b"display_name",u"id",b"id"]) -> builtin___bool: ...
-    def ClearField(self, field_name: typing_extensions___Literal[u"display_name",b"display_name",u"id",b"id"]) -> None: ...
-global___Collection = Collection
-
 class Document(google___protobuf___message___Message):
     DESCRIPTOR: google___protobuf___descriptor___Descriptor = ...
     class MetadataEntry(google___protobuf___message___Message):
@@ -104,13 +60,11 @@ class Document(google___protobuf___message___Message):
     global___MetadataEntry = MetadataEntry
 
     id = ... # type: typing___Text
+    data_id = ... # type: typing___Text
     creation_time_ms = ... # type: builtin___int
     last_mod_time_ms = ... # type: builtin___int
     display_name = ... # type: typing___Text
     tags = ... # type: google___protobuf___internal___containers___RepeatedScalarFieldContainer[typing___Text]
-
-    @property
-    def data_id(self) -> global___StoredDataId: ...
 
     @property
     def metadata(self) -> typing___MutableMapping[typing___Text, typing___Text]: ...
@@ -118,7 +72,7 @@ class Document(google___protobuf___message___Message):
     def __init__(self,
         *,
         id : typing___Optional[typing___Text] = None,
-        data_id : typing___Optional[global___StoredDataId] = None,
+        data_id : typing___Optional[typing___Text] = None,
         creation_time_ms : typing___Optional[builtin___int] = None,
         last_mod_time_ms : typing___Optional[builtin___int] = None,
         display_name : typing___Optional[typing___Text] = None,

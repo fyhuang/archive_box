@@ -19,7 +19,7 @@ class StoredDataIdTests(unittest.TestCase):
 
         hash = hashlib.blake2b(b'', digest_size=16, person=b'arbox')
         self.assertEqual(
-            make_sdid("01", hash.digest().hex()),
+            StoredDataId("01", hash.digest().hex()),
             sdid_schema_01(path)
         )
 
@@ -31,7 +31,7 @@ class StoredDataIdTests(unittest.TestCase):
 
         hash = hashlib.blake2b(contents, digest_size=16, person=b'arbox')
         self.assertEqual(
-            make_sdid("01", hash.digest().hex()),
+            StoredDataId("01", hash.digest().hex()),
             sdid_schema_01(path)
         )
 
@@ -45,6 +45,6 @@ class StoredDataIdTests(unittest.TestCase):
                 hash.update(block)
 
         self.assertEqual(
-            make_sdid("01", hash.digest().hex()),
+            StoredDataId("01", hash.digest().hex()),
             sdid_schema_01(path)
         )

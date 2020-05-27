@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Optional, Tuple, Any
 from typing_extensions import Protocol
 
-from archive_box.archive_box_pb2 import StoredDataId
 from .stored_data import *
 
 

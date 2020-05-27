@@ -4,14 +4,9 @@ package archive_box;
 
 import "dtsdb/schema.proto";
 
-message StoredDataId {
-    required string schema = 1;
-    required string id = 2;
-}
-
 message Document {
     required string id = 1;
-    optional StoredDataId data_id = 2;
+    optional string data_id = 2;
 
     required uint64 creation_time_ms = 10;
     required uint64 last_mod_time_ms = 11;
