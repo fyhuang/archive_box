@@ -3,7 +3,7 @@ import sqlite3
 import threading
 import secrets
 import socket
-from typing import Dict, NamedTuple
+from typing import Any, Dict, NamedTuple, Callable
 from pathlib import Path
 
 import toml
@@ -12,6 +12,7 @@ from dtsdb.node_config import NodeConfig
 from dtsdb.synced_db import SyncedDb
 
 from . import archive_box_pb2 as pb2
+from .storage import local_file
 
 
 def _default_node_name():
@@ -23,20 +24,21 @@ def _default_node_name():
 
 
 class Collection(NamedTuple):
-    pass
+    config: Dict
+    db: SyncedDb
+    storage: Any
 
 
 class ColPool(object):
-    def __init__(self, new_db) -> None:
-        self.new_db = new_db
+    def __init__(self, new_col: Callable[[], Collection]) -> None:
+        self.new_col = new_col
         self.lock = threading.Lock()
 
     def first_time_setup(self):
-        self.new_db().first_time_setup()
+        self.new_col().db.first_time_setup()
 
-    def get(self):
-        return self.new_db()
-
+    def get(self) -> Collection:
+        return self.new_col()
 
 
 class CollectionManager(object):
@@ -65,26 +67,34 @@ class CollectionManager(object):
         self.pools: Dict[str, ColPool] = {}
         for cid in self.config.get("collections", {}).keys():
             print("Found collection {}".format(cid))
-            pool = ColPool(self._new_db_func(cid))
+            pool = ColPool(self._new_col_func(cid))
             pool.first_time_setup()
             self.pools[cid] = pool
 
         self.lock = threading.Lock()
 
-    def _new_db_func(self, cid: str):
-        def func():
+    def _new_col_func(self, cid: str):
+        def func() -> Collection:
+            config = self.config["collections"][cid]
+
             db_path = self.internal / (cid + ".db")
             conn = sqlite3.connect(str(db_path))
-            return SyncedDb(conn, self.node_config, [pb2.Collection, pb2.Document])
-        return func
+            db = SyncedDb(conn, self.node_config, [pb2.Document])
 
-    # TODO(fyhuang): add new collection at runtime
+            if config["storage"] == "local":
+                storage = local_file.LocalFileStorage(Path(config["local_storage"]["root"]))
+            else:
+                raise RuntimeError("unknown storage type {}".format(config["storage"]))
+
+            return Collection(config, db, storage)
+
+        return func
 
     # TODO(fyhuang): sync
     def maybe_sync(self) -> bool:
         return False
 
-    def col(self, cid: str):
+    def col(self, cid: str) -> Collection:
         with self.lock:
             pool = self.pools[cid]
         return pool.get()
