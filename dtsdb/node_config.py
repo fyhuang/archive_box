@@ -5,6 +5,7 @@ import toml
 class NodeConfig(
     collections.namedtuple("NodeConfig", ["clock_id", "display_name"])
 ):
+    # TODO(fyhuang): just make it read from a file object
     @staticmethod
     def from_toml(in_toml: str) -> 'NodeConfig':
         parsed = toml.loads(in_toml)

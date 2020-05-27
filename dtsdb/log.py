@@ -102,6 +102,7 @@ class Log(object):
         if last_seen_ts is None:
             last_seen_ts = datetime.fromtimestamp(0)
         with self.conn:
+            # TODO(fyhuang): enable overwrite of display_name for local node
             self.conn.execute('INSERT OR IGNORE INTO nodes VALUES (?, ?, ?)',
                 (node_config.clock_id, node_config.display_name, _dt_sqlite_ts(last_seen_ts)))
 

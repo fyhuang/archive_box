@@ -1,6 +1,7 @@
-mypy
 toml
+flask
+protobuf==3.12.1
 
+mypy
 typing_extensions
 mypy-protobuf
-protobuf==3.12.1
