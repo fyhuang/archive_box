@@ -24,13 +24,15 @@ class LogTests(unittest.TestCase):
         self.last_second += 1
         return dt
 
-    def test_init_table_duplicate(self) -> None:
+    def test_first_time_setup_duplicate(self) -> None:
         log = Log(self.conn)
         # performing init multiple times should not result in error
-        log._init_table()
+        log.first_time_setup()
+        log.first_time_setup()
 
     def test_register_node_duplicate(self) -> None:
         log = Log(self.conn)
+        log.first_time_setup()
         log._register_node(NodeConfig(123, "my node"))
         log._register_node(NodeConfig(123, "my node again"))
         self.assertEqual(
@@ -41,6 +43,7 @@ class LogTests(unittest.TestCase):
     def test_oldest_node_ts(self) -> None:
         self.timestamps = [datetime.fromtimestamp(100), datetime.fromtimestamp(200)]
         log = Log(self.conn, self.next_ts)
+        log.first_time_setup()
         log.add_entry(NodeConfig(100, ""), "Entity", "e0", b'')
         self.assertEqual(datetime.fromtimestamp(100), log._oldest_node_ts())
         log.add_entry(NodeConfig(200, ""), "Entity", "e1", b'')
@@ -49,12 +52,14 @@ class LogTests(unittest.TestCase):
     def test_newest_timestamp(self) -> None:
         self.timestamps = [datetime.fromtimestamp(200)]
         log = Log(self.conn, self.next_ts)
+        log.first_time_setup()
         log.add_entry(NodeConfig(1, ""), "Entity", "e0", b'')
         self.assertEqual(datetime.fromtimestamp(200), log._newest_timestamp())
 
     def test_advance_vclock(self) -> None:
         vc = VectorClock()
         log = Log(self.conn, self.counter_ts)
+        log.first_time_setup()
         self.assertEqual(VectorClock(), log._newest_vclock())
 
         log.add_entry(NodeConfig(1, ""), "Entity", "e0", b'')
@@ -69,6 +74,7 @@ class LogTests(unittest.TestCase):
     def test_get_entries_since(self) -> None:
         self.timestamps = [datetime.fromtimestamp(1), datetime.fromtimestamp(2), datetime.fromtimestamp(3)]
         log = Log(self.conn, self.next_ts)
+        log.first_time_setup()
 
         log.add_entry(NodeConfig(1, ""), "Entity", "e1", b'')
         log.add_entry(NodeConfig(2, ""), "Entity", "e2", b'')
@@ -84,6 +90,7 @@ class LogTests(unittest.TestCase):
     def test_get_latest_entry_per_entity(self) -> None:
         self.timestamps = [datetime.fromtimestamp(1), datetime.fromtimestamp(2), datetime.fromtimestamp(3)]
         log = Log(self.conn, self.next_ts)
+        log.first_time_setup()
         log.add_entry(NodeConfig(1, ""), "Int", "i0", b'')
         log.add_entry(NodeConfig(2, ""), "Int", "i1", b'')
         log.add_entry(NodeConfig(1, ""), "Float", "f0", b'')
@@ -106,6 +113,8 @@ class LogTests(unittest.TestCase):
         log1 = Log(self.conn, self.counter_ts)
         second_conn = sqlite3.connect(":memory:")
         log2 = Log(second_conn, self.counter_ts)
+        log1.first_time_setup()
+        log2.first_time_setup()
 
         log1.add_entry(NodeConfig(1, ""), "Int", "i0", b'')
         log1.add_entry(NodeConfig(2, ""), "Int", "i1", b'')
@@ -122,6 +131,8 @@ class LogTests(unittest.TestCase):
         log1 = Log(self.conn, self.counter_ts)
         second_conn = sqlite3.connect(":memory:")
         log2 = Log(second_conn, self.counter_ts)
+        log1.first_time_setup()
+        log2.first_time_setup()
 
         log1.add_entry(NodeConfig(1, ""), "Int", "i0", b'a')
         log1.add_entry(NodeConfig(2, ""), "Int", "i1", b'1')
@@ -141,6 +152,8 @@ class LogTests(unittest.TestCase):
         log1 = Log(self.conn, self.next_ts)
         second_conn = sqlite3.connect(":memory:")
         log2 = Log(second_conn, self.next_ts)
+        log1.first_time_setup()
+        log2.first_time_setup()
 
         log1.add_entry(NodeConfig(1, ""), "Int", "i0", b'a')
         log1.add_entry(NodeConfig(1, ""), "Int", "i1", b'1')

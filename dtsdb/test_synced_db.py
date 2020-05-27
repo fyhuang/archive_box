@@ -34,6 +34,8 @@ class SyncedDbIntegrationTests(unittest.TestCase):
         schemas = [test_pb2.Simple]
         db1 = SyncedDb(self.conn1, NodeConfig(1, ""), schemas)
         db2 = SyncedDb(self.conn2, NodeConfig(2, ""), schemas)
+        db1.first_time_setup()
+        db2.first_time_setup()
 
         msg = test_pb2.Simple()
         msg.id = "s0"
@@ -67,6 +69,8 @@ class SyncedDbIntegrationTests(unittest.TestCase):
         schemas = [test_pb2.MergeTest]
         db1 = SyncedDb(self.conn1, NodeConfig(1, ""), schemas)
         db2 = SyncedDb(self.conn2, NodeConfig(2, ""), schemas)
+        db1.first_time_setup()
+        db2.first_time_setup()
 
         msg = test_pb2.MergeTest()
         msg.id = "s0"
@@ -102,6 +106,8 @@ class SyncedDbIntegrationTests(unittest.TestCase):
         schemas = [test_pb2.MergeTest]
         db1 = SyncedDb(self.conn1, NodeConfig(1, ""), schemas)
         db2 = SyncedDb(self.conn2, NodeConfig(2, ""), schemas)
+        db1.first_time_setup()
+        db2.first_time_setup()
 
         msg = test_pb2.MergeTest()
         msg.id = "s0"
@@ -144,6 +150,8 @@ class SyncedDbIntegrationTests(unittest.TestCase):
         schemas = [test_pb2.MergeTest]
         db1 = SyncedDb(self.conn1, NodeConfig(1, ""), schemas)
         db2 = SyncedDb(self.conn2, NodeConfig(2, ""), schemas)
+        db1.first_time_setup()
+        db2.first_time_setup()
 
         msg = test_pb2.MergeTest()
         msg.id = "s0"

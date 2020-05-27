@@ -65,15 +65,6 @@ class Log(object):
         self.conn = connection
         self.utcnow = utcnow
 
-        self._init_table()
-        # make sure that version matches
-        c = self.conn.cursor()
-        c.execute("SELECT value FROM metadata WHERE key = ?", ("version",))
-        version = c.fetchone()[0]
-        if version != Log.CURR_VERSION:
-            raise RuntimeError("Cannot load DB with version {} (code is version {})"
-                    .format(version, Log.CURR_VERSION))
-
     def _init_table(self):
         self.conn.execute('''CREATE TABLE IF NOT EXISTS metadata (
             key TEXT NOT NULL PRIMARY KEY,
@@ -165,6 +156,16 @@ class Log(object):
             or_ignore = "OR IGNORE"
         self.conn.execute("INSERT {} INTO log VALUES (?, ?, ?, ?, ?)".format(or_ignore),
                 (_dt_sqlite_ts(entry.timestamp), entry.entity_name, entry.entity_id, entry.entity, entry.vclock.to_packed()))
+
+    def first_time_setup(self):
+        self._init_table()
+        # make sure that version matches
+        c = self.conn.cursor()
+        c.execute("SELECT value FROM metadata WHERE key = ?", ("version",))
+        version = c.fetchone()[0]
+        if version != Log.CURR_VERSION:
+            raise RuntimeError("Cannot load DB with version {} (code is version {})"
+                    .format(version, Log.CURR_VERSION))
 
     def get_newest_entry(self, entity_name: str, entity_id: str) -> Entry:
         c = self.conn.cursor()

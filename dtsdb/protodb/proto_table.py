@@ -58,9 +58,8 @@ class ProtoTable(object):
         self.entity_name = entity_name(msg_class)
         self.table_name = "m_" + self.entity_name
         # TODO(fyhuang): support materializing individual fields for indexing
-        self._init_table()
 
-    def _init_table(self) -> None:
+    def first_time_setup(self) -> None:
         if self.id_field.label == FieldDescriptor.LABEL_REQUIRED:
             id_column = "id TEXT NOT NULL"
         else:
