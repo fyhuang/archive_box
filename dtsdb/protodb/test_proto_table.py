@@ -15,6 +15,7 @@ class ProtoTableTests(unittest.TestCase):
 
     def test_get_update_nested(self) -> None:
         st = ProtoTable(self.conn, test_pb2.Nested)
+        st.first_time_setup()
 
         msg = test_pb2.Nested()
         msg.id = "s0"
@@ -32,6 +33,7 @@ class ProtoTableTests(unittest.TestCase):
             entries.append((id, contents))
 
         st = ProtoTable(self.conn, test_pb2.Simple, callback)
+        st.first_time_setup()
 
         msg = test_pb2.Simple()
         msg.id = "s0"
@@ -52,6 +54,7 @@ class ProtoTableTests(unittest.TestCase):
 
     def test_queryall(self) -> None:
         pt = ProtoTable(self.conn, test_pb2.Simple)
+        pt.first_time_setup()
 
         msg1 = test_pb2.Simple()
         msg1.id = "m1"

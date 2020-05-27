@@ -144,6 +144,11 @@ class SyncedDb(object):
         merger = MessageMerger(table.new, our, other)
         return merger.merge()
 
+    def first_time_setup(self) -> None:
+        self.log.first_time_setup()
+        for pt in self.tables.values():
+            pt.first_time_setup()
+
     def get_table(self, name: str) -> proto_table.ProtoTable:
         return self.tables[name]
 
