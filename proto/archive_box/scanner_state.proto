@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+package archive_box;
+
+message ScannedFile {
+    required string filepath = 1;
+    required string sdid = 2;
+}
