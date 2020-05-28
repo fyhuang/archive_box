@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1d\x61rchive_box/archive_box.proto\x12\x0b\x61rchive_box\x1a\x12\x64tsdb/schema.proto\"\x9a\x02\n\x08\x44ocument\x12\n\n\x02id\x18\x01 \x02(\t\x12\x0f\n\x07\x64\x61ta_id\x18\x02 \x01(\t\x12\x18\n\x10\x63reation_time_ms\x18\n \x02(\x04\x12\x18\n\x10last_mod_time_ms\x18\x0b \x02(\x04\x12\"\n\x0c\x64isplay_name\x18\x14 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x1d\n\x04tags\x18\x15 \x03(\tB\x0f\x82\xb5\x18\x0b\x12\tset_union\x12I\n\x08metadata\x18\x16 \x03(\x0b\x32#.archive_box.Document.MetadataEntryB\x12\x82\xb5\x18\x0e\x12\x0cunion_latest\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01'
+  serialized_pb=b'\n\x1d\x61rchive_box/archive_box.proto\x12\x0b\x61rchive_box\x1a\x12\x64tsdb/schema.proto\"\xb3\x03\n\x08\x44ocument\x12\n\n\x02id\x18\x01 \x02(\t\x12\x0f\n\x07\x64\x61ta_id\x18\x02 \x02(\t\x12\"\n\x0cneeds_review\x18\n \x02(\x08\x42\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x18\n\x10\x63reation_time_ms\x18\x0b \x02(\x04\x12&\n\x10last_mod_time_ms\x18\x0c \x02(\x04\x42\x0c\x82\xb5\x18\x08\x12\x06latest\x12\"\n\x0c\x64isplay_name\x18\x14 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x1d\n\x04tags\x18\x15 \x03(\tB\x0f\x82\xb5\x18\x0b\x12\tset_union\x12!\n\x0b\x64\x65scription\x18\x16 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12I\n\x08metadata\x18\x1e \x03(\x0b\x32#.archive_box.Document.MetadataEntryB\x12\x82\xb5\x18\x0e\x12\x0cunion_latest\x12\x15\n\rorig_filename\x18\x64 \x01(\t\x12\x14\n\x0c\x61uto_summary\x18\x65 \x01(\t\x12\x15\n\rauto_keywords\x18\x66 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01'
   ,
   dependencies=[dtsdb_dot_schema__pb2.DESCRIPTOR,])
 
@@ -62,8 +62,8 @@ _DOCUMENT_METADATAENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=302,
-  serialized_end=349,
+  serialized_start=455,
+  serialized_end=502,
 )
 
 _DOCUMENT = _descriptor.Descriptor(
@@ -83,46 +83,81 @@ _DOCUMENT = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='data_id', full_name='archive_box.Document.data_id', index=1,
-      number=2, type=9, cpp_type=9, label=1,
+      number=2, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='creation_time_ms', full_name='archive_box.Document.creation_time_ms', index=2,
-      number=10, type=4, cpp_type=4, label=2,
-      has_default_value=False, default_value=0,
+      name='needs_review', full_name='archive_box.Document.needs_review', index=2,
+      number=10, type=8, cpp_type=7, label=2,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b'\202\265\030\010\022\006latest', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='last_mod_time_ms', full_name='archive_box.Document.last_mod_time_ms', index=3,
+      name='creation_time_ms', full_name='archive_box.Document.creation_time_ms', index=3,
       number=11, type=4, cpp_type=4, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='display_name', full_name='archive_box.Document.display_name', index=4,
+      name='last_mod_time_ms', full_name='archive_box.Document.last_mod_time_ms', index=4,
+      number=12, type=4, cpp_type=4, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=b'\202\265\030\010\022\006latest', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='display_name', full_name='archive_box.Document.display_name', index=5,
       number=20, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=b'\202\265\030\010\022\006latest', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='tags', full_name='archive_box.Document.tags', index=5,
+      name='tags', full_name='archive_box.Document.tags', index=6,
       number=21, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=b'\202\265\030\013\022\tset_union', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='metadata', full_name='archive_box.Document.metadata', index=6,
-      number=22, type=11, cpp_type=10, label=3,
+      name='description', full_name='archive_box.Document.description', index=7,
+      number=22, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=b'\202\265\030\010\022\006latest', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='metadata', full_name='archive_box.Document.metadata', index=8,
+      number=30, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=b'\202\265\030\016\022\014union_latest', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='orig_filename', full_name='archive_box.Document.orig_filename', index=9,
+      number=100, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='auto_summary', full_name='archive_box.Document.auto_summary', index=10,
+      number=101, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='auto_keywords', full_name='archive_box.Document.auto_keywords', index=11,
+      number=102, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -136,7 +171,7 @@ _DOCUMENT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=67,
-  serialized_end=349,
+  serialized_end=502,
 )
 
 _DOCUMENT_METADATAENTRY.containing_type = _DOCUMENT
@@ -161,7 +196,10 @@ _sym_db.RegisterMessage(Document.MetadataEntry)
 
 
 _DOCUMENT_METADATAENTRY._options = None
+_DOCUMENT.fields_by_name['needs_review']._options = None
+_DOCUMENT.fields_by_name['last_mod_time_ms']._options = None
 _DOCUMENT.fields_by_name['display_name']._options = None
 _DOCUMENT.fields_by_name['tags']._options = None
+_DOCUMENT.fields_by_name['description']._options = None
 _DOCUMENT.fields_by_name['metadata']._options = None
 # @@protoc_insertion_point(module_scope)

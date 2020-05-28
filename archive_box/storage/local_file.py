@@ -64,7 +64,7 @@ class LocalFileStorage(object):
 
     def _to_path(self, sdid: StoredDataId) -> Path:
         first_part = sdid.schema + sdid.id[:2]
-        return self.root / first_part / sdid.id
+        return self.root / first_part / sdid.to_strid()
 
     def _is_path_in_root(self, path: Path) -> bool:
         path_abs = path.resolve()

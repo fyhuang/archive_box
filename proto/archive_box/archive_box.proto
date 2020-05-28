@@ -6,12 +6,21 @@ import "dtsdb/schema.proto";
 
 message Document {
     required string id = 1;
-    optional string data_id = 2;
+    required string data_id = 2;
 
-    required uint64 creation_time_ms = 10;
-    required uint64 last_mod_time_ms = 11;
+    // Initially true if the file was ingested without user review
+    required bool needs_review = 10 [(dtsdb.field).merge = "latest"];
+    required uint64 creation_time_ms = 11;
+    required uint64 last_mod_time_ms = 12 [(dtsdb.field).merge = "latest"];
 
     optional string display_name = 20 [(dtsdb.field).merge = "latest"];
     repeated string tags = 21 [(dtsdb.field).merge = "set_union"];
-    map<string, string> metadata = 22 [(dtsdb.field).merge = "union_latest"];
+    optional string description = 22 [(dtsdb.field).merge = "latest"];
+
+    map<string, string> metadata = 30 [(dtsdb.field).merge = "union_latest"];
+
+    // Automatically generated (non-user-editable) metadata
+    optional string orig_filename = 100;
+    optional string auto_summary = 101;
+    optional string auto_keywords = 102;
 }

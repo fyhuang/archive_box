@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Documents</h1>
+
+{% for document in documents %}
+<div class="pure-g">
+    <div class="pure-u">
+        {# the image #}
+        <img src="/unknown.png">
+    </div>
+    <div class="pure-u-3-4">
+        <h1>{{ document.display_name }}</h1>
+        <p>{{ document.description }}</p>
+        <p class="small_print">Original filename: {{ document.orig_filename }}</p>
+        <p class="small_print">Data ID: {{ document.data_id }}</p>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

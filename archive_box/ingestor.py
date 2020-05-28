@@ -101,6 +101,12 @@ def start_ingestor_thread() -> None:
     _thread = threading.Thread(target=_ingestor.loop)
     _thread.start()
 
+def get() -> Ingestor:
+    global _ingestor
+    if _ingestor is None:
+        raise RuntimeError("ingestor is not running!")
+    return _ingestor
+
 def stop_ingestor_thread() -> None:
     global _ingestor, _thread
     if _ingestor is None or _thread is None:

@@ -61,10 +61,15 @@ class Document(google___protobuf___message___Message):
 
     id = ... # type: typing___Text
     data_id = ... # type: typing___Text
+    needs_review = ... # type: builtin___bool
     creation_time_ms = ... # type: builtin___int
     last_mod_time_ms = ... # type: builtin___int
     display_name = ... # type: typing___Text
     tags = ... # type: google___protobuf___internal___containers___RepeatedScalarFieldContainer[typing___Text]
+    description = ... # type: typing___Text
+    orig_filename = ... # type: typing___Text
+    auto_summary = ... # type: typing___Text
+    auto_keywords = ... # type: typing___Text
 
     @property
     def metadata(self) -> typing___MutableMapping[typing___Text, typing___Text]: ...
@@ -73,11 +78,16 @@ class Document(google___protobuf___message___Message):
         *,
         id : typing___Optional[typing___Text] = None,
         data_id : typing___Optional[typing___Text] = None,
+        needs_review : typing___Optional[builtin___bool] = None,
         creation_time_ms : typing___Optional[builtin___int] = None,
         last_mod_time_ms : typing___Optional[builtin___int] = None,
         display_name : typing___Optional[typing___Text] = None,
         tags : typing___Optional[typing___Iterable[typing___Text]] = None,
+        description : typing___Optional[typing___Text] = None,
         metadata : typing___Optional[typing___Mapping[typing___Text, typing___Text]] = None,
+        orig_filename : typing___Optional[typing___Text] = None,
+        auto_summary : typing___Optional[typing___Text] = None,
+        auto_keywords : typing___Optional[typing___Text] = None,
         ) -> None: ...
     if sys.version_info >= (3,):
         @classmethod
@@ -87,6 +97,6 @@ class Document(google___protobuf___message___Message):
         def FromString(cls, s: typing___Union[builtin___bytes, builtin___buffer, builtin___unicode]) -> Document: ...
     def MergeFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
     def CopyFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
-    def HasField(self, field_name: typing_extensions___Literal[u"creation_time_ms",b"creation_time_ms",u"data_id",b"data_id",u"display_name",b"display_name",u"id",b"id",u"last_mod_time_ms",b"last_mod_time_ms"]) -> builtin___bool: ...
-    def ClearField(self, field_name: typing_extensions___Literal[u"creation_time_ms",b"creation_time_ms",u"data_id",b"data_id",u"display_name",b"display_name",u"id",b"id",u"last_mod_time_ms",b"last_mod_time_ms",u"metadata",b"metadata",u"tags",b"tags"]) -> None: ...
+    def HasField(self, field_name: typing_extensions___Literal[u"auto_keywords",b"auto_keywords",u"auto_summary",b"auto_summary",u"creation_time_ms",b"creation_time_ms",u"data_id",b"data_id",u"description",b"description",u"display_name",b"display_name",u"id",b"id",u"last_mod_time_ms",b"last_mod_time_ms",u"needs_review",b"needs_review",u"orig_filename",b"orig_filename"]) -> builtin___bool: ...
+    def ClearField(self, field_name: typing_extensions___Literal[u"auto_keywords",b"auto_keywords",u"auto_summary",b"auto_summary",u"creation_time_ms",b"creation_time_ms",u"data_id",b"data_id",u"description",b"description",u"display_name",b"display_name",u"id",b"id",u"last_mod_time_ms",b"last_mod_time_ms",u"metadata",b"metadata",u"needs_review",b"needs_review",u"orig_filename",b"orig_filename",u"tags",b"tags"]) -> None: ...
 global___Document = Document

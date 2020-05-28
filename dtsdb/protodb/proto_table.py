@@ -98,27 +98,30 @@ class ProtoTable(object):
         return result
 
     def queryall(self,
-            filter_func: Callable[[Any], bool],
-            sortkey_func: Optional[Callable[[Any], Any]] = None,
-            reverse: bool = False
+            filter: Optional[Callable[[Any], bool]] = None,
+            sortkey: Optional[Callable[[Any], Any]] = None,
+            reverse: bool = False,
+            limit: Optional[int] = None,
             ) -> List[Any]:
         """Filter and order documents, in software, with the provided filter func."""
         results = []
         c = self.conn.cursor()
-
-        # query and filter
         for row in c.execute("SELECT serialized_pb FROM {}".format(self.table_name)):
             msg = self.new()
             msg.ParseFromString(row[0])
-            if not filter_func(msg):
+            if filter is not None and (not filter(msg)):
                 continue
             results.append(msg)
 
         # sort
-        if sortkey_func:
-            return sorted(results, key=sortkey_func, reverse=reverse)
-        else:
-            return results
+        after_sort = results
+        if sortkey:
+            after_sort.sort(key=sortkey_func, reverse=reverse)
+
+        # limit
+        if limit is not None:
+            return after_sort[:limit]
+        return after_sort
 
     def update(self, updated_msg: Message, call_cb: bool = True) -> None:
         serialized_msg = updated_msg.SerializeToString()
