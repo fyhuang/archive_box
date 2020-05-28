@@ -8,8 +8,13 @@ class StoredDataId(NamedTuple):
     schema: str
     id: str
 
-    def to_strid(self):
-        return self.schema + self.id
+    @staticmethod
+    def from_strid(sid: str) -> 'StoredDataId':
+        schema_part, _, id_part = sid.partition("_")
+        return StoredDataId(schema_part, id_part)
+
+    def to_strid(self) -> str:
+        return "{}_{}".format(self.schema, self.id)
 
 
 def sdid_to_tuple(sdid: StoredDataId) -> Tuple[str, str]:

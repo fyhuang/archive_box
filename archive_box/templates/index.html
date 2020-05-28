@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block body %}
+
+<h1>Collections</h1>
+
+<table>
+    <thead><tr><th>Name</th><th>ID</th></tr></thead>
+    <tbody>
+{% for collection in collections %}
+    <tr>
+        <td><a href="/c/{{collection.id}}">{{ collection.name }}</a></td>
+        <td>{{ collection.id }}</td>
+    </tr>
+{% endfor %}
+    </tbody>
+</table>
+
+<h1>Inbox</h1>
+
+<table>
+    <thead><tr><th>Name</th><th>Ingest to</th></thead>
+    <tbody>
+{% for waiting in waiting_files %}
+    <tr>
+        <td>{{ waiting.path }}</td>
+        <td>
+            <form method="post" action="/api/ingest">
+                <input type="hidden" name="sdid" value="{{ waiting.sdid }}">
+                <input type="hidden" name="filename" value="{{ waiting.path }}">
+            {% for collection in collections %}
+            <input type="submit" name="cid" value="{{collection.id}}">
+            {% endfor %}
+            </form>
+        </td>
+    </tr>
+{% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}
