@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Optional, Tuple, Any
 from typing_extensions import Protocol
 
-from .stored_data import *
+from archive_box.sdid import *
+from .stored_data import StoredStat
 
 
 def _common_ancestor(p1: Path, p2: Path) -> Path:
@@ -82,21 +83,15 @@ class LocalFileStorage(object):
         os.makedirs(path.parent, exist_ok=True)
 
         # Copy to a temp file first and then atomically move
-        temp_path = self.tempdir / (sdid_to_str(sdid) + ".tmp")
+        temp_path = self.tempdir / (sdid.to_strid() + ".tmp")
         shutil.copy2(src_file, temp_path)
         os.rename(temp_path, path)
 
-    def move_inplace(self, sdid: StoredDataId, src_file: Path) -> None:
-        # Move a pre-uploaded file into the right place
-        # This is an internal function that allows LocalFileStorage to act like
-        # a "zero-copy" cache
-        if not self._is_path_in_root(src_file):
-            raise RuntimeError("File should already be in the root to use move_inplace")
+    def delete(self, sdid: StoredDataId) -> None:
+        raise NotImplementedError()
 
-        path = self._to_path(sdid)
-        if path.exists():
-            return
-        os.rename(src_file, path)
+    def url_to(self, sdid: StoredDataId) -> str:
+        return "file:///{}".format(self._to_path(sdid))
 
     def download_stat(self, sdid: StoredDataId) -> StoredStat:
         path = self._to_path(sdid)
@@ -121,3 +116,20 @@ class LocalFileStorage(object):
         with self.download_bytes(sdid) as src_f:
             with dest_filename.open("wb") as dest_f:
                 shutil.copyfileobj(src_f, dest_f)
+
+    def get_temp_filename(self) -> Path:
+        # Get a filename that is compatible with `move_inplace`
+        raise NotImplementedError()
+
+    def move_inplace(self, sdid: StoredDataId, src_file: Path) -> None:
+        # Move a pre-uploaded file into the right place
+        # This is an internal function that allows LocalFileStorage to act like
+        # a "zero-copy" cache
+        if not self._is_path_in_root(src_file):
+            raise RuntimeError("File should already be in the root to use move_inplace")
+
+        path = self._to_path(sdid)
+        if path.exists():
+            return
+        os.rename(src_file, path)
+

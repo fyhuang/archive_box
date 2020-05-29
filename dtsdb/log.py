@@ -66,12 +66,12 @@ class Log(object):
         self.utcnow = utcnow
 
     def _init_table(self):
-        self.conn.execute('''CREATE TABLE IF NOT EXISTS metadata (
+        self.conn.execute('''CREATE TABLE IF NOT EXISTS log_metadata (
             key TEXT NOT NULL PRIMARY KEY,
             value TEXT NOT NULL
         )''')
 
-        self.conn.execute('''CREATE TABLE IF NOT EXISTS nodes (
+        self.conn.execute('''CREATE TABLE IF NOT EXISTS log_nodes (
             clock_id INT NOT NULL PRIMARY KEY,
             display_name TEXT NOT NULL,
             last_seen_ts DATETIME NOT NULL
@@ -86,7 +86,7 @@ class Log(object):
         )''')
 
         with self.conn:
-            self.conn.execute("INSERT OR IGNORE INTO metadata VALUES (?, ?)",
+            self.conn.execute("INSERT OR IGNORE INTO log_metadata VALUES (?, ?)",
                 ("version", "1"))
 
     def _register_node(self, node_config: NodeConfig, last_seen_ts: Optional[datetime] = None):
@@ -94,19 +94,19 @@ class Log(object):
             last_seen_ts = datetime.fromtimestamp(0)
         with self.conn:
             # TODO(fyhuang): enable overwrite of display_name for local node
-            self.conn.execute('INSERT OR IGNORE INTO nodes VALUES (?, ?, ?)',
+            self.conn.execute('INSERT OR IGNORE INTO log_nodes VALUES (?, ?, ?)',
                 (node_config.clock_id, node_config.display_name, _dt_sqlite_ts(last_seen_ts)))
 
     def _get_known_nodes(self) -> Dict[NodeConfig, datetime]:
         result = {}
         c = self.conn.cursor()
-        for row in c.execute("SELECT * FROM nodes"):
+        for row in c.execute("SELECT * FROM log_nodes"):
             result[NodeConfig(row[0], row[1])] = _sqlite_ts_dt(row[2])
         return result
 
     def _oldest_node_ts(self) -> datetime:
         c = self.conn.cursor()
-        c.execute("SELECT last_seen_ts FROM nodes ORDER BY last_seen_ts ASC LIMIT 1")
+        c.execute("SELECT last_seen_ts FROM log_nodes ORDER BY last_seen_ts ASC LIMIT 1")
         return _sqlite_ts_dt(c.fetchone()[0])
 
     def _newest_timestamp(self) -> Optional[datetime]:
@@ -161,7 +161,7 @@ class Log(object):
         self._init_table()
         # make sure that version matches
         c = self.conn.cursor()
-        c.execute("SELECT value FROM metadata WHERE key = ?", ("version",))
+        c.execute("SELECT value FROM log_metadata WHERE key = ?", ("version",))
         version = c.fetchone()[0]
         if version != Log.CURR_VERSION:
             raise RuntimeError("Cannot load DB with version {} (code is version {})"
@@ -197,7 +197,7 @@ class Log(object):
 
         with self.conn:
             self._insert_entry(entry)
-            self.conn.execute("UPDATE nodes SET last_seen_ts = :ts WHERE clock_id = :id",
+            self.conn.execute("UPDATE log_nodes SET last_seen_ts = :ts WHERE clock_id = :id",
                     {"id": node_config.clock_id, "ts": _dt_sqlite_ts(now)})
 
     def detect_changes(self, other: 'Log') -> List[Change]:

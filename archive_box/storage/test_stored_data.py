@@ -3,7 +3,8 @@ import hashlib
 import tempfile
 from pathlib import Path
 
-from .stored_data import *
+from archive_box.sdid import *
+from .stored_data import StoredStat
 
 class StoredDataIdTests(unittest.TestCase):
     def setUp(self) -> None:

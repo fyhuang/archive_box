@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 {% block body %}
 
-<h1>Documents</h1>
+<header>
+<h1>Collection</h1>
+</header>
+
+<h1>{{ collection_name }}</h1>
+
+<h2>{{ search_name }}</h2>
 
 {% for document in documents %}
 <div class="pure-g">
