@@ -116,7 +116,7 @@ class ProtoTable(object):
         # sort
         after_sort = results
         if sortkey:
-            after_sort.sort(key=sortkey_func, reverse=reverse)
+            after_sort.sort(key=sortkey, reverse=reverse)
 
         # limit
         if limit is not None:
