@@ -15,6 +15,12 @@ class StoredDataId(NamedTuple):
     def to_strid(self) -> str:
         return "{}_{}".format(self.schema, self.id)
 
+    def __str__(self) -> str:
+        return self.to_strid()
+
+    def __repr__(self) -> str:
+        return self.to_strid()
+
 
 def sdid_schema_01(filename: Path) -> StoredDataId:
     h = hashlib.blake2b(digest_size=16, person=b'arbox')

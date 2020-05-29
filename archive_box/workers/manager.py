@@ -18,3 +18,11 @@ def start_worker(w: Worker) -> None:
     _workers[name] = w
     _threads[name] = threading.Thread(target=target_func)
     _threads[name].start()
+
+
+def stop_all_workers() -> None:
+    for worker in _workers.values():
+        worker.stop()
+
+    for thread in _threads.values():
+        thread.join()

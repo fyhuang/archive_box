@@ -1,9 +1,0 @@
-syntax = "proto2";
-
-package archive_box;
-
-message ScannedFile {
-    required string filepath = 1;
-    required string sdid = 2;
-    // TODO(fyhuang): more attributes like mtime, size, etc. to make cache more robust
-}

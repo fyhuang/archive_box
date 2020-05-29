@@ -44,6 +44,9 @@ class Workspace(NamedTuple):
 
         return Workspace(root_path, internal, config, node_config)
 
+    def inbox_path(self) -> Path:
+        return Path(self.config["server"]["inbox"])
+
     def scanner_db_path(self) -> Path:
         return self.internal_path / "scanner.db"
 

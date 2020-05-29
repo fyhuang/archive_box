@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block body %}
-
-<header>
+{% block header %}
 <h1>Archive Box</h1>
-</header>
+{% endblock %}
+
+{% block main %}
 
 <h2>Collections</h2>
 
-<table>
+<table class="pure-table">
     <thead><tr><th>Name</th><th>ID</th></tr></thead>
     <tbody>
 {% for collection in collections %}
@@ -21,25 +21,25 @@
 
 <h2>Inbox</h2>
 
-<table>
+<table class="pure-table">
     <thead><tr><th>Name</th><th>Add to Collection</th></thead>
     <tbody>
 {% for file in scanned_files %}
     <tr>
         <td>{{ file.path }}</td>
         <td>
-            <form method="post" action="/api/add_document">
-                <input type="hidden" name="sdid" value="{{ file.sdid }}">
-                <input type="hidden" name="filename" value="{{ file.path }}">
             {% for collection in collections %}
-            <input type="submit" name="cid" value="{{collection.id}}">
-            {% endfor %}
+            <form method="post" action="/api/add_document">
+                <input type="hidden" name="sdid" value="{{ file.sdid.to_strid() }}">
+                <input type="hidden" name="filename" value="{{ file.path }}">
+                <input type="hidden" name="cid" value="{{ collection.id }}">
+                <input type="submit" value="{{ collection.name }}">
             </form>
+            {% endfor %}
         </td>
     </tr>
 {% endfor %}
     </tbody>
 </table>
-
 
 {% endblock %}

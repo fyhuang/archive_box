@@ -3,10 +3,25 @@ import hashlib
 import tempfile
 from pathlib import Path
 
-from archive_box.sdid import *
-from .stored_data import StoredStat
+from .sdid import *
+
 
 class StoredDataIdTests(unittest.TestCase):
+    def test_to_strid(self) -> None:
+        sdid = StoredDataId("01", "abc123")
+        self.assertEqual("01_abc123", sdid.to_strid())
+
+    def test_str(self) -> None:
+        sdid = StoredDataId("01", "abc123")
+        self.assertEqual(sdid.to_strid(), str(sdid))
+        self.assertEqual(sdid.to_strid(), repr(sdid))
+
+    def test_from_strid(self) -> None:
+        sdid = StoredDataId.from_strid("01_abc123")
+        self.assertEqual(StoredDataId("01", "abc123"), sdid)
+
+
+class Schema01Tests(unittest.TestCase):
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()
 

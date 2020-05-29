@@ -4,16 +4,20 @@ from archive_box.workspace import Workspace
 from archive_box.factory import Factory
 
 
+class Globals(object):
+    def __init__(self):
+        self.workspace: Workspace = None # type: ignore
+        self.factory: Factory = None # type: ignore
+
+
 app = Flask(__name__)
-workspace: Workspace = None # type: ignore
-factory: Factory = None # type: ignore
+globals = Globals()
 
 
-def run(ws: Workspace, f: Factory):
-    global workspace, factory
-    workspace = ws
-    factory = f
-    app.run(port=ws.config["server"]["port"])
+def run(workspace: Workspace, factory: Factory):
+    globals.workspace = workspace
+    globals.factory = factory
+    app.run(port=workspace.config["server"]["port"])
 
 
 def shutdown() -> None:

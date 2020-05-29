@@ -21,6 +21,12 @@ class ProcessorWorker(Worker):
             self.state.wait_for_work(timeout=30.0)
             self.run_one()
 
+    def stop(self) -> None:
+        Worker.stop(self)
+        # TODO(fyhuang): encapsulate this better?
+        with self.state.cv:
+            self.state.cv.notify_all()
+
     def run_one(self) -> None:
         next_item = self.state.peek_next_item()
         if next_item is None:

@@ -27,11 +27,11 @@ class Factory(object):
 
     def new_scanner_state(self) -> scanner.ScannerState:
         conn = self.scanner_cpool()
-        return scanner.ScannerState(conn, self.workspace.config["inbox"])
+        return scanner.ScannerState(conn, self.workspace.inbox_path())
 
     def new_scanner_worker(self) -> scanner.ScannerWorker:
         return scanner.ScannerWorker(
-                self.workspace.config["inbox"],
+                self.workspace.inbox_path(),
                 self.new_scanner_state(),
                 self.local_store
         )

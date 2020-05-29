@@ -4,9 +4,21 @@ package archive_box;
 
 import "dtsdb/schema.proto";
 
+message FilePointer {
+    required string sdid = 1;
+    optional string mime = 2;
+}
+
+message FileGroup {
+    required FilePointer main = 1;
+    optional FilePointer thumbnail = 2;
+    optional FilePointer preview = 3;
+    // TODO(fyhuang): MPD representations, etc.
+}
+
 message Document {
     required string id = 1;
-    required string data_id = 2;
+    required FileGroup data = 2;
 
     // Initially true if the file was ingested without user review
     required bool needs_review = 10 [(dtsdb.field).merge = "latest"];

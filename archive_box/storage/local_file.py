@@ -4,7 +4,7 @@ import shutil
 import functools
 import datetime
 from pathlib import Path
-from typing import Optional, Tuple, Any
+from typing import Optional, Tuple, Union, Any
 from typing_extensions import Protocol
 
 from archive_box.sdid import *
@@ -58,9 +58,9 @@ class ByteRangeReader(object):
 
 
 class LocalFileStorage(object):
-    def __init__(self, root_dir: Path):
-        self.root = root_dir.resolve()
-        self.tempdir = root_dir / "temp"
+    def __init__(self, root_dir: Union[str, Path]):
+        self.root = Path(root_dir).resolve()
+        self.tempdir = self.root / "temp"
         os.makedirs(self.tempdir, exist_ok=True)
 
     def _to_path(self, sdid: StoredDataId) -> Path:

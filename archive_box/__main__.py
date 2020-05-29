@@ -17,8 +17,8 @@ def main() -> None:
     workspace = Workspace.load_from_path(workspace_root)
 
     # TODO(fyhuang): implement connection pooling that stores connection in flask.g
-    scanner_cpool = lambda: sqlite3.connect(str(workspace.scanner_db_path()))
-    collection_cpool = lambda cid: sqlite3.connect(str(workspace.collection_db_path(cid)))
+    scanner_cpool = lambda: sqlite3.connect(str(workspace.scanner_db_path()), check_same_thread=False)
+    collection_cpool = lambda cid: sqlite3.connect(str(workspace.collection_db_path(cid)), check_same_thread=False)
     factory = Factory(workspace, scanner_cpool, collection_cpool)
     factory.first_time_setup()
 
@@ -28,7 +28,12 @@ def main() -> None:
         w_manager.start_worker(factory.new_processor_worker(cid))
 
     # Run the web app
+    print(workspace, factory)
     webapp.run(workspace, factory)
+
+    # Stop workers
+    print("Waiting for workers to stop")
+    w_manager.stop_all_workers()
 
 
 if __name__ == "__main__":

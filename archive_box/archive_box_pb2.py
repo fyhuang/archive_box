@@ -21,11 +21,96 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1d\x61rchive_box/archive_box.proto\x12\x0b\x61rchive_box\x1a\x12\x64tsdb/schema.proto\"\xb3\x03\n\x08\x44ocument\x12\n\n\x02id\x18\x01 \x02(\t\x12\x0f\n\x07\x64\x61ta_id\x18\x02 \x02(\t\x12\"\n\x0cneeds_review\x18\n \x02(\x08\x42\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x18\n\x10\x63reation_time_ms\x18\x0b \x02(\x04\x12&\n\x10last_mod_time_ms\x18\x0c \x02(\x04\x42\x0c\x82\xb5\x18\x08\x12\x06latest\x12\"\n\x0c\x64isplay_name\x18\x14 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x1d\n\x04tags\x18\x15 \x03(\tB\x0f\x82\xb5\x18\x0b\x12\tset_union\x12!\n\x0b\x64\x65scription\x18\x16 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12I\n\x08metadata\x18\x1e \x03(\x0b\x32#.archive_box.Document.MetadataEntryB\x12\x82\xb5\x18\x0e\x12\x0cunion_latest\x12\x15\n\rorig_filename\x18\x64 \x01(\t\x12\x14\n\x0c\x61uto_summary\x18\x65 \x01(\t\x12\x15\n\rauto_keywords\x18\x66 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01'
+  serialized_pb=b'\n\x1d\x61rchive_box/archive_box.proto\x12\x0b\x61rchive_box\x1a\x12\x64tsdb/schema.proto\")\n\x0b\x46ilePointer\x12\x0c\n\x04sdid\x18\x01 \x02(\t\x12\x0c\n\x04mime\x18\x02 \x01(\t\"\x8b\x01\n\tFileGroup\x12&\n\x04main\x18\x01 \x02(\x0b\x32\x18.archive_box.FilePointer\x12+\n\tthumbnail\x18\x02 \x01(\x0b\x32\x18.archive_box.FilePointer\x12)\n\x07preview\x18\x03 \x01(\x0b\x32\x18.archive_box.FilePointer\"\xc8\x03\n\x08\x44ocument\x12\n\n\x02id\x18\x01 \x02(\t\x12$\n\x04\x64\x61ta\x18\x02 \x02(\x0b\x32\x16.archive_box.FileGroup\x12\"\n\x0cneeds_review\x18\n \x02(\x08\x42\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x18\n\x10\x63reation_time_ms\x18\x0b \x02(\x04\x12&\n\x10last_mod_time_ms\x18\x0c \x02(\x04\x42\x0c\x82\xb5\x18\x08\x12\x06latest\x12\"\n\x0c\x64isplay_name\x18\x14 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x1d\n\x04tags\x18\x15 \x03(\tB\x0f\x82\xb5\x18\x0b\x12\tset_union\x12!\n\x0b\x64\x65scription\x18\x16 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12I\n\x08metadata\x18\x1e \x03(\x0b\x32#.archive_box.Document.MetadataEntryB\x12\x82\xb5\x18\x0e\x12\x0cunion_latest\x12\x15\n\rorig_filename\x18\x64 \x01(\t\x12\x14\n\x0c\x61uto_summary\x18\x65 \x01(\t\x12\x15\n\rauto_keywords\x18\x66 \x01(\t\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01'
   ,
   dependencies=[dtsdb_dot_schema__pb2.DESCRIPTOR,])
 
 
+
+
+_FILEPOINTER = _descriptor.Descriptor(
+  name='FilePointer',
+  full_name='archive_box.FilePointer',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='sdid', full_name='archive_box.FilePointer.sdid', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='mime', full_name='archive_box.FilePointer.mime', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=66,
+  serialized_end=107,
+)
+
+
+_FILEGROUP = _descriptor.Descriptor(
+  name='FileGroup',
+  full_name='archive_box.FileGroup',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='main', full_name='archive_box.FileGroup.main', index=0,
+      number=1, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='thumbnail', full_name='archive_box.FileGroup.thumbnail', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='preview', full_name='archive_box.FileGroup.preview', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=110,
+  serialized_end=249,
+)
 
 
 _DOCUMENT_METADATAENTRY = _descriptor.Descriptor(
@@ -62,8 +147,8 @@ _DOCUMENT_METADATAENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=455,
-  serialized_end=502,
+  serialized_start=661,
+  serialized_end=708,
 )
 
 _DOCUMENT = _descriptor.Descriptor(
@@ -82,9 +167,9 @@ _DOCUMENT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='data_id', full_name='archive_box.Document.data_id', index=1,
-      number=2, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=b"".decode('utf-8'),
+      name='data', full_name='archive_box.Document.data', index=1,
+      number=2, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -170,14 +255,34 @@ _DOCUMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=67,
-  serialized_end=502,
+  serialized_start=252,
+  serialized_end=708,
 )
 
+_FILEGROUP.fields_by_name['main'].message_type = _FILEPOINTER
+_FILEGROUP.fields_by_name['thumbnail'].message_type = _FILEPOINTER
+_FILEGROUP.fields_by_name['preview'].message_type = _FILEPOINTER
 _DOCUMENT_METADATAENTRY.containing_type = _DOCUMENT
+_DOCUMENT.fields_by_name['data'].message_type = _FILEGROUP
 _DOCUMENT.fields_by_name['metadata'].message_type = _DOCUMENT_METADATAENTRY
+DESCRIPTOR.message_types_by_name['FilePointer'] = _FILEPOINTER
+DESCRIPTOR.message_types_by_name['FileGroup'] = _FILEGROUP
 DESCRIPTOR.message_types_by_name['Document'] = _DOCUMENT
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+FilePointer = _reflection.GeneratedProtocolMessageType('FilePointer', (_message.Message,), {
+  'DESCRIPTOR' : _FILEPOINTER,
+  '__module__' : 'archive_box.archive_box_pb2'
+  # @@protoc_insertion_point(class_scope:archive_box.FilePointer)
+  })
+_sym_db.RegisterMessage(FilePointer)
+
+FileGroup = _reflection.GeneratedProtocolMessageType('FileGroup', (_message.Message,), {
+  'DESCRIPTOR' : _FILEGROUP,
+  '__module__' : 'archive_box.archive_box_pb2'
+  # @@protoc_insertion_point(class_scope:archive_box.FileGroup)
+  })
+_sym_db.RegisterMessage(FileGroup)
 
 Document = _reflection.GeneratedProtocolMessageType('Document', (_message.Message,), {
 
