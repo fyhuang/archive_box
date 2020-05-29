@@ -1,4 +1,5 @@
 import sqlite3
+import threading
 from datetime import datetime, timezone
 from typing import Optional, List, NamedTuple
 
@@ -16,9 +17,10 @@ class WorkItem(NamedTuple):
 
 
 class ProcessorState(object):
-    def __init__(self, conn: sqlite3.Connection) -> None:
+    def __init__(self, conn: sqlite3.Connection, cv: threading.Condition) -> None:
         # TODO(fyhuang): would be nice to be able to use ProtoTable for this
         self.conn = conn
+        self.cv = cv
 
     def first_time_setup(self) -> None:
         schema = '''CREATE TABLE processor_work_queue (
@@ -62,3 +64,9 @@ class ProcessorState(object):
         with self.conn:
             self.conn.execute('INSERT OR IGNORE INTO processor_work_queue VALUES (?,?,?)',
                     (timestamp, document_id, action))
+        with self.cv:
+            self.cv.notify()
+
+    def wait_for_work(self):
+        with self.cv:
+            self.cv.wait()

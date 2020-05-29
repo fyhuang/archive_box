@@ -1,4 +1,8 @@
 import unittest
+import os
+import time
+import threading
+import tempfile
 import sqlite3
 from datetime import datetime
 
@@ -8,7 +12,8 @@ from .processor_state import *
 class ProcessorStateTests(unittest.TestCase):
     def setUp(self) -> None:
         self.conn = sqlite3.connect(":memory:")
-        self.ps = ProcessorState(self.conn)
+        self.cv = threading.Condition()
+        self.ps = ProcessorState(self.conn, self.cv)
         self.ps.first_time_setup()
 
     def test_empty(self) -> None:
@@ -39,3 +44,17 @@ class ProcessorStateTests(unittest.TestCase):
         item = self.ps.peek_next_item()
         assert item is not None
         self.assertEqual(100.0, item.timestamp.timestamp())
+
+    def test_wait(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            db_name = os.path.join(tempdir, "test.db")
+            ps1 = ProcessorState(sqlite3.connect(db_name), self.cv)
+            ps1.first_time_setup()
+
+            def unblock():
+                ps2 = ProcessorState(sqlite3.connect(db_name), self.cv)
+                time.sleep(0.5)
+                ps2.add_work_item("doc1", "upload")
+            threading.Thread(target=unblock).start()
+
+            ps1.wait_for_work()
