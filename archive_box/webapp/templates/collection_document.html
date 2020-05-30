@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block header %}
+<h1>Document</h1>
+{% endblock %}
+
+{% block main %}
+
+<h1>{{ document.display_name }}</h1>
+
+<div id="doc_viewer">
+{# preview/viewer #}
+</div>
+
+<h2>Links</h2>
+<div class="pure-menu pure-menu-horizontal">
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item">
+            <a href="{{ main_url }}"
+                type="{{ document.data.main.mime }}"
+                target="_blank"
+                class="pure-menu-link">Open File <img src="/static/ext_link_icon.png"></a>
+        </li>
+        <li class="pure-menu-item">
+            <a href="{{ main_url }}"
+                download
+                type="{{ document.data.main.mime }}"
+                class="pure-menu-link">Download</a>
+        </li>
+        <li class="pure-menu-item">
+            <a href="{{ url_for("collection_document_edit", cid=collection_id, docid=document.id) }}"
+                class="pure-menu-link">Edit Info</a>
+        </li>
+    </ul>
+</div>
+
+<h2>Description</h2>
+<p>{{ document.description }}</p>
+
+<h2>Tags</h2>
+<p>
+{% for tag in document.tags %}
+<span class="tag_name">{{ tag }}</span>
+{% endfor %}
+</p>
+
+<h2>Summary</h2>
+<p class="small_print">{{ document.auto_summary }}</p>
+
+<h2>Keywords</h2>
+<p class="small_print">{{ document.auto_keywords }}</p>
+
+<h2>Other Info</h2>
+<p class="small_print">Original filename: {{ document.orig_filename }}</p>
+<p class="small_print">Data ID: {{ document.data.main.sdid }}</p>
+<p class="small_print">File group: {{ document.data }}</p>
+
+{% endblock %}

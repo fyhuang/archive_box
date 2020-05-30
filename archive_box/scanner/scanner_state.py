@@ -5,18 +5,11 @@ from typing import List, NamedTuple, Union
 from dtsdb import sqlite_util
 
 from archive_box.sdid import StoredDataId
-from archive_box.archive_box_pb2 import FilePointer
 
 
 class ScannedFile(NamedTuple):
     path: Path
-    pointer: FilePointer
-
-    @staticmethod
-    def from_row(row) -> 'ScannedFile':
-        fp = FilePointer()
-        fp.ParseFromString(row[2])
-        return ScannedFile(Path(row[0]), fp)
+    sdid: StoredDataId
 
 
 class ScannerState(object):
@@ -30,7 +23,6 @@ class ScannerState(object):
         schema = '''CREATE TABLE scanned_files (
             filepath STRING NOT NULL,
             sdid STRING NOT NULL,
-            pointer BLOB NOT NULL,
             PRIMARY KEY (filepath)
         )'''
         sqlite_util.ensure_table_matches(self.conn, schema)
@@ -47,14 +39,14 @@ class ScannerState(object):
         result = []
         c = self.conn.cursor()
         for row in c.execute('SELECT * FROM scanned_files'):
-            result.append(ScannedFile.from_row(row))
+            result.append(ScannedFile(Path(row[0]), StoredDataId.from_strid(row[1])))
         return result
 
-    def record_scanned_file(self, path: Path, pointer: FilePointer) -> None:
+    def record_scanned_file(self, path: Path, sdid: StoredDataId) -> None:
         relative_path = path.relative_to(self.inbox_path)
         with self.conn:
-            self.conn.execute('INSERT OR IGNORE INTO scanned_files VALUES (?,?,?)',
-                    (str(relative_path), pointer.sdid, pointer.SerializeToString()))
+            self.conn.execute('INSERT OR IGNORE INTO scanned_files VALUES (?,?)',
+                    (str(relative_path), sdid.to_strid()))
 
     def delete_scanned_file(self, sdid: StoredDataId) -> None:
         with self.conn:

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block header %}
+<h1>Edit Document</h1>
+{% endblock %}
+
+{% block main %}
+
+<form method="POST" action="" class="pure-form pure-form-stacked">
+    <p><label>
+        Needs Review?
+        <input type="checkbox" name="needs_review" {% if document.needs_review %}checked{% endif %}>
+    </label></p>
+
+    <p><label>
+        Title
+        <input type="text" name="display_name" value="{{ document.display_name }}">
+    </label></p>
+
+    <p>
+        <label for="description">Description</label>
+        <textarea id="description" name="description">{{ document.description }}</textarea>
+    </p>
+
+    <p>
+        <label for="tag_select">Tags</label>
+        <select id="tag_select" name="tags" multiple>
+            {% for tag in document.tags %}
+            <option value="{{ tag }}" selected>{{ tag }}</option>
+            {% endfor %}
+        </select>
+        {# TODO(fyhuang): find a less hacky way to do this #}
+        <label>
+            New tag
+            <input id="add_tag_name" type="text" form="dummyform">
+            <input id="add_tag_btn" type="button" value="Add Tag">
+        </label>
+    </p>
+
+    <p><input type="submit" value="Submit"></p>
+</form>
+
+<form id="dummyform" method="POST" action=""></form>
+
+<script type="text/javascript">
+    function setup() {
+        var tag_input = document.querySelector('#add_tag_name');
+        
+        var new_tag_func = function() {
+            var select = document.querySelector('#tag_select');
+            var option = document.createElement('option');
+            option.selected = true;
+            option.value = tag_input.value;
+            option.text = tag_input.value;
+            select.appendChild(option);
+
+            tag_input.value = "";
+        };
+
+        document.querySelector('#add_tag_btn').onclick = new_tag_func;
+        document.querySelector('#add_tag_name').onkeydown = function(e) {
+            if (e.keyCode == 13) {
+                new_tag_func();
+                e.preventDefault();
+            }
+        };
+    }
+
+    window.onload = setup;
+</script>
+
+{% endblock %}
