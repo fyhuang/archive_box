@@ -45,8 +45,7 @@ def collection_document(cid: str, docid: str):
     if document is None:
         abort(404)
 
-    storage = globals.factory.new_collection_storage(cid)
-    main_url = storage.url_to(StoredDataId.from_strid(document.data.main.sdid))
+    main_url = "/local/{}/{}".format(cid, docid)
 
     return render_template(
             "collection_document.html",

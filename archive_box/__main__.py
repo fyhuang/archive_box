@@ -28,7 +28,8 @@ def main() -> None:
         w_manager.start_worker(factory.new_processor_worker(cid))
 
     # Run the web app
-    webapp.run(workspace, factory)
+    webapp.init(workspace, factory)
+    webapp.run()
 
     # Stop workers
     print("Waiting for workers to stop")

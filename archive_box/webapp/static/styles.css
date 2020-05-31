@@ -31,6 +31,11 @@ select#tag_select {
     min-width: 60pt;
 }
 
+#doc_viewer object {
+    width: 100%;
+    height: 70vh;
+}
+
 /* Expanded whitespace for larger screens */
 @media (min-width: 15cm) {
     header {

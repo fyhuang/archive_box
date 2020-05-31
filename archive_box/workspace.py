@@ -1,7 +1,7 @@
 import os
 import secrets
 from pathlib import Path
-from typing import Any, Set, MutableMapping, NamedTuple
+from typing import Any, Set, Mapping, NamedTuple
 
 import toml
 
@@ -19,7 +19,7 @@ def _default_node_name():
 class Workspace(NamedTuple):
     root_path: Path
     internal_path: Path
-    config: MutableMapping[str, Any]
+    config: Mapping[str, Any]
     node_config: NodeConfig
 
     @staticmethod
@@ -55,3 +55,6 @@ class Workspace(NamedTuple):
 
     def cids(self) -> Set[str]:
         return set(self.config.get("collections", {}).keys())
+
+    def collection_config(self, cid: str) -> Mapping[str, Any]:
+        return self.config["collections"][cid]

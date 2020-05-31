@@ -62,6 +62,7 @@ class LocalFileStorage(object):
         self.root = Path(root_dir).resolve()
         self.tempdir = self.root / "temp"
         os.makedirs(self.tempdir, exist_ok=True)
+        self.url_base: Optional[str] = None
 
     def _to_path(self, sdid: StoredDataId) -> Path:
         first_part = sdid.schema + sdid.id[:2]
@@ -90,8 +91,12 @@ class LocalFileStorage(object):
     def delete(self, sdid: StoredDataId) -> None:
         raise NotImplementedError()
 
-    def url_to(self, sdid: StoredDataId) -> str:
-        return "file:///{}".format(self._to_path(sdid))
+    # TODO(fyhuang): not sure how to support this yet
+    #def url_to(self, sdid: StoredDataId) -> str:
+    #    if self.url_base is None:
+    #        raise RuntimeError("Not linked to an HTTP server!")
+    #    rel_path = self._to_path(sdid).relative_to(self.root)
+    #    return "{}/{}".format(self.url_base, rel_path)
 
     def download_stat(self, sdid: StoredDataId) -> StoredStat:
         path = self._to_path(sdid)
@@ -116,6 +121,9 @@ class LocalFileStorage(object):
         with self.download_bytes(sdid) as src_f:
             with dest_filename.open("wb") as dest_f:
                 shutil.copyfileobj(src_f, dest_f)
+
+    def set_url_base(self, url_base):
+        self.url_base = url_base
 
     def get_temp_filename(self) -> Path:
         # Get a filename that is compatible with `move_inplace`

@@ -7,8 +7,12 @@
 
 <h1>{{ document.display_name }}</h1>
 
-<div id="doc_viewer">
-{# preview/viewer #}
+<div id="doc_viewer" class="pure-g">
+    <div class="pure-u-1-1">
+        <object type="{{ document.data.main.mime }}"
+                data="{{ main_url }}">
+        </object>
+    </div>
 </div>
 
 <h2>Links</h2>
@@ -16,15 +20,15 @@
     <ul class="pure-menu-list">
         <li class="pure-menu-item">
             <a href="{{ main_url }}"
-                type="{{ document.data.main.mime }}"
-                target="_blank"
-                class="pure-menu-link">Open File <img src="/static/ext_link_icon.png"></a>
+               type="{{ document.data.main.mime }}"
+               target="_blank"
+               class="pure-menu-link">Open File <img src="/static/ext_link_icon.png"></a>
         </li>
         <li class="pure-menu-item">
             <a href="{{ main_url }}"
-                download
-                type="{{ document.data.main.mime }}"
-                class="pure-menu-link">Download</a>
+               download="{{ document.orig_filename }}"
+               type="{{ document.data.main.mime }}"
+               class="pure-menu-link">Download</a>
         </li>
         <li class="pure-menu-item">
             <a href="{{ url_for("collection_document_edit", cid=collection_id, docid=document.id) }}"
