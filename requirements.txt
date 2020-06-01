@@ -1,3 +1,7 @@
 toml
 flask
 protobuf==3.12.1
+
+# text/PDF processing
+pdfminer.six[process_text]
+nltk[process_text]
