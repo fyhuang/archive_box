@@ -4,6 +4,7 @@ import sys
 from typing import Any
 
 from . import text
+from .text.summary import *
 
 def output_text_to_file(value: Any, filename: str):
     if isinstance(value, str):
@@ -26,7 +27,11 @@ def try_process_text(args) -> None:
     if args.text_out:
         output_text_to_file(extracted_text, args.text_out)
 
-    keywords = text.keywords.text_to_keywords_rake(extracted_text)
+    summary = text_to_summary(extracted_text)
+    if args.summary_out:
+        output_text_to_file(summary, args.summary_out)
+
+    keywords = text_to_keywords(extracted_text)
     if args.keywords_out:
         output_text_to_file(keywords, args.keywords_out)
 
@@ -34,6 +39,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Apply processing on input files")
     parser.add_argument('input', type=str)
     parser.add_argument('--text_out', type=str)
+    parser.add_argument('--summary_out', type=str)
     parser.add_argument('--keywords_out', type=str)
     args = parser.parse_args()
 

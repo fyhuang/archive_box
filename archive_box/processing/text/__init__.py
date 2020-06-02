@@ -1,1 +1,1 @@
-from . import extract, keywords
+from . import extract

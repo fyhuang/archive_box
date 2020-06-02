@@ -99,7 +99,7 @@ def extract_pdf_paragraphs(filepath: Path) -> List[str]:
         resource_mgr = PDFResourceManager()
         converter = TextBoxConverter(resource_mgr, laparams=LAParams())
         interpreter = PDFPageInterpreter(resource_mgr, converter)
-        for page in PDFPage.get_pages(pdf_file, maxpages=4):
+        for page in PDFPage.get_pages(pdf_file, maxpages=2):
             interpreter.process_page(page)
     
     # extract the text from "converter"

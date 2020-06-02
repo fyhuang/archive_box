@@ -1,6 +1,6 @@
 import unittest
 
-from .rake import *
+from .keywords_rake import *
 
 
 _TEXT = '''
