@@ -16,20 +16,26 @@ class KeywordsTests(unittest.TestCase):
         self.assertTrue("of" in delimiters)
         self.assertTrue("." in delimiters)
 
-    def test_tokenize_rake(self) -> None:
-        tokens, indexed_words = tokenize_rake(_TEXT)
-        self.assertEqual("hello", tokens[0])
-        self.assertEqual("the", tokens[-4])
-        self.assertEqual(IndexedWord("hello", 0), indexed_words[0])
-        self.assertEqual(IndexedWord("the", 27), indexed_words[-4])
-
     def test_gen_phrases_rake(self) -> None:
-        tokens, indexed_words = tokenize_rake(_TEXT)
-        result = list(gen_phrases_rake(indexed_words))
-        self.assertEqual(IndexedWord("hello", 0), result[0])
-        self.assertEqual(IndexedWord("like cats", 12), result[4])
-        self.assertEqual(IndexedWord("go west", 20), result[6])
+        tokens, result = gen_phrases_rake(_TEXT)
+        self.assertEqual(IndexedPhrase(["hello"], 0), result[0])
+        self.assertEqual(IndexedPhrase(["like", "cats"], 12), result[4])
+        self.assertEqual(IndexedPhrase(["go", "west"], 20), result[6])
+
+    def test_compute_cooccurance(self) -> None:
+        result = compute_cooccurance([
+            ["hello", "world"],
+            ["hello", "my", "friend"],
+            ["never"],
+        ])
+        self.assertEqual(0, result["unknown"])
+        self.assertEqual(1, result["never"])
+        self.assertEqual(2, result["world"])
+        self.assertEqual(3, result["my"])
+        self.assertEqual(3, result["friend"])
+        self.assertEqual(5, result["hello"])
 
     def test_text_to_keywords_rake(self) -> None:
         keywords = text_to_keywords_rake(_TEXT)
         print(keywords)
+
