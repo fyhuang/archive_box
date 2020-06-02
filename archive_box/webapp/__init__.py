@@ -28,7 +28,7 @@ def local_store_app(cid: str):
         if doc is None:
             abort(404)
 
-        path = local_store._to_path(StoredDataId.from_strid(doc.data.main.sdid))
+        path = local_store.path_to(StoredDataId.from_strid(doc.data.main.sdid))
         return send_file(path, mimetype=doc.data.main.mime)
 
     app = Flask("local_store_" + cid)

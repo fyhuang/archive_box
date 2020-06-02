@@ -10,6 +10,11 @@ class StoredDataId(NamedTuple):
     @staticmethod
     def from_strid(sid: str) -> 'StoredDataId':
         schema_part, _, id_part = sid.partition("_")
+        if schema_part is None or id_part is None:
+            raise RuntimeError("Couldn't parse {}".format(sid))
+        if len(schema_part) == 0 or len(id_part) == 0:
+            raise RuntimeError("Couldn't parse {}".format(sid))
+
         return StoredDataId(schema_part, id_part)
 
     def to_strid(self) -> str:
@@ -36,3 +41,8 @@ def sdid_schema_01(filename: Path) -> StoredDataId:
 
 def file_to_sdid(filename: Path) -> StoredDataId:
     return sdid_schema_01(filename)
+
+
+if __name__ == "__main__":
+    import sys
+    print(file_to_sdid(Path(sys.argv[1])))

@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Optional, Tuple, Union, Any
 from typing_extensions import Protocol
 
+from archive_box import util
 from archive_box.sdid import *
 from .stored_data import StoredStat
 
@@ -64,7 +65,7 @@ class LocalFileStorage(object):
         os.makedirs(self.tempdir, exist_ok=True)
         self.url_base: Optional[str] = None
 
-    def _to_path(self, sdid: StoredDataId) -> Path:
+    def path_to(self, sdid: StoredDataId) -> Path:
         first_part = sdid.schema + sdid.id[:2]
         return self.root / first_part / sdid.to_strid()
 
@@ -74,17 +75,17 @@ class LocalFileStorage(object):
         return ancestor == self.root
 
     def contains(self, sdid: StoredDataId) -> bool:
-        path = self._to_path(sdid)
+        path = self.path_to(sdid)
         return path.exists()
 
     def upload(self, sdid: StoredDataId, src_file: Path) -> None:
-        path = self._to_path(sdid)
+        path = self.path_to(sdid)
         if path.exists():
             return
         os.makedirs(path.parent, exist_ok=True)
 
         # Copy to a temp file first and then atomically move
-        temp_path = self.tempdir / (sdid.to_strid() + ".tmp")
+        temp_path = self.tempdir / "upload_{}.tmp".format(sdid.to_strid())
         shutil.copy2(src_file, temp_path)
         os.rename(temp_path, path)
 
@@ -95,11 +96,11 @@ class LocalFileStorage(object):
     #def url_to(self, sdid: StoredDataId) -> str:
     #    if self.url_base is None:
     #        raise RuntimeError("Not linked to an HTTP server!")
-    #    rel_path = self._to_path(sdid).relative_to(self.root)
+    #    rel_path = self.path_to(sdid).relative_to(self.root)
     #    return "{}/{}".format(self.url_base, rel_path)
 
     def download_stat(self, sdid: StoredDataId) -> StoredStat:
-        path = self._to_path(sdid)
+        path = self.path_to(sdid)
         stat_result = os.stat(path)
         return StoredStat(
             stat_result.st_size,
@@ -109,7 +110,7 @@ class LocalFileStorage(object):
 
     def download_bytes(self, sdid: StoredDataId, byte_range: Optional[Tuple[int, int]] = None) -> Reader:
         # Both ends of the byte range are inclusive (like HTTP)
-        path = self._to_path(sdid)
+        path = self.path_to(sdid)
         f = path.open("rb")
         if byte_range is not None:
             f.seek(byte_range[0])
@@ -127,7 +128,8 @@ class LocalFileStorage(object):
 
     def get_temp_filename(self) -> Path:
         # Get a filename that is compatible with `move_inplace`
-        raise NotImplementedError()
+        random_name = "download_{}.tmp".format(util.new_id())
+        return self.tempdir / random_name
 
     def move_inplace(self, sdid: StoredDataId, src_file: Path) -> None:
         # Move a pre-uploaded file into the right place
@@ -136,8 +138,6 @@ class LocalFileStorage(object):
         if not self._is_path_in_root(src_file):
             raise RuntimeError("File should already be in the root to use move_inplace")
 
-        path = self._to_path(sdid)
-        if path.exists():
-            return
+        path = self.path_to(sdid)
         os.rename(src_file, path)
 

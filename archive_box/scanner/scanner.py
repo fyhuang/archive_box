@@ -45,7 +45,6 @@ class ScannerWorker(Worker):
 
     def ingest_one_file(self, filename: Path) -> None:
         if self.state.is_already_scanned(filename):
-            print("Already ingested: {}".format(filename))
             return
 
         print("Ingesting {}...".format(filename))

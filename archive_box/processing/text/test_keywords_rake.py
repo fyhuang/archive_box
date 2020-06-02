@@ -37,5 +37,4 @@ class KeywordsTests(unittest.TestCase):
 
     def test_text_to_keywords_rake(self) -> None:
         keywords = text_to_keywords_rake(_TEXT)
-        print(keywords)
 

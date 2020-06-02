@@ -60,6 +60,7 @@ class Factory(object):
         storage = self.new_collection_storage(cid)
         return collection.ProcessorWorker(
                 self.new_processor_state(cid),
+                self.new_collection(cid),
                 self.local_store,
                 storage
         )

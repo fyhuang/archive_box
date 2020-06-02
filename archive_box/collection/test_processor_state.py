@@ -4,7 +4,7 @@ import time
 import threading
 import tempfile
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from .processor_state import *
 
@@ -16,34 +16,40 @@ class ProcessorStateTests(unittest.TestCase):
         self.ps = ProcessorState(self.conn, self.cv)
         self.ps.first_time_setup()
 
+    def timestamp(self, millis) -> datetime:
+        return datetime.fromtimestamp(millis / 1000.0, tz=timezone.utc)
+
     def test_empty(self) -> None:
         self.assertEqual(None, self.ps.peek_next_item())
         self.assertEqual(0, self.ps.get_queue_size())
 
     def test_add_one(self) -> None:
-        self.ps.add_work_item("doc1", "upload", datetime.fromtimestamp(100))
+        self.ps.add_work_item("doc1", "upload", self.timestamp(100))
         self.assertEqual(1, self.ps.get_queue_size())
-        wi = WorkItem(datetime.fromtimestamp(100), "doc1", "upload")
+        wi = WorkItem(self.timestamp(100), "doc1", "upload")
         self.assertEqual(wi, self.ps.peek_next_item())
         self.assertEqual([wi], self.ps.get_items_for_doc("doc1"))
 
     def test_queue_order(self) -> None:
-        self.ps.add_work_item("doc1", "upload", datetime.fromtimestamp(100))
-        self.ps.add_work_item("doc2", "upload", datetime.fromtimestamp(50))
+        self.ps.add_work_item("doc1", "upload", self.timestamp(100))
+        self.ps.add_work_item("doc2", "upload", self.timestamp(50))
         item = self.ps.peek_next_item()
         assert item is not None
-        self.assertEqual(50.0, item.timestamp.timestamp())
+        self.assertEqual(self.timestamp(50), item.timestamp)
 
     def test_delete(self) -> None:
-        self.ps.add_work_item("doc1", "upload", datetime.fromtimestamp(100))
-        self.ps.add_work_item("doc2", "upload", datetime.fromtimestamp(50))
+        self.ps.add_work_item("doc1", "upload", self.timestamp(100))
+        self.ps.add_work_item("doc2", "upload", self.timestamp(50))
         self.assertEqual(2, self.ps.get_queue_size())
 
-        self.ps.delete_item(WorkItem(datetime.fromtimestamp(50), "doc1", "upload"))
+        first = self.ps.peek_next_item()
+        assert first is not None
+        self.ps.delete_item(first)
         self.assertEqual(1, self.ps.get_queue_size())
+
         item = self.ps.peek_next_item()
         assert item is not None
-        self.assertEqual(100.0, item.timestamp.timestamp())
+        self.assertEqual(self.timestamp(100), item.timestamp)
 
     def test_wait(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir:

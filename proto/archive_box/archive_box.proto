@@ -34,6 +34,8 @@ message Document {
 
     // Automatically generated (non-user-editable) metadata
     optional string orig_filename = 100;
-    optional string auto_summary = 101;
-    optional string auto_keywords = 102;
+    optional string downloaded_from_url = 101;
+
+    optional string auto_summary = 200;
+    repeated string auto_keywords = 201 [(dtsdb.field).merge = "set_union"];
 }
