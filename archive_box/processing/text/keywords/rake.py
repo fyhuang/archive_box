@@ -1,16 +1,18 @@
 """RAKE method for keyword extraction.
 
+Results: works OK on short texts (abstracts). Becomes much less relevant with longer documents.
+Struggles with tables, numbers, other non-English texts.
+
 References:
-
-https://github.com/csurfer/rake-nltk
-
-Rose, Stuart & Engel, Dave & Cramer, Nick & Cowley, Wendy. (2010). Automatic Keyword Extraction from Individual Documents. 10.1002/9780470689646.ch1.
+- https://github.com/csurfer/rake-nltk
+- Rose, Stuart & Engel, Dave & Cramer, Nick & Cowley, Wendy. (2010). Automatic Keyword Extraction from Individual Documents. 10.1002/9780470689646.ch1.
 """
 
 import collections
 import inspect
 import itertools
 import string
+import re
 import zipfile
 from pathlib import Path
 from typing import Tuple, List, Set, Dict, Mapping, Iterable, NamedTuple, Counter
@@ -46,8 +48,10 @@ def load_delimiters() -> Set[str]:
     return set(stopwords) | set(string.punctuation)
 
 
-def is_delimiters(word: str, delimiters: Set[str]) -> bool:
+def should_ignore(word: str, delimiters: Set[str]) -> bool:
     if word in delimiters:
+        return True
+    if re.match("\d+", word):
         return True
     return all(letter in delimiters for letter in word)
 
@@ -70,7 +74,7 @@ def gen_phrases_rake(text: str) -> Tuple[List[str], List[IndexedPhrase]]:
     delimiters = load_delimiters()
 
     result = []
-    for key, phrase_iter in itertools.groupby(indexed_tokens, key=lambda ip: is_delimiters(ip.phrase[0], delimiters)):
+    for key, phrase_iter in itertools.groupby(indexed_tokens, key=lambda ip: should_ignore(ip.phrase[0], delimiters)):
         if key == True:
             # is a delimiter
             continue

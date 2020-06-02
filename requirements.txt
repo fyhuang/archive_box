@@ -5,3 +5,5 @@ protobuf==3.12.1
 # text/PDF processing
 pdfminer.six[process_text]
 nltk[process_text]
+gensim[process_text]
+pyenchant[process_text]

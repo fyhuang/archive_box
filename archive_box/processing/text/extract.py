@@ -2,10 +2,10 @@
 from pathlib import Path
 from typing import Union
 
-import pdfminer.high_level # type: ignore
+from .extract_pdf import extract_pdf_paragraphs
 
 def extract_pdf_text(filepath: Path) -> str:
-    return pdfminer.high_level.extract_text(str(filepath), maxpages=2)
+    return '\n\n'.join(extract_pdf_paragraphs(filepath))
 
 _EXTRACTORS = {
     ".pdf": extract_pdf_text,
