@@ -3,7 +3,7 @@ import threading
 from pathlib import Path
 from typing import Optional, Callable
 
-from . import scanner, collection, storage
+from . import scanner, collection, storage, search
 from .workspace import Workspace
 
 
@@ -26,6 +26,7 @@ class Factory(object):
         for cid in self.workspace.cids():
             self.new_processor_state(cid).first_time_setup()
             self.new_collection(cid).db.first_time_setup()
+            self.new_collection_search_index(cid).first_time_setup()
 
     def set_collection_storage_url_pattern(self, pattern) -> None:
         self.collection_storage_url_pattern = pattern
@@ -51,6 +52,10 @@ class Factory(object):
         else:
             raise RuntimeError("Unknown storage type {}".format(config["storage"]))
 
+    def new_collection_search_index(self, cid: str) -> search.SearchIndex:
+        conn = self.collection_cpool(cid)
+        return search.SearchIndex(conn)
+
     def new_processor_state(self, cid: str) -> collection.ProcessorState:
         conn = self.collection_cpool(cid)
         # TODO(fyhuang): technically, separate CV per collection would be more efficient
@@ -62,7 +67,8 @@ class Factory(object):
                 self.new_processor_state(cid),
                 self.new_collection(cid),
                 self.local_store,
-                storage
+                storage,
+                self.new_collection_search_index(cid)
         )
 
     def new_collection(self, cid: str) -> collection.Collection:

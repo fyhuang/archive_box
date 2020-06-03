@@ -7,6 +7,7 @@ from archive_box.collection import Collection
 from archive_box.workers import Worker
 from archive_box.sdid import StoredDataId
 from archive_box.storage import LocalFileStorage
+from archive_box.search import SearchIndex
 from . import document_files
 from .processor_state import *
 
@@ -20,12 +21,14 @@ class ProcessorWorker(Worker):
             local_store: LocalFileStorage,
             # TODO(fyhuang): generalize this storage
             remote_storage: LocalFileStorage,
+            search_index: SearchIndex,
             ) -> None:
         Worker.__init__(self)
         self.state = state
         self.collection = collection
         self.local_store = local_store
         self.remote_storage = remote_storage
+        self.search_index = search_index
 
     def run(self) -> None:
         while not self.should_quit():
@@ -76,6 +79,8 @@ class ProcessorWorker(Worker):
             document.auto_summary = summary.text_to_summary(extracted_text)
             document.auto_keywords[:] = summary.text_to_keywords(extracted_text)
             self.collection.db.get_table("Document").update(document)
+        elif work_item.action == "index_for_search":
+            self.search_index.update_index(document)
         else:
             print("Warning: unknown action {} while processing {}".format(work_item.action, work_item.document_id))
 
