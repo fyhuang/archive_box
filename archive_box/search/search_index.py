@@ -72,6 +72,7 @@ class SqliteDocumentSearchIndex(object):
         ]).strip()
 
         with self.conn:
+            # TODO(fyhuang): pretty sure this won't work b/c "doc_id" isn't primary key!
             self.conn.execute('''INSERT OR REPLACE INTO doc_fts_index
                 (doc_id, display_name, tags, freetext)
             VALUES (?, ?, ?, ?)''',

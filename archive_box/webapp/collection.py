@@ -35,12 +35,25 @@ def collection_add_document() -> Response:
 @app.route("/c/<cid>", methods=["GET"])
 def collection_index(cid: str):
     collection = globals.factory.new_collection(cid)
-    documents = collection.docs_recent()
+    if "q" in request.args:
+        search_query = request.args["q"]
+        search_name = "Search: {}".format(search_query)
+
+        search_index = globals.factory.new_collection_search_index(cid)
+        results = search_index.query(search_query, 30)
+        documents = collection.db.get_table("Document").getall([r.doc_id for r in results])
+    else:
+        filter = request.args.get("filter", "Recent")
+        search_name = filter
+        search_query = ""
+        documents = collection.docs_recent()
+
     return render_template(
             "collection_index.html",
             collection_id=cid,
             collection_name=collection.config["display_name"],
-            search_name="Recent",
+            search_name=search_name,
+            search_query=search_query,
             documents=documents
     )
 
@@ -71,6 +84,7 @@ def collection_document_edit(cid: str, docid: str):
     return render_template(
             "collection_document_edit.html",
             document=document,
+            collection_id=cid,
     )
 
 @app.route("/c/<cid>/d/<docid>/edit", methods=["POST"])

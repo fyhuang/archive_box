@@ -97,6 +97,10 @@ class ProtoTable(object):
             raise RuntimeError("Requested entity with ID {} but none found".format(id))
         return result
 
+    def getall(self, ids: List[str]) -> List[Any]:
+        # TODO(fyhuang): can this be done in one query?
+        return list(filter(lambda x: x is not None, (self.get(id) for id in ids)))
+
     def queryall(self,
             filter: Optional[Callable[[Any], bool]] = None,
             sortkey: Optional[Callable[[Any], Any]] = None,

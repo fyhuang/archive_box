@@ -5,6 +5,8 @@
 
 {% block main %}
 
+<div class="breadcrumb"><a href="{{ url_for("collection_index", cid=collection_id) }}">&#171 Back</a></div>
+
 <h1>{{ document.display_name }}</h1>
 
 <div id="doc_viewer" class="pure-g">

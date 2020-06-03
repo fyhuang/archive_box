@@ -5,8 +5,34 @@
 
 {% block main %}
 
+<div class="breadcrumb"><a href="/">&#171 Back</a></div>
+
 <h1>{{ collection_name }}</h1>
 
+{# Search section #}
+<form method="get" action="">
+    <div class="pure-g">
+        <div class="pure-u-4-5">
+            <input class="coll_search" type="text" name="q" placeholder="Search" value="{{ search_query }}">
+        </div>
+        <div class="pure-u-1-5">
+            <input class="coll_search_btn" type="image" src="/static/search_icon.png">
+        </div>
+    </div>
+</form>
+
+<div class="pure-menu pure-menu-horizontal">
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item">
+            <a href="?filter=recent" class="pure-menu-link">Recent</a>
+        </li>
+        <li class="pure-menu-item">
+            <a href="?filter=needs_review" class="pure-menu-link">Needs Review</a>
+        </li>
+    </ul>
+</div>
+
+{# Search results / documents #}
 <h2>{{ search_name }}</h2>
 
 {% for document in documents %}
