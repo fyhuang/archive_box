@@ -5,12 +5,20 @@ import re
 from typing import Union
 
 _CREATE_TABLE_RE = re.compile(r'CREATE TABLE( IF NOT EXISTS)? (?P<tname>\w[\d\w]*) \(')
+_CREATE_VIRTUAL_TABLE_RE = re.compile(r'CREATE VIRTUAL TABLE( IF NOT EXISTS)? (?P<tname>\w[\d\w]*) USING (\w+) \(')
 
 # TODO(fyhuang): write a test
 def ensure_table_matches(conn: sqlite3.Connection, create_table_schema: str) -> None:
     # throws exception if the db already contains a table whose schema doesn't
     # match the one given by `create_table_schema`
-    m = _CREATE_TABLE_RE.match(create_table_schema)
+
+    m = None
+    schema_res = [_CREATE_TABLE_RE, _CREATE_VIRTUAL_TABLE_RE]
+    for regex in schema_res:
+        m = regex.match(create_table_schema)
+        if m is not None:
+            break
+
     if m is None:
         raise RuntimeError("Unable to parse schema")
     table_name = m.group("tname")
