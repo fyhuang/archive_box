@@ -119,15 +119,13 @@ class SyncedDb(object):
     def __init__(self,
             conn: sqlite3.Connection,
             node_config: NodeConfig,
-            schemas: List[Any],
+            tables: List[proto_table.ProtoTable],
             ) -> None:
         self.node_config = node_config
         self.log = log.Log(conn)
-        self.tables = {}
-        for s in schemas:
-            name = proto_table.entity_name(s)
-            pt = proto_table.ProtoTable(conn, s, self._update_cb(name))
-            self.tables[name] = pt
+        self.tables = {t.entity_name: t for t in tables}
+        for t in tables:
+            t.add_callback(self._update_cb(t.entity_name))
 
     def _update_cb(self, entity_name) -> Callable[[str, Optional[bytes]], Any]:
         def cb(entity_id, serialized):
@@ -146,11 +144,6 @@ class SyncedDb(object):
 
     def first_time_setup(self) -> None:
         self.log.first_time_setup()
-        for pt in self.tables.values():
-            pt.first_time_setup()
-
-    def get_table(self, name: str) -> proto_table.ProtoTable:
-        return self.tables[name]
 
     def sync(self, other_conn: sqlite3.Connection) -> None:
         other_log = log.Log(other_conn)

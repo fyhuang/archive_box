@@ -3,6 +3,7 @@ import datetime
 from pathlib import Path
 from typing import List, Mapping, Union
 
+from dtsdb.protodb import ProtoTable
 from dtsdb.synced_db import SyncedDb
 from dtsdb.node_config import NodeConfig
 
@@ -23,8 +24,13 @@ class Collection(object):
             node_config: NodeConfig,
             config: Mapping,
             ) -> None:
-        self.db = SyncedDb(conn, node_config, [pb2.Document])
+        self.docs = ProtoTable(conn, pb2.Document)
+        self.synced_db = SyncedDb(conn, node_config, [self.docs])
         self.config = config
+
+    def first_time_setup(self) -> None:
+        self.docs.first_time_setup()
+        self.synced_db.first_time_setup()
 
     def add_document(self, sdid: StoredDataId, orig_filename: str) -> str:
         document = pb2.Document()
@@ -39,18 +45,18 @@ class Collection(object):
         document.display_name = orig_filename
         document.orig_filename = orig_filename
     
-        self.db.get_table("Document").update(document)
+        self.docs.update(document)
         return document.id
 
     def docs_recent(self) -> List[pb2.Document]:
-        return self.db.get_table("Document").queryall(
+        return self.docs.queryall(
                 sortkey=lambda d: d.creation_time_ms,
                 reverse=True,
                 limit=10
         )
 
     def docs_needs_review(self) -> List[pb2.Document]:
-        return self.db.get_table("Document").queryall(
+        return self.docs.queryall(
                 filter=lambda d: d.needs_review,
                 sortkey=lambda d: d.creation_time_ms,
                 limit=10

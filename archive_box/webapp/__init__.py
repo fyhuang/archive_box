@@ -24,7 +24,7 @@ def local_store_app(cid: str):
             abort(500)
 
         collection = globals.factory.new_collection(cid)
-        doc = collection.db.get_table("Document").get(docid)
+        doc = collection.docs.get(docid)
         if doc is None:
             abort(404)
 

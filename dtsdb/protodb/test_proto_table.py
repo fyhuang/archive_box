@@ -32,8 +32,9 @@ class ProtoTableTests(unittest.TestCase):
         def callback(id, contents):
             entries.append((id, contents))
 
-        st = ProtoTable(self.conn, test_pb2.Simple, callback)
+        st = ProtoTable(self.conn, test_pb2.Simple)
         st.first_time_setup()
+        st.add_callback(callback)
 
         msg = test_pb2.Simple()
         msg.id = "s0"

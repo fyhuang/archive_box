@@ -58,7 +58,7 @@ class ProcessorWorker(Worker):
             time.sleep(5)
 
     def process_one(self, work_item: WorkItem) -> None:
-        document: Optional[pb2.Document] = self.collection.db.get_table("Document").get(work_item.document_id)
+        document: Optional[pb2.Document] = self.collection.docs.get(work_item.document_id)
         if document is None:
             raise RuntimeError("Document doesn't exist: {}".format(work_item.document_id))
 
@@ -78,7 +78,7 @@ class ProcessorWorker(Worker):
             # TODO(fyhuang): it would be better if this were transactional
             document.auto_summary = summary.text_to_summary(extracted_text)
             document.auto_keywords[:] = summary.text_to_keywords(extracted_text)
-            self.collection.db.get_table("Document").update(document)
+            self.collection.docs.update(document)
         elif work_item.action == "index_for_search":
             self.search_index.update_index(document)
         else:

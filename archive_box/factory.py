@@ -25,7 +25,7 @@ class Factory(object):
         self.new_scanner_state().first_time_setup()
         for cid in self.workspace.cids():
             self.new_processor_state(cid).first_time_setup()
-            self.new_collection(cid).db.first_time_setup()
+            self.new_collection(cid).first_time_setup()
             self.new_collection_search_index(cid).first_time_setup()
 
     def set_collection_storage_url_pattern(self, pattern) -> None:

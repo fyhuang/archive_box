@@ -41,7 +41,7 @@ def collection_index(cid: str):
 
         search_index = globals.factory.new_collection_search_index(cid)
         results = search_index.query(search_query, 30)
-        documents = collection.db.get_table("Document").getall([r.doc_id for r in results])
+        documents = collection.docs.getall([r.doc_id for r in results])
     else:
         filter = request.args.get("filter", "Recent")
         search_name = filter
@@ -61,7 +61,7 @@ def collection_index(cid: str):
 @app.route("/c/<cid>/d/<docid>", methods=["GET"])
 def collection_document(cid: str, docid: str):
     collection = globals.factory.new_collection(cid)
-    document = collection.db.get_table("Document").get(docid)
+    document = collection.docs.get(docid)
     if document is None:
         abort(404)
 
@@ -78,7 +78,7 @@ def collection_document(cid: str, docid: str):
 @app.route("/c/<cid>/d/<docid>/edit", methods=["GET"])
 def collection_document_edit(cid: str, docid: str):
     collection = globals.factory.new_collection(cid)
-    document = collection.db.get_table("Document").get(docid)
+    document = collection.docs.get(docid)
     if document is None:
         abort(404)
     return render_template(
@@ -94,7 +94,7 @@ def collection_document_edit_submit(cid: str, docid: str):
     list_fields = ["tags"]
 
     collection = globals.factory.new_collection(cid)
-    document = collection.db.get_table("Document").get(docid)
+    document = collection.docs.get(docid)
     if document is None:
         abort(404)
 
@@ -112,5 +112,5 @@ def collection_document_edit_submit(cid: str, docid: str):
         for val in request.form.getlist(f):
             getattr(document, f).append(val)
 
-    collection.db.get_table("Document").update(document)
+    collection.docs.update(document)
     return redirect(url_for("collection_document", cid=cid, docid=docid))
