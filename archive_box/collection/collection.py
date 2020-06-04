@@ -1,13 +1,13 @@
 import sqlite3
 import datetime
 from pathlib import Path
-from typing import List, Mapping, Union
+from typing import List, Mapping, Union, Optional
 
 from dtsdb.protodb import ProtoTable
 from dtsdb.synced_db import SyncedDb
 from dtsdb.node_config import NodeConfig
 
-from archive_box import util
+from archive_box import util, search
 from archive_box import archive_box_pb2 as pb2
 from archive_box.sdid import StoredDataId
 from . import document_files
@@ -25,11 +25,22 @@ class Collection(object):
             config: Mapping,
             ) -> None:
         self.docs = ProtoTable(conn, pb2.Document)
+        self.search_index = search.SearchIndex(conn)
+        self.docs.add_callback(self._update_index_cb)
+
         self.synced_db = SyncedDb(conn, node_config, [self.docs])
         self.config = config
 
+    def _update_index_cb(self, doc_id: str, doc_bytes: Optional[bytes]):
+        if doc_bytes is None:
+            raise NotImplementedError("deletion not implemented yet")
+        doc = pb2.Document()
+        doc.ParseFromString(doc_bytes)
+        self.search_index.update_index(doc)
+
     def first_time_setup(self) -> None:
         self.docs.first_time_setup()
+        self.search_index.first_time_setup()
         self.synced_db.first_time_setup()
 
     def add_document(self, sdid: StoredDataId, orig_filename: str) -> str:

@@ -39,8 +39,7 @@ def collection_index(cid: str):
         search_query = request.args["q"]
         search_name = "Search: {}".format(search_query)
 
-        search_index = globals.factory.new_collection_search_index(cid)
-        results = search_index.query(search_query, 30)
+        results = collection.search_index.query(search_query, 30)
         documents = collection.docs.getall([r.doc_id for r in results])
     else:
         filter = request.args.get("filter", "Recent")
