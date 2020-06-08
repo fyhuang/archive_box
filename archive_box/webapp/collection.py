@@ -21,10 +21,10 @@ def collection_add_document() -> Response:
 
     # queue all processing for the new document
     pstate = globals.factory.new_processor_state(cid)
+    pstate.add_work_item(doc_id, "transcode_video") # transcode first, in case user doesn't want to keep original
     pstate.add_work_item(doc_id, "upload")
     pstate.add_work_item(doc_id, "auto_summarize")
     pstate.add_work_item(doc_id, "index_for_search")
-    pstate.add_work_item(doc_id, "transcode_video")
 
     # remove from scanned files
     globals.factory.new_scanner_state().delete_scanned_file(sdid)
