@@ -21,7 +21,7 @@ class TestNt(NamedTuple):
 
 class MappingToNtTests(unittest.TestCase):
     def test_wrong_primitive(self) -> None:
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ParseError):
             mapping_to_nt(
                 {"f_str": 123, "f_int": "hello"},
                 TestNt
@@ -41,6 +41,22 @@ class MappingToNtTests(unittest.TestCase):
         nt = mapping_to_nt({"f_tuple": [1, 2.0]}, TestNt)
         self.assertEqual(TestNt(f_tuple=(1, 2.0)), nt)
 
-    def test_nt_list(self) -> None:
+    def test_list(self) -> None:
         nt = mapping_to_nt({"f_list": ["a", "b"]}, TestNt)
         self.assertEqual(TestNt(f_list=["a", "b"]), nt)
+
+    def test_dict(self) -> None:
+        nt = mapping_to_nt({"f_dict": {"a": 1}}, TestNt)
+        self.assertEqual(TestNt(f_dict={"a": 1}), nt)
+
+    def test_optional_nested(self) -> None:
+        nt = mapping_to_nt({"f_optional_nested": {"n_a": 2.0, "n_b": "abc"}}, TestNt)
+        self.assertEqual(TestNt(f_optional_nested=NestedNt(2.0, "abc")), nt)
+
+    def test_list_nested(self) -> None:
+        nt = mapping_to_nt({"f_list_nested": [{"n_a": 2.0, "n_b": "abc"}]}, TestNt)
+        self.assertEqual(TestNt(f_list_nested=[NestedNt(2.0, "abc")]), nt)
+
+    def test_dict_nested(self) -> None:
+        nt = mapping_to_nt({"f_dict_nested": {23: {"n_a": 2.0, "n_b": "abc"}}}, TestNt)
+        self.assertEqual(TestNt(f_dict_nested={23: NestedNt(2.0, "abc")}), nt)
