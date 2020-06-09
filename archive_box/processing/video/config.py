@@ -21,9 +21,11 @@ class TargetRepresentation(NamedTuple):
 
     height: int
     # total bitrate, including video + audio
-    bitrate_kbits: float
+    bitrate_kbits: int
     # one of CODECS
     codec: str
+
+    # TODO(fyhuang): from_dict function
 
     @staticmethod
     def for_quality(qc: str, codec: str) -> 'TargetRepresentation':
@@ -36,19 +38,23 @@ class TargetRepresentation(NamedTuple):
         #elif qc == "240p":
         #    pass
         if qc == "360p":
-            return TargetRepresentation(360, 300.0, codec)
+            return TargetRepresentation(360, bitrate_kbits=300, codec=codec)
         elif qc == "480p":
-            return TargetRepresentation(480, 500.0, codec)
+            return TargetRepresentation(480, bitrate_kbits=500, codec=codec)
         elif qc == "720p":
-            return TargetRepresentation(720, 800.0, codec)
+            return TargetRepresentation(720, bitrate_kbits=800, codec=codec)
         elif qc == "1080p":
-            return TargetRepresentation(1080, 1500.0, codec)
+            return TargetRepresentation(1080, bitrate_kbits=1500, codec=codec)
         #elif qc == "1440p":
         #    pass
         #elif qc == "2160p" || qc == "4k":
         #    pass
         else:
             raise RuntimeError("Unknown quality class {}".format(qc))
+
+
+    def __str__(self):
+        return "TR({},{},{})".format(self.height, self.bitrate_kbits, self.codec)
 
 
 class TranscodeConfig(NamedTuple):
@@ -59,4 +65,4 @@ class TranscodeConfig(NamedTuple):
     keep_original: bool = True
 
     # allow original to take the place of a transcoded version, if it is "close enough"
-    skip_matching: bool = False
+    skip_similar: bool = False
