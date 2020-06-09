@@ -1,6 +1,26 @@
 from typing import List
 
 
+def h264_params_1p(video_bitrate: float) -> List[str]:
+    return ["-c:v", "libx264",
+            "-pass", "1",
+            "-preset", "fast",
+            # TODO(fyhuang): auto-detect "tune"
+            "-b:v", "{}k".format(video_bitrate),
+            "-f", "mp4",
+            ]
+
+
+def h264_params_2p(video_bitrate: float) -> List[str]:
+    return ["-c:v", "libx264",
+            "-pass", "2",
+            "-preset", "fast",
+            # TODO(fyhuang): auto-detect "tune"
+            "-b:v", "{}k".format(video_bitrate),
+            "-f", "mp4",
+            ]
+
+
 def av1_params_1p(video_bitrate: float) -> List[str]:
     return ["-c:v", "libaom-av1",
             "-strict", "experimental",
@@ -21,6 +41,12 @@ def av1_params_2p(video_bitrate: float) -> List[str]:
             "-cpu-used", "5",
             "-b:v", "{}k".format(video_bitrate),
             "-f", "webm",
+            ]
+
+
+def aac_params(audio_bitrate: float) -> List[str]:
+    return ["-c:a", "aac",
+            "-b:a", "{}k".format(audio_bitrate)
             ]
 
 

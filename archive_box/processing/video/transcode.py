@@ -82,7 +82,10 @@ def transcode_one(input_file: Path, output_file: Path, target_repr: TargetRepres
 
     # pick params based on codec
     if target_repr.codec == "h264":
-        raise NotImplementedError()
+        video_bitrate, audio_bitrate = _split_bitrate_h264(target_repr.bitrate_kbits)
+        pass1_params = ffmpeg_params.h264_params_1p(video_bitrate)
+        pass2_params = ffmpeg_params.h264_params_2p(video_bitrate)
+        audio_params = ffmpeg_params.aac_params(audio_bitrate)
     elif target_repr.codec == "h265":
         raise NotImplementedError()
     elif target_repr.codec == "vp9":
