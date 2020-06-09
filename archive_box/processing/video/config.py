@@ -1,3 +1,4 @@
+import functools
 from typing import List, NamedTuple
 
 
@@ -9,6 +10,7 @@ CODECS = [
 ]
 
 
+@functools.total_ordering
 class TargetRepresentation(NamedTuple):
     """Parameters for a target representation of a video + audio file.
 
@@ -25,7 +27,13 @@ class TargetRepresentation(NamedTuple):
     # one of CODECS
     codec: str
 
-    # TODO(fyhuang): from_dict function
+    # TODO(fyhuang): from_dict function to support quality shortcuts
+
+    def __lt__(self, other):
+        # compare by codec first, then height, then bitrate
+        self_tuple = (CODECS.index(self.codec), self.height, self.bitrate_kbits)
+        other_tuple = (CODECS.index(other.codec), other.height, other.bitrate_kbits)
+        return self_tuple < other_tuple
 
     @staticmethod
     def for_quality(qc: str, codec: str) -> 'TargetRepresentation':

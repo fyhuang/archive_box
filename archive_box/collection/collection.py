@@ -1,7 +1,7 @@
 import sqlite3
 import datetime
 from pathlib import Path
-from typing import List, Mapping, Union, Optional
+from typing import List, Union, Optional
 
 from dtsdb.protodb import ProtoTable
 from dtsdb.synced_db import SyncedDb
@@ -11,6 +11,7 @@ from archive_box import util, search
 from archive_box import archive_box_pb2 as pb2
 from archive_box.sdid import StoredDataId
 from . import document_files
+from .config import *
 
 
 def _now_ms() -> int:
@@ -22,7 +23,7 @@ class Collection(object):
             self,
             conn: sqlite3.Connection,
             node_config: NodeConfig,
-            config: Mapping,
+            config: CollectionConfig,
             ) -> None:
         self.docs = ProtoTable(conn, pb2.Document)
         self.search_index = search.SearchIndex(conn)

@@ -4,8 +4,11 @@ from pathlib import Path
 from typing import Any, Set, Mapping, NamedTuple
 
 import toml
+import cfgparse
 
 from dtsdb.node_config import NodeConfig
+
+from .collection.config import *
 
 
 def _default_node_name():
@@ -56,5 +59,5 @@ class Workspace(NamedTuple):
     def cids(self) -> Set[str]:
         return set(self.config.get("collections", {}).keys())
 
-    def collection_config(self, cid: str) -> Mapping[str, Any]:
-        return self.config["collections"][cid]
+    def collection_config(self, cid: str) -> CollectionConfig:
+        return cfgparse.mapping_to_nt(self.config["collections"][cid], CollectionConfig)

@@ -50,7 +50,7 @@ def collection_index(cid: str):
     return render_template(
             "collection_index.html",
             collection_id=cid,
-            collection_name=collection.config["display_name"],
+            collection_name=collection.config.display_name,
             search_name=search_name,
             search_query=search_query,
             documents=documents
@@ -69,7 +69,7 @@ def collection_document(cid: str, docid: str):
     return render_template(
             "collection_document.html",
             collection_id=cid,
-            collection_name=collection.config["display_name"],
+            collection_name=collection.config.display_name,
             document=document,
             main_url=main_url,
     )

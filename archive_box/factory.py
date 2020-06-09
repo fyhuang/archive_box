@@ -43,13 +43,13 @@ class Factory(object):
 
     def new_collection_storage(self, cid: str) -> storage.LocalFileStorage:
         config = self.workspace.collection_config(cid)
-        if config["storage"] == "local":
-            result = storage.LocalFileStorage(config["local_storage"]["root"])
+        if config.storage == "local":
+            result = storage.LocalFileStorage(config.local_storage["root"])
             if self.collection_storage_url_pattern is not None:
                 result.set_url_base(self.collection_storage_url_pattern.format(cid=cid))
             return result
         else:
-            raise RuntimeError("Unknown storage type {}".format(config["storage"]))
+            raise RuntimeError("Unknown storage type {}".format(config.storage))
 
     def new_processor_state(self, cid: str) -> collection.ProcessorState:
         conn = self.collection_cpool(cid)
@@ -72,5 +72,5 @@ class Factory(object):
         return collection.Collection(
                 conn,
                 self.workspace.node_config,
-                self.workspace.config["collections"][cid]
+                self.workspace.collection_config(cid),
         )

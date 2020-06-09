@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import traceback
@@ -13,6 +14,7 @@ from .processor_state import *
 
 # processing
 from archive_box.processing.text import extract, summary
+from archive_box.processing.video import transcode
 
 class ProcessorWorker(Worker):
     def __init__(self,
@@ -81,6 +83,22 @@ class ProcessorWorker(Worker):
             self.collection.docs.update(document)
         elif work_item.action == "index_for_search":
             self.search_index.update_index(document)
+        elif work_item.action == "transcode_video":
+            if not document.data.main.mime.startswith("video/"):
+                # not a video, nothing to do
+                return
+
+            if self.collection.config.transcode is None:
+                # no transcoding config
+                # TODO(fyhuang): provide a default transcoding config
+                print("Warning: video {} can be transcoded but no transcode config".format(work_item.document_id))
+                return
+
+            input_path = self.local_store.path_to(StoredDataId.from_strid(document.data.main.sdid))
+            output_dir = self.local_store.tempdir / document.data.main.sdid
+            os.makedirs(output_dir, exist_ok=True)
+
+            outputs = transcode.transcode_all(input_path, output_dir, self.collection.config.transcode)
         else:
             print("Warning: unknown action {} while processing {}".format(work_item.action, work_item.document_id))
 
