@@ -8,7 +8,7 @@ def av1_params_1p(video_bitrate: float) -> List[str]:
             # low quality for 1st pass is fine
             "-cpu-used", "8",
             "-b:v", "{}k".format(video_bitrate),
-            "-f", "matroska",
+            "-f", "webm",
             ]
 
 
@@ -20,7 +20,7 @@ def av1_params_2p(video_bitrate: float) -> List[str]:
             # <https://www.streamingmedia.com/Articles/ReadArticle.aspx?ArticleID=130284>
             "-cpu-used", "5",
             "-b:v", "{}k".format(video_bitrate),
-            "-f", "matroska",
+            "-f", "webm",
             ]
 
 

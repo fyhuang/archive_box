@@ -53,16 +53,18 @@ class TargetRepresentation(NamedTuple):
             raise RuntimeError("Unknown quality class {}".format(qc))
 
 
-    def __str__(self):
-        return "TR({},{},{})".format(self.height, self.bitrate_kbits, self.codec)
+    def as_filename_component(self):
+        return "{}p_{}k_{}".format(self.height, self.bitrate_kbits, self.codec)
 
 
 class TranscodeConfig(NamedTuple):
     # desired representations
     representations: List[TargetRepresentation]
 
-    # keep not only the transcoded versions, but also the original file
-    keep_original: bool = True
-
-    # allow original to take the place of a transcoded version, if it is "close enough"
+    # Allow original to take the place of a transcoded version, if it is "close enough".
     skip_similar: bool = False
+
+    # Keep not only the transcoded versions, but also the original file. If the original was reused as
+    # one of the output representations (see skip_similar), the original will be kept even if
+    # keep_original is False.
+    keep_original: bool = True

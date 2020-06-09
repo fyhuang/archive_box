@@ -3,10 +3,15 @@ import inspect
 import shutil
 import subprocess
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import Union, List, Tuple, Dict, Callable
+from typing_extensions import Literal
 
 from . import ffmpeg_params, ffprobe
 from .config import *
+
+
+OutputKey = Union[Literal["original"], TargetRepresentation]
+OutputsDict = Dict[OutputKey, Path]
 
 
 def _find_ffmpeg() -> Path:
@@ -36,6 +41,16 @@ def _split_bitrate_av1(total_bitrate: float) -> Tuple[float, float]:
     return (total_bitrate - audio, audio)
 
 
+def _container_from_codec(codec: str) -> str:
+    if codec in ("h264", "h265"):
+        return "mp4"
+    elif codec in ("vp9", "av1"):
+        return "webm"
+    else:
+        raise RuntimeError("Unknown codec {}".format(codec))
+
+
+# TODO(fyhuang): maybe combine this and `should_create_repr` into a general "compare" func
 def repr_similar(source_repr: TargetRepresentation, target_repr: TargetRepresentation) -> bool:
     if source_repr.codec != target_repr.codec:
         return False
@@ -50,52 +65,74 @@ def repr_similar(source_repr: TargetRepresentation, target_repr: TargetRepresent
     return True
 
 
-def needs_transcode(source_repr: TargetRepresentation, target_repr: TargetRepresentation, config: TranscodeConfig) -> bool:
-    if repr_similar(source_repr, target_repr):
-        # when representations are similar, config decides whether to transcode
-        return not config.skip_similar
-
+def should_create_repr(source_repr: TargetRepresentation, target_repr: TargetRepresentation) -> bool:
     # no need to upscale while transcoding
     if target_repr.height > source_repr.height + 100:
+        return False
+
+    # no need to increase bitrate while transcoding
+    if (target_repr.bitrate_kbits / source_repr.bitrate_kbits) > 1.1:
         return False
     
     return True
 
 
-def do_transcode(input_file: Path, config: TranscodeConfig) -> Dict[TargetRepresentation, Path]:
+def transcode_one(input_file: Path, output_file: Path, target_repr: TargetRepresentation):
     ffmpeg = str(_find_ffmpeg())
-    source_repr = ffprobe.guess_file_repr(input_file)
 
+    # pick params based on codec
+    if target_repr.codec == "h264":
+        raise NotImplementedError()
+    elif target_repr.codec == "h265":
+        raise NotImplementedError()
+    elif target_repr.codec == "vp9":
+        raise NotImplementedError()
+    elif target_repr.codec == "av1":
+        video_bitrate, audio_bitrate = _split_bitrate_av1(target_repr.bitrate_kbits)
+        pass1_params = ffmpeg_params.av1_params_1p(video_bitrate)
+        pass2_params = ffmpeg_params.av1_params_2p(video_bitrate)
+        audio_params = ffmpeg_params.opus_params(audio_bitrate)
+
+    scale_params = ["-vf", "scale=-1:{}".format(target_repr.height)]
+
+    # first pass encode
+    ffmpeg_args = [ffmpeg, "-y", "-i", str(input_file)] + scale_params + pass1_params
+    # no need for audio on first pass, and we can ignore the video output
+    ffmpeg_args += ["-an", os.devnull]
+    print(ffmpeg_args)
+    subprocess.check_call(ffmpeg_args)
+
+    # second pass encode
+    ffmpeg_args = [ffmpeg, "-y", "-i", str(input_file)] + scale_params + pass2_params + audio_params
+    ffmpeg_args += [str(output_file)]
+    print(ffmpeg_args)
+    subprocess.check_call(ffmpeg_args)
+
+
+def transcode_all(
+        input_file: Path,
+        output_dir: Path,
+        config: TranscodeConfig,
+        guess_repr_func: Callable[[Path], TargetRepresentation] = ffprobe.guess_file_repr,
+        transcode_one_func: Callable[[Path, Path, TargetRepresentation], None] = transcode_one,
+        ) -> OutputsDict:
+    source_repr = guess_repr_func(input_file)
+
+    filenames: OutputsDict = {}
     for repr in config.representations:
-        if not needs_transcode(source_repr, repr, config):
+        if repr_similar(source_repr, repr):
+            if config.skip_similar:
+                filenames[repr] = input_file
+                continue
+
+        if not should_create_repr(source_repr, repr):
             continue
 
-        # pick params based on codec
-        if repr.codec == "h264":
-            raise NotImplementedError()
-        elif repr.codec == "h265":
-            raise NotImplementedError()
-        elif repr.codec == "vp9":
-            raise NotImplementedError()
-        elif repr.codec == "av1":
-            video_bitrate, audio_bitrate = _split_bitrate_av1(repr.bitrate_kbits)
-            pass1_params = ffmpeg_params.av1_params_1p(video_bitrate)
-            pass2_params = ffmpeg_params.av1_params_2p(video_bitrate)
-            audio_params = ffmpeg_params.opus_params(audio_bitrate)
+        output_file = output_dir / "{}.{}".format(repr.as_filename_component(), _container_from_codec(repr.codec))
+        transcode_one_func(input_file, output_file, repr)
+        filenames[repr] = output_file
 
-        scale_params = ["-vf", "scale=-1:{}".format(repr.height)]
+    if config.keep_original:
+        filenames["original"] = input_file
 
-        # first pass encode
-        ffmpeg_args = [ffmpeg, "-y", "-i", str(input_file)] + scale_params + pass1_params
-        # no need for audio on first pass, and we can ignore the video output
-        ffmpeg_args += ["-an", os.devnull]
-        print(ffmpeg_args)
-        subprocess.check_call(ffmpeg_args)
-
-        # second pass encode
-        ffmpeg_args = [ffmpeg, "-y", "-i", str(input_file)] + scale_params + pass2_params + audio_params
-        ffmpeg_args += ["TODO_output.mkv"]
-        print(ffmpeg_args)
-        subprocess.check_call(ffmpeg_args)
-
-    raise NotImplementedError()
+    return filenames

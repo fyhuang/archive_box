@@ -29,7 +29,7 @@ class ScannerWorker(Worker):
             self.wait_for_changes()
 
     def wait_for_changes(self) -> None:
-        # TODO(fyhuang): remove this hack
+        # TODO(fyhuang): actually implement filesystem watching
         self.quit_event.wait(timeout=5)
 
     def scan_inbox(self):
@@ -49,5 +49,6 @@ class ScannerWorker(Worker):
 
         print("Ingesting {}...".format(filename))
         sdid = file_to_sdid(filename)
+        # TODO(fyhuang): delete/move in-place
         self.local_store.upload(sdid, filename)
         self.state.record_scanned_file(filename, sdid)
