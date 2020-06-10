@@ -9,6 +9,7 @@ from typing_extensions import Protocol
 
 from archive_box import util
 from archive_box.sdid import *
+from archive_box.byte_range import ByteRangeReader
 from .stored_data import StoredStat
 
 
@@ -29,33 +30,6 @@ class Reader(Protocol):
         pass
     def read(self, size = -1) -> bytes:
         pass
-
-
-class ByteRangeReader(object):
-    def __init__(self, wrapped_stream, max_bytes):
-        self.wrapped_stream = wrapped_stream
-        self.max_bytes = max_bytes
-        self.read_so_far = 0
-
-    def __enter__(self) -> Reader:
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        return self.wrapped_stream.__exit__(exc_type, exc_value, traceback)
-
-    def read(self, wanted_size = -1):
-        remaining = self.max_bytes - self.read_so_far
-        if remaining <= 0:
-            return b''
-
-        if wanted_size < 0:
-            read_size = remaining
-        else:
-            read_size = min(remaining, wanted_size)
-
-        result = self.wrapped_stream.read(read_size)
-        self.read_so_far += len(result)
-        return result
 
 
 class LocalFileStorage(object):
@@ -113,8 +87,7 @@ class LocalFileStorage(object):
         path = self.path_to(sdid)
         f = path.open("rb")
         if byte_range is not None:
-            f.seek(byte_range[0])
-            return ByteRangeReader(f, byte_range[1] - byte_range[0] + 1)
+            return ByteRangeReader(f, byte_range[0], byte_range[1])
         else:
             return f
 

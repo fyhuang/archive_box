@@ -8,6 +8,8 @@ from archive_box.factory import Factory
 from archive_box.storage import LocalFileStorage
 from archive_box.sdid import StoredDataId
 
+from .streaming import serve_file_range
+
 
 class Globals(object):
     def __init__(self):
@@ -43,9 +45,7 @@ def _local_store_app(cid: str):
 
         path = local_store.path_to(StoredDataId.from_strid(file_pointer.sdid))
         print("Serving SDID {} from path {}".format(file_pointer.sdid, path))
-
-        resp = Response()
-        #return send_file(path, mimetype=file_pointer.mime, conditional=True)
+        return serve_file_range(path, mimetype=file_pointer.mime)
 
     app = Flask("local_store_" + cid)
     app.add_url_rule("/<docid>", "serve_file", serve_file)
