@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1d\x61rchive_box/archive_box.proto\x12\x0b\x61rchive_box\x1a\x12\x64tsdb/schema.proto\")\n\x0b\x46ilePointer\x12\x0c\n\x04sdid\x18\x01 \x02(\t\x12\x0c\n\x04mime\x18\x02 \x01(\t\"\x8b\x01\n\tFileGroup\x12&\n\x04main\x18\x01 \x02(\x0b\x32\x18.archive_box.FilePointer\x12+\n\tthumbnail\x18\x02 \x01(\x0b\x32\x18.archive_box.FilePointer\x12)\n\x07preview\x18\x03 \x01(\x0b\x32\x18.archive_box.FilePointer\"\xf8\x03\n\x08\x44ocument\x12\n\n\x02id\x18\x01 \x02(\t\x12$\n\x04\x64\x61ta\x18\x02 \x02(\x0b\x32\x16.archive_box.FileGroup\x12\x18\n\x10\x63reation_time_ms\x18\n \x02(\x04\x12&\n\x10last_mod_time_ms\x18\x0b \x02(\x04\x42\x0c\x82\xb5\x18\x08\x12\x06latest\x12\"\n\x0cneeds_review\x18\x14 \x02(\x08\x42\x0c\x82\xb5\x18\x08\x12\x06latest\x12\"\n\x0c\x64isplay_name\x18\x15 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x1d\n\x04tags\x18\x16 \x03(\tB\x0f\x82\xb5\x18\x0b\x12\tset_union\x12!\n\x0b\x64\x65scription\x18\x17 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12I\n\x08metadata\x18\x1e \x03(\x0b\x32#.archive_box.Document.MetadataEntryB\x12\x82\xb5\x18\x0e\x12\x0cunion_latest\x12\x15\n\rorig_filename\x18\x64 \x01(\t\x12\x1b\n\x13\x64ownloaded_from_url\x18\x65 \x01(\t\x12\x15\n\x0c\x61uto_summary\x18\xc8\x01 \x01(\t\x12\'\n\rauto_keywords\x18\xc9\x01 \x03(\tB\x0f\x82\xb5\x18\x0b\x12\tset_union\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01'
+  serialized_pb=b'\n\x1d\x61rchive_box/archive_box.proto\x12\x0b\x61rchive_box\x1a\x12\x64tsdb/schema.proto\")\n\x0b\x46ilePointer\x12\x0c\n\x04sdid\x18\x01 \x02(\t\x12\x0c\n\x04mime\x18\x02 \x01(\t\"\x9b\x02\n\tFileGroup\x12&\n\x04main\x18\x01 \x02(\x0b\x32\x18.archive_box.FilePointer\x12+\n\tthumbnail\x18\x02 \x01(\x0b\x32\x18.archive_box.FilePointer\x12)\n\x07preview\x18\x03 \x01(\x0b\x32\x18.archive_box.FilePointer\x12?\n\rmedia_formats\x18\x04 \x03(\x0b\x32(.archive_box.FileGroup.MediaFormatsEntry\x1aM\n\x11MediaFormatsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\'\n\x05value\x18\x02 \x01(\x0b\x32\x18.archive_box.FilePointer:\x02\x38\x01\"\xf8\x03\n\x08\x44ocument\x12\n\n\x02id\x18\x01 \x02(\t\x12$\n\x04\x64\x61ta\x18\x02 \x02(\x0b\x32\x16.archive_box.FileGroup\x12\x18\n\x10\x63reation_time_ms\x18\n \x02(\x04\x12&\n\x10last_mod_time_ms\x18\x0b \x02(\x04\x42\x0c\x82\xb5\x18\x08\x12\x06latest\x12\"\n\x0cneeds_review\x18\x14 \x02(\x08\x42\x0c\x82\xb5\x18\x08\x12\x06latest\x12\"\n\x0c\x64isplay_name\x18\x15 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12\x1d\n\x04tags\x18\x16 \x03(\tB\x0f\x82\xb5\x18\x0b\x12\tset_union\x12!\n\x0b\x64\x65scription\x18\x17 \x01(\tB\x0c\x82\xb5\x18\x08\x12\x06latest\x12I\n\x08metadata\x18\x1e \x03(\x0b\x32#.archive_box.Document.MetadataEntryB\x12\x82\xb5\x18\x0e\x12\x0cunion_latest\x12\x15\n\rorig_filename\x18\x64 \x01(\t\x12\x1b\n\x13\x64ownloaded_from_url\x18\x65 \x01(\t\x12\x15\n\x0c\x61uto_summary\x18\xc8\x01 \x01(\t\x12\'\n\rauto_keywords\x18\xc9\x01 \x03(\tB\x0f\x82\xb5\x18\x0b\x12\tset_union\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01'
   ,
   dependencies=[dtsdb_dot_schema__pb2.DESCRIPTOR,])
 
@@ -67,6 +67,44 @@ _FILEPOINTER = _descriptor.Descriptor(
 )
 
 
+_FILEGROUP_MEDIAFORMATSENTRY = _descriptor.Descriptor(
+  name='MediaFormatsEntry',
+  full_name='archive_box.FileGroup.MediaFormatsEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='archive_box.FileGroup.MediaFormatsEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='archive_box.FileGroup.MediaFormatsEntry.value', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=316,
+  serialized_end=393,
+)
+
 _FILEGROUP = _descriptor.Descriptor(
   name='FileGroup',
   full_name='archive_box.FileGroup',
@@ -96,10 +134,17 @@ _FILEGROUP = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='media_formats', full_name='archive_box.FileGroup.media_formats', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
-  nested_types=[],
+  nested_types=[_FILEGROUP_MEDIAFORMATSENTRY, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -109,7 +154,7 @@ _FILEGROUP = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=110,
-  serialized_end=249,
+  serialized_end=393,
 )
 
 
@@ -147,8 +192,8 @@ _DOCUMENT_METADATAENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=709,
-  serialized_end=756,
+  serialized_start=853,
+  serialized_end=900,
 )
 
 _DOCUMENT = _descriptor.Descriptor(
@@ -262,13 +307,16 @@ _DOCUMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=252,
-  serialized_end=756,
+  serialized_start=396,
+  serialized_end=900,
 )
 
+_FILEGROUP_MEDIAFORMATSENTRY.fields_by_name['value'].message_type = _FILEPOINTER
+_FILEGROUP_MEDIAFORMATSENTRY.containing_type = _FILEGROUP
 _FILEGROUP.fields_by_name['main'].message_type = _FILEPOINTER
 _FILEGROUP.fields_by_name['thumbnail'].message_type = _FILEPOINTER
 _FILEGROUP.fields_by_name['preview'].message_type = _FILEPOINTER
+_FILEGROUP.fields_by_name['media_formats'].message_type = _FILEGROUP_MEDIAFORMATSENTRY
 _DOCUMENT_METADATAENTRY.containing_type = _DOCUMENT
 _DOCUMENT.fields_by_name['data'].message_type = _FILEGROUP
 _DOCUMENT.fields_by_name['metadata'].message_type = _DOCUMENT_METADATAENTRY
@@ -285,11 +333,19 @@ FilePointer = _reflection.GeneratedProtocolMessageType('FilePointer', (_message.
 _sym_db.RegisterMessage(FilePointer)
 
 FileGroup = _reflection.GeneratedProtocolMessageType('FileGroup', (_message.Message,), {
+
+  'MediaFormatsEntry' : _reflection.GeneratedProtocolMessageType('MediaFormatsEntry', (_message.Message,), {
+    'DESCRIPTOR' : _FILEGROUP_MEDIAFORMATSENTRY,
+    '__module__' : 'archive_box.archive_box_pb2'
+    # @@protoc_insertion_point(class_scope:archive_box.FileGroup.MediaFormatsEntry)
+    })
+  ,
   'DESCRIPTOR' : _FILEGROUP,
   '__module__' : 'archive_box.archive_box_pb2'
   # @@protoc_insertion_point(class_scope:archive_box.FileGroup)
   })
 _sym_db.RegisterMessage(FileGroup)
+_sym_db.RegisterMessage(FileGroup.MediaFormatsEntry)
 
 Document = _reflection.GeneratedProtocolMessageType('Document', (_message.Message,), {
 
@@ -307,6 +363,7 @@ _sym_db.RegisterMessage(Document)
 _sym_db.RegisterMessage(Document.MetadataEntry)
 
 
+_FILEGROUP_MEDIAFORMATSENTRY._options = None
 _DOCUMENT_METADATAENTRY._options = None
 _DOCUMENT.fields_by_name['last_mod_time_ms']._options = None
 _DOCUMENT.fields_by_name['needs_review']._options = None

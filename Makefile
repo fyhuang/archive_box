@@ -10,6 +10,10 @@ checks:
 	mypy $(PACKAGES)
 	python3 -m unittest
 
+coverage:
+	coverage run -m unittest
+	coverage html -m $(PACKAGES)
+
 proto:
 	mkdir -p temp
 	

@@ -4,7 +4,7 @@ import random
 
 def make_cid():
     cid_b = bytearray()
-    for i in range(16):
+    for i in range(3):
         cid_b.append(random.randint(0, 255))
     return cid_b.hex()
 

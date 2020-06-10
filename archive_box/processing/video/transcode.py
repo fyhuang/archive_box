@@ -96,17 +96,19 @@ def transcode_one(input_file: Path, output_file: Path, target_repr: TargetRepres
         pass2_params = ffmpeg_params.av1_params_2p(video_bitrate)
         audio_params = ffmpeg_params.opus_params(audio_bitrate)
 
+    # TODO(fyhuang): capture the ffmpeg log file somewhere instead of letting it go to stderr
+    common_params = [ffmpeg, "-loglevel", "info", "-y", "-i", str(input_file)]
     scale_params = ["-vf", "scale=-1:{}".format(target_repr.height)]
 
     # first pass encode
-    ffmpeg_args = [ffmpeg, "-y", "-i", str(input_file)] + scale_params + pass1_params
-    # no need for audio on first pass, and we can ignore the video output
+    ffmpeg_args = common_params + scale_params + pass1_params
+    # no need for audio on first pass, and we can discard the video output
     ffmpeg_args += ["-an", os.devnull]
     print(ffmpeg_args)
     subprocess.check_call(ffmpeg_args)
 
     # second pass encode
-    ffmpeg_args = [ffmpeg, "-y", "-i", str(input_file)] + scale_params + pass2_params + audio_params
+    ffmpeg_args = common_params + scale_params + pass2_params + audio_params
     ffmpeg_args += [str(output_file)]
     print(ffmpeg_args)
     subprocess.check_call(ffmpeg_args)
@@ -131,7 +133,7 @@ def transcode_all(
         if not should_create_repr(source_repr, repr):
             continue
 
-        output_file = output_dir / "{}.{}".format(repr.as_filename_component(), _container_from_codec(repr.codec))
+        output_file = output_dir / "{}.{}".format(repr.to_str(), _container_from_codec(repr.codec))
         transcode_one_func(input_file, output_file, repr)
         filenames[repr] = output_file
 

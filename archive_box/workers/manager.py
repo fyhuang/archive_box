@@ -1,5 +1,5 @@
 import threading
-from typing import Dict
+from typing import Optional, Dict
 
 from . import Worker
 
@@ -7,9 +7,10 @@ from . import Worker
 _workers: Dict[str, Worker] = {}
 _threads: Dict[str, threading.Thread] = {}
 
-def start_worker(w: Worker) -> None:
+def start_worker(w: Worker, name: Optional[str] = None) -> None:
     global _workers, _threads
-    name = type(w).__name__
+    if name is None:
+        name = type(w).__name__
     if name in _workers:
         raise RuntimeError("Worker {} already started".format(name))
 

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union, Optional, List
+from typing import Union, Optional, Set
 
 from archive_box import archive_box_pb2 as pb2
 from archive_box.sdid import StoredDataId
@@ -42,16 +42,18 @@ def guess_mimetype(filepath: Union[str, Path]) -> str:
     return _EXT_TO_MIMETYPE[ext]
 
 
-def list_data_ids_from_file_group(file_group: pb2.FileGroup) -> List[StoredDataId]:
-    result = [StoredDataId.from_strid(file_group.main.sdid)]
+def list_data_ids_from_file_group(file_group: pb2.FileGroup) -> Set[StoredDataId]:
+    result = set([StoredDataId.from_strid(file_group.main.sdid)])
     if file_group.HasField("thumbnail"):
-        result.append(StoredDataId.from_strid(file_group.thumbnail.sdid))
+        result.add(StoredDataId.from_strid(file_group.thumbnail.sdid))
     if file_group.HasField("preview"):
-        result.append(StoredDataId.from_strid(file_group.preview.sdid))
+        result.add(StoredDataId.from_strid(file_group.preview.sdid))
+    for key, fp in file_group.media_formats.items():
+        result.add(StoredDataId.from_strid(fp.sdid))
     return result
 
 
-def list_data_ids(doc: pb2.Document) -> List[StoredDataId]:
+def list_data_ids(doc: pb2.Document) -> Set[StoredDataId]:
     return list_data_ids_from_file_group(doc.data)
 
 

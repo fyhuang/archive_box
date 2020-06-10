@@ -1,5 +1,7 @@
-from flask import Flask, abort, request, send_file
+from flask import Flask, abort, request, Response, send_file
 from werkzeug import wsgi
+
+from archive_box import archive_box_pb2 as pb2
 
 from archive_box.workspace import Workspace
 from archive_box.factory import Factory
@@ -17,7 +19,15 @@ app = Flask(__name__)
 globals = Globals()
 
 
-def local_store_app(cid: str):
+def _file_pointer_from_where(filegroup: pb2.FileGroup, where: str) -> pb2.FilePointer:
+    # TODO(fyhuang): replace with a more generic solution
+    if where.startswith("media_formats."):
+        _, _, mf_name = where.partition(".")
+        return filegroup.media_formats[mf_name]
+    return getattr(filegroup, where)
+
+
+def _local_store_app(cid: str):
     def serve_file(docid: str):
         local_store = globals.factory.new_collection_storage(cid)
         if not isinstance(local_store, LocalFileStorage):
@@ -28,8 +38,14 @@ def local_store_app(cid: str):
         if doc is None:
             abort(404)
 
-        path = local_store.path_to(StoredDataId.from_strid(doc.data.main.sdid))
-        return send_file(path, mimetype=doc.data.main.mime)
+        which_file_pointer = request.args.get("which", "main")
+        file_pointer = _file_pointer_from_where(doc.data, which_file_pointer)
+
+        path = local_store.path_to(StoredDataId.from_strid(file_pointer.sdid))
+        print("Serving SDID {} from path {}".format(file_pointer.sdid, path))
+
+        resp = Response()
+        #return send_file(path, mimetype=file_pointer.mime, conditional=True)
 
     app = Flask("local_store_" + cid)
     app.add_url_rule("/<docid>", "serve_file", serve_file)
@@ -46,7 +62,7 @@ class LocalStoreDispatcher(object):
             return self.default_app(environ, start_response)
         _ = wsgi.pop_path_info(environ)
         cid = wsgi.pop_path_info(environ)
-        store_app = local_store_app(cid)
+        store_app = _local_store_app(cid)
         return store_app(environ, start_response)
 
 
@@ -64,7 +80,7 @@ def run() -> None:
             "localhost",
             globals.workspace.config["server"]["port"],
             dispatcher,
-            use_reloader=True,
+            use_reloader=False,
             use_debugger=True
     )
 

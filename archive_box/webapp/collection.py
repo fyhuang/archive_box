@@ -3,6 +3,8 @@ from werkzeug.wrappers import Response
 
 from archive_box.sdid import StoredDataId
 
+from archive_box.processing.video.config import TargetRepresentation
+
 from . import app, globals
 
 # TODO(fyhuang): put this in a separate api.py?
@@ -66,12 +68,24 @@ def collection_document(cid: str, docid: str):
 
     main_url = "/local/{}/{}".format(cid, docid)
 
+    media_formats = {}
+    for name in document.data.media_formats.keys():
+        url = "/local/{}/{}?which=media_formats.{}".format(cid, docid, name)
+        if name == "original":
+            media_formats["Original"] = url
+        else:
+            tr = TargetRepresentation.from_str(name)
+            # TODO(fyhuang): omit codec if they're all the same
+            # TODO(fyhuang): omit bitrate if there's only one per resolution
+            media_formats["{}p @{}k {}".format(tr.height, tr.bitrate_kbits, tr.codec)] = url
+
     return render_template(
             "collection_document.html",
             collection_id=cid,
             collection_name=collection.config.display_name,
             document=document,
             main_url=main_url,
+            media_formats=media_formats,
     )
 
 @app.route("/c/<cid>/d/<docid>/edit", methods=["GET"])

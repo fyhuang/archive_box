@@ -139,9 +139,9 @@ class LocalFileStorage(object):
             raise RuntimeError("File should already be in the root to use move_inplace")
 
         path = self.path_to(sdid)
-        if path == src_file:
-            # File is already added
+        if path.exists():
             return
+        os.makedirs(path.parent, exist_ok=True)
 
         os.rename(src_file, path)
 

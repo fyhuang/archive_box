@@ -25,7 +25,9 @@ def main() -> None:
     # Start workers
     w_manager.start_worker(factory.new_scanner_worker())
     for cid in workspace.cids():
-        w_manager.start_worker(factory.new_processor_worker(cid))
+        print("Starting worker for {}".format(cid))
+        worker = factory.new_processor_worker(cid)
+        w_manager.start_worker(worker, "ProcessorWorker_{}".format(cid))
 
     # Run the web app
     webapp.init(workspace, factory)

@@ -13,7 +13,10 @@ message FileGroup {
     required FilePointer main = 1;
     optional FilePointer thumbnail = 2;
     optional FilePointer preview = 3;
-    // TODO(fyhuang): MPD representations, etc.
+    
+    // Map key is either "original" or the string form of TargetRepresentation. This map may duplicate
+    // SDIDs from elsewhere in this FileGroup.
+    map<string, FilePointer> media_formats = 4;
 }
 
 message Document {

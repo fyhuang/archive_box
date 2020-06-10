@@ -15,9 +15,14 @@ header h1 {
     font-size: 1.2em;
 }
 
-p.small_print {
+.small_print {
     margin: 0;
     font-size: 70%;
+}
+
+.scroll {
+    height: 10em;
+    overflow: auto;
 }
 
 img.icon {

@@ -1,5 +1,9 @@
 import functools
+import re
 from typing import List, NamedTuple
+
+
+_TR_ENCODED_RE = re.compile(r'(?P<height>\d+)p_(?P<bitrate>\d+)k_(?P<codec>[\w\d]+)')
 
 
 CODECS = [
@@ -60,8 +64,14 @@ class TargetRepresentation(NamedTuple):
         else:
             raise RuntimeError("Unknown quality class {}".format(qc))
 
+    @staticmethod
+    def from_str(encoded: str) -> 'TargetRepresentation':
+        m = _TR_ENCODED_RE.match(encoded)
+        if m is None:
+            raise ValueError("\"{}\" is not a valid TargetRepresentation".format(encoded))
+        return TargetRepresentation(int(m.group("height")), int(m.group("bitrate")), m.group("codec"))
 
-    def as_filename_component(self):
+    def to_str(self) -> str:
         return "{}p_{}k_{}".format(self.height, self.bitrate_kbits, self.codec)
 
 

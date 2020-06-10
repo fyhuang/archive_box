@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from typing import List, Union
 
@@ -48,7 +49,11 @@ class ScannerWorker(Worker):
             return
 
         print("Ingesting {}...".format(filename))
+        stime = time.monotonic()
         sdid = file_to_sdid(filename)
         # TODO(fyhuang): delete/move in-place
         self.local_store.upload(sdid, filename)
+        etime = time.monotonic()
+        print("Ingestion of {} took {:.3f}ms".format(filename, (etime - stime) * 1000))
+
         self.state.record_scanned_file(filename, sdid)

@@ -110,7 +110,9 @@ def _cast_to_namedtuple(expected_type, raw_value) -> _Result:
 def _cast_to_type(expected_type: Any, raw_value: Any) -> _Result:
     if hasattr(expected_type, '__annotations__'):
         return _cast_to_namedtuple(expected_type, raw_value)
-    if _origin(expected_type) == Union:
+    elif expected_type == Any:
+        return _Result.value(raw_value)
+    elif _origin(expected_type) == Union:
         return _cast_to_union(expected_type, raw_value)
     elif _origin(expected_type) == Tuple:
         return _cast_to_tuple(expected_type, raw_value)
