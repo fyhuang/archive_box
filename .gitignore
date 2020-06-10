@@ -1,9 +1,13 @@
 # development stuff
 tags
+archive_box.egg-info
+.coverage
+.ipynb_checkpoints
 
 # extern
 extern/ffmpeg*
 extern/protoc*
+extern/nltk
 
 # python
 .mypy_cache
