@@ -93,4 +93,4 @@ def shutdown() -> None:
 
 
 # import child views
-from . import home, collection
+from . import home, api, collection

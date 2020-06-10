@@ -3,7 +3,7 @@ import threading
 from pathlib import Path
 from typing import Optional, Callable
 
-from . import scanner, collection, storage
+from . import api, scanner, collection, storage
 from .workspace import Workspace
 
 
@@ -73,4 +73,11 @@ class Factory(object):
                 conn,
                 self.workspace.node_config,
                 self.workspace.collection_config(cid),
+        )
+
+    def new_api(self, cid: str) -> api.ArchiveBoxApi:
+        return api.ArchiveBoxApi(
+                self.new_collection(cid),
+                self.new_processor_state(cid),
+                self.local_store,
         )

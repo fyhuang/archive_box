@@ -5,32 +5,6 @@ from archive_box.processing.video.config import TargetRepresentation
 
 from . import app, globals
 
-# TODO(fyhuang): put this in a separate api.py?
-@app.route("/api/add_document", methods=["POST"])
-def collection_add_document() -> Response:
-    cid: str = request.form['cid']
-    sdid: str = request.form['sdid']
-    filename: str = request.form['filename']
-
-    if "StoredData" in sdid:
-        raise RuntimeError("bad format?")
-
-    # add the document to the collection
-    collection = globals.factory.new_collection(cid)
-    doc_id = collection.add_document(sdid, filename)
-
-    # queue all processing for the new document
-    pstate = globals.factory.new_processor_state(cid)
-    pstate.add_work_item(doc_id, "transcode_video") # transcode first, in case user doesn't want to keep original
-    pstate.add_work_item(doc_id, "upload")
-    pstate.add_work_item(doc_id, "auto_summarize")
-    pstate.add_work_item(doc_id, "index_for_search")
-
-    # remove from scanned files
-    globals.factory.new_scanner_state().delete_scanned_file(sdid)
-
-    return redirect('/')
-
 
 @app.route("/c/<cid>", methods=["GET"])
 def collection_index(cid: str):
