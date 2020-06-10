@@ -81,7 +81,8 @@ def run() -> None:
             globals.workspace.config["server"]["port"],
             dispatcher,
             use_reloader=False,
-            use_debugger=True
+            use_debugger=True,
+            threaded=True,
     )
 
 
