@@ -7,18 +7,14 @@ from .sdid import *
 
 
 class StoredDataIdTests(unittest.TestCase):
-    def test_to_strid(self) -> None:
-        sdid = StoredDataId("01", "abc123")
-        self.assertEqual("01_abc123", sdid.to_strid())
+    def test_make_sdid(self) -> None:
+        sdid = make_sdid("01", "abc123")
+        self.assertEqual("01_abc123", sdid)
 
-    def test_str(self) -> None:
-        sdid = StoredDataId("01", "abc123")
-        self.assertEqual(sdid.to_strid(), str(sdid))
-        self.assertEqual(sdid.to_strid(), repr(sdid))
-
-    def test_from_strid(self) -> None:
-        sdid = StoredDataId.from_strid("01_abc123")
-        self.assertEqual(StoredDataId("01", "abc123"), sdid)
+    def test_parse_sdid(self) -> None:
+        schema, id = parse_sdid("01_abc123")
+        self.assertEqual("01", schema)
+        self.assertEqual("abc123", id)
 
 
 class Schema01Tests(unittest.TestCase):
@@ -35,7 +31,7 @@ class Schema01Tests(unittest.TestCase):
 
         hash = hashlib.blake2b(b'', digest_size=16, person=b'arbox')
         self.assertEqual(
-            StoredDataId("01", hash.digest().hex()),
+            make_sdid("01", hash.digest().hex()),
             sdid_schema_01(path)
         )
 
@@ -47,7 +43,7 @@ class Schema01Tests(unittest.TestCase):
 
         hash = hashlib.blake2b(contents, digest_size=16, person=b'arbox')
         self.assertEqual(
-            StoredDataId("01", hash.digest().hex()),
+            make_sdid("01", hash.digest().hex()),
             sdid_schema_01(path)
         )
 
@@ -61,6 +57,6 @@ class Schema01Tests(unittest.TestCase):
                 hash.update(block)
 
         self.assertEqual(
-            StoredDataId("01", hash.digest().hex()),
+            make_sdid("01", hash.digest().hex()),
             sdid_schema_01(path)
         )

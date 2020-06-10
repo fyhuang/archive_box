@@ -1,8 +1,6 @@
 from flask import abort, request, redirect, render_template, url_for
 from werkzeug.wrappers import Response
 
-from archive_box.sdid import StoredDataId
-
 from archive_box.processing.video.config import TargetRepresentation
 
 from . import app, globals
@@ -11,10 +9,10 @@ from . import app, globals
 @app.route("/api/add_document", methods=["POST"])
 def collection_add_document() -> Response:
     cid: str = request.form['cid']
-    sdid: StoredDataId = StoredDataId.from_strid(request.form['sdid'])
+    sdid: str = request.form['sdid']
     filename: str = request.form['filename']
 
-    if "StoredData" in sdid.schema:
+    if "StoredData" in sdid:
         raise RuntimeError("bad format?")
 
     # add the document to the collection

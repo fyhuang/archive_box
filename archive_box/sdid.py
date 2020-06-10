@@ -3,31 +3,21 @@ from pathlib import Path
 from typing import Tuple, NamedTuple
 
 
-class StoredDataId(NamedTuple):
-    schema: str
-    id: str
+def parse_sdid(sid: str) -> Tuple[str, str]:
+    schema_part, _, id_part = sid.partition("_")
+    if schema_part is None or id_part is None:
+        raise RuntimeError("Couldn't parse {}".format(sid))
+    if len(schema_part) == 0 or len(id_part) == 0:
+        raise RuntimeError("Couldn't parse {}".format(sid))
 
-    @staticmethod
-    def from_strid(sid: str) -> 'StoredDataId':
-        schema_part, _, id_part = sid.partition("_")
-        if schema_part is None or id_part is None:
-            raise RuntimeError("Couldn't parse {}".format(sid))
-        if len(schema_part) == 0 or len(id_part) == 0:
-            raise RuntimeError("Couldn't parse {}".format(sid))
-
-        return StoredDataId(schema_part, id_part)
-
-    def to_strid(self) -> str:
-        return "{}_{}".format(self.schema, self.id)
-
-    def __str__(self) -> str:
-        return self.to_strid()
-
-    def __repr__(self) -> str:
-        return self.to_strid()
+    return (schema_part, id_part)
 
 
-def sdid_schema_01(filename: Path) -> StoredDataId:
+def make_sdid(schema_part: str, id_part: str) -> str:
+    return "{}_{}".format(schema_part, id_part)
+
+
+def sdid_schema_01(filename: Path) -> str:
     h = hashlib.blake2b(digest_size=16, person=b'arbox')
     with filename.open("rb") as f:
         while True:
@@ -36,10 +26,10 @@ def sdid_schema_01(filename: Path) -> StoredDataId:
                 # EOF reached
                 break
             h.update(chunk)
-    return StoredDataId("01", h.digest().hex())
+    return make_sdid("01", h.digest().hex())
 
 
-def file_to_sdid(filename: Path) -> StoredDataId:
+def file_to_sdid(filename: Path) -> str:
     return sdid_schema_01(filename)
 
 

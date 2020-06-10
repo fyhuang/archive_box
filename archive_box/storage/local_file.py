@@ -8,7 +8,7 @@ from typing import Optional, Tuple, Union, Any
 from typing_extensions import Protocol
 
 from archive_box import util
-from archive_box.sdid import *
+from archive_box.sdid import parse_sdid
 from archive_box.byte_range import ByteRangeReader
 from .stored_data import StoredStat
 
@@ -39,41 +39,42 @@ class LocalFileStorage(object):
         os.makedirs(self.tempdir, exist_ok=True)
         self.url_base: Optional[str] = None
 
-    def path_to(self, sdid: StoredDataId) -> Path:
-        first_part = sdid.schema + sdid.id[:2]
-        return self.root / first_part / sdid.to_strid()
+    def path_to(self, sdid: str) -> Path:
+        schema, id = parse_sdid(sdid)
+        first_part = schema + id[:2]
+        return self.root / first_part / sdid
 
     def _is_path_in_root(self, path: Path) -> bool:
         path_abs = path.resolve()
         ancestor = _common_ancestor(self.root, path_abs)
         return ancestor == self.root
 
-    def contains(self, sdid: StoredDataId) -> bool:
+    def contains(self, sdid: str) -> bool:
         path = self.path_to(sdid)
         return path.exists()
 
-    def upload(self, sdid: StoredDataId, src_file: Path) -> None:
+    def upload(self, sdid: str, src_file: Path) -> None:
         path = self.path_to(sdid)
         if path.exists():
             return
         os.makedirs(path.parent, exist_ok=True)
 
         # Copy to a temp file first and then atomically move
-        temp_path = self.tempdir / "upload_{}.tmp".format(sdid.to_strid())
+        temp_path = self.tempdir / "upload_{}.tmp".format(sdid)
         shutil.copy2(src_file, temp_path)
         os.rename(temp_path, path)
 
-    def delete(self, sdid: StoredDataId) -> None:
+    def delete(self, sdid: str) -> None:
         raise NotImplementedError()
 
     # TODO(fyhuang): not sure how to support this yet
-    #def url_to(self, sdid: StoredDataId) -> str:
+    #def url_to(self, sdid: str) -> str:
     #    if self.url_base is None:
     #        raise RuntimeError("Not linked to an HTTP server!")
     #    rel_path = self.path_to(sdid).relative_to(self.root)
     #    return "{}/{}".format(self.url_base, rel_path)
 
-    def download_stat(self, sdid: StoredDataId) -> StoredStat:
+    def download_stat(self, sdid: str) -> StoredStat:
         path = self.path_to(sdid)
         stat_result = os.stat(path)
         return StoredStat(
@@ -82,7 +83,7 @@ class LocalFileStorage(object):
             datetime.datetime.fromtimestamp(stat_result.st_ctime)
         )
 
-    def download_bytes(self, sdid: StoredDataId, byte_range: Optional[Tuple[int, int]] = None) -> Reader:
+    def download_bytes(self, sdid: str, byte_range: Optional[Tuple[int, int]] = None) -> Reader:
         # Both ends of the byte range are inclusive (like HTTP)
         path = self.path_to(sdid)
         f = path.open("rb")
@@ -91,7 +92,7 @@ class LocalFileStorage(object):
         else:
             return f
 
-    def download_to(self, sdid: StoredDataId, dest_filename: Path) -> None:
+    def download_to(self, sdid: str, dest_filename: Path) -> None:
         with self.download_bytes(sdid) as src_f:
             with dest_filename.open("wb") as dest_f:
                 shutil.copyfileobj(src_f, dest_f)
@@ -104,7 +105,7 @@ class LocalFileStorage(object):
         random_name = "download_{}.tmp".format(util.new_id())
         return self.tempdir / random_name
 
-    def move_inplace(self, sdid: StoredDataId, src_file: Path) -> None:
+    def move_inplace(self, sdid: str, src_file: Path) -> None:
         # Move a pre-uploaded file into the right place
         # This is an internal function that allows LocalFileStorage to act like
         # a "zero-copy" cache

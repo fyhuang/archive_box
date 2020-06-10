@@ -6,7 +6,6 @@ from archive_box import archive_box_pb2 as pb2
 from archive_box.workspace import Workspace
 from archive_box.factory import Factory
 from archive_box.storage import LocalFileStorage
-from archive_box.sdid import StoredDataId
 
 from .streaming import serve_file_range
 
@@ -43,7 +42,7 @@ def _local_store_app(cid: str):
         which_file_pointer = request.args.get("which", "main")
         file_pointer = _file_pointer_from_where(doc.data, which_file_pointer)
 
-        path = local_store.path_to(StoredDataId.from_strid(file_pointer.sdid))
+        path = local_store.path_to(file_pointer.sdid)
         print("Serving SDID {} from path {}".format(file_pointer.sdid, path))
         return serve_file_range(path, mimetype=file_pointer.mime)
 

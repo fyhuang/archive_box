@@ -8,7 +8,7 @@ from pathlib import Path
 from archive_box import archive_box_pb2 as pb2
 from archive_box.collection import Collection
 from archive_box.workers import Worker
-from archive_box.sdid import StoredDataId, file_to_sdid
+from archive_box.sdid import file_to_sdid
 from archive_box.storage import LocalFileStorage
 from archive_box.search import SearchIndex
 from . import document_files
@@ -20,7 +20,7 @@ from archive_box.processing.video import transcode
 from archive_box.processing.video.config import TargetRepresentation
 
 
-def sort_transcode_outputs_into_filegroup(filegroup: pb2.FileGroup, outputs: transcode.OutputsDict) -> List[Tuple[StoredDataId, Path]]:
+def sort_transcode_outputs_into_filegroup(filegroup: pb2.FileGroup, outputs: transcode.OutputsDict) -> List[Tuple[str, Path]]:
     if len(outputs) == 0:
         return []
 
@@ -28,7 +28,7 @@ def sort_transcode_outputs_into_filegroup(filegroup: pb2.FileGroup, outputs: tra
     print(best_output)
     if "original" not in outputs:
         # replace the "main" data with the best output
-        filegroup.main.sdid = file_to_sdid(outputs[best_output]).to_strid()
+        filegroup.main.sdid = file_to_sdid(outputs[best_output])
         filegroup.main.mime = document_files.guess_mimetype(outputs[best_output])
 
     # fill in media formats
@@ -41,7 +41,7 @@ def sort_transcode_outputs_into_filegroup(filegroup: pb2.FileGroup, outputs: tra
             str_key = key
 
         data_id = file_to_sdid(value)
-        filegroup.media_formats[str_key].sdid = data_id.to_strid()
+        filegroup.media_formats[str_key].sdid = data_id
         filegroup.media_formats[str_key].mime = document_files.guess_mimetype(value)
         files_to_move.append((data_id, value))
 
@@ -105,10 +105,9 @@ class ProcessorWorker(Worker):
             if summary_fp is None:
                 # not summarizable; nothing to do
                 return
-            summary_sdid = StoredDataId.from_strid(summary_fp.sdid)
-            self.download_to_cache(summary_sdid)
+            self.download_to_cache(summary_fp.sdid)
 
-            extracted_text = extract.extract_text(self.local_store.path_to(summary_sdid), summary_fp.mime)
+            extracted_text = extract.extract_text(self.local_store.path_to(summary_fp.sdid), summary_fp.mime)
 
             # TODO(fyhuang): it would be better if this were transactional
             document.auto_summary = summary.text_to_summary(extracted_text)
@@ -127,7 +126,7 @@ class ProcessorWorker(Worker):
                 print("Warning: video {} can be transcoded but no transcode config".format(work_item.document_id))
                 return
 
-            input_path = self.local_store.path_to(StoredDataId.from_strid(document.data.main.sdid))
+            input_path = self.local_store.path_to(document.data.main.sdid)
             output_dir = self.local_store.tempdir / document.data.main.sdid
             os.makedirs(output_dir, exist_ok=True)
 
@@ -141,7 +140,7 @@ class ProcessorWorker(Worker):
         else:
             print("Warning: unknown action {} while processing {}".format(work_item.action, work_item.document_id))
 
-    def download_to_cache(self, data_id: StoredDataId) -> None:
+    def download_to_cache(self, data_id: str) -> None:
         if self.local_store.contains(data_id):
             return
 

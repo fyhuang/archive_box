@@ -9,7 +9,6 @@ from dtsdb.node_config import NodeConfig
 
 from archive_box import util, search
 from archive_box import archive_box_pb2 as pb2
-from archive_box.sdid import StoredDataId
 from . import document_files
 from .config import *
 
@@ -44,10 +43,10 @@ class Collection(object):
         self.search_index.first_time_setup()
         self.synced_db.first_time_setup()
 
-    def add_document(self, sdid: StoredDataId, orig_filename: str) -> str:
+    def add_document(self, sdid: str, orig_filename: str) -> str:
         document = pb2.Document()
         document.id = util.new_id()
-        document.data.main.sdid = sdid.to_strid()
+        document.data.main.sdid = sdid
         document.data.main.mime = document_files.guess_mimetype(orig_filename)
     
         document.needs_review = True

@@ -4,12 +4,10 @@ from typing import List, NamedTuple, Union
 
 from dtsdb import sqlite_util
 
-from archive_box.sdid import StoredDataId
-
 
 class ScannedFile(NamedTuple):
     path: Path
-    sdid: StoredDataId
+    sdid: str
 
 
 class ScannerState(object):
@@ -39,16 +37,16 @@ class ScannerState(object):
         result = []
         c = self.conn.cursor()
         for row in c.execute('SELECT * FROM scanned_files'):
-            result.append(ScannedFile(Path(row[0]), StoredDataId.from_strid(row[1])))
+            result.append(ScannedFile(Path(row[0]), row[1]))
         return result
 
-    def record_scanned_file(self, path: Path, sdid: StoredDataId) -> None:
+    def record_scanned_file(self, path: Path, sdid: str) -> None:
         relative_path = path.relative_to(self.inbox_path)
         with self.conn:
             self.conn.execute('INSERT OR IGNORE INTO scanned_files VALUES (?,?)',
-                    (str(relative_path), sdid.to_strid()))
+                    (str(relative_path), sdid))
 
-    def delete_scanned_file(self, sdid: StoredDataId) -> None:
+    def delete_scanned_file(self, sdid: str) -> None:
         with self.conn:
             self.conn.execute('DELETE FROM scanned_files WHERE sdid=?',
-                    (sdid.to_strid(),))
+                    (sdid,))

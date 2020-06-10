@@ -6,6 +6,8 @@ from . import local_file
 from .local_file import *
 from .stored_data import *
 
+from archive_box.sdid import file_to_sdid
+
 class LocalFileStorageTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tempdir = tempfile.TemporaryDirectory()

@@ -6,14 +6,14 @@ from typing import List, Tuple, Dict
 
 from .scanner import *
 from .scanner_state import ScannerState
-from archive_box.sdid import StoredDataId, file_to_sdid
+from archive_box.sdid import file_to_sdid
 
 
 class MockStorage(object):
     def __init__(self) -> None:
-        self.uploads: List[Tuple[StoredDataId, Path]] = []
+        self.uploads: List[Tuple[str, Path]] = []
 
-    def upload(self, sdid: StoredDataId, src_file: Path) -> None:
+    def upload(self, sdid: str, src_file: Path) -> None:
         self.uploads.append((sdid, src_file))
 
 

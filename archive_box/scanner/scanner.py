@@ -2,7 +2,7 @@ import time
 from pathlib import Path
 from typing import List, Union
 
-from archive_box.sdid import StoredDataId, file_to_sdid
+from archive_box.sdid import file_to_sdid
 
 from .scanner_state import *
 from archive_box.workers import Worker
