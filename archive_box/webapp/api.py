@@ -21,3 +21,9 @@ def collection_add_document() -> Any:
     globals.factory.new_scanner_state().delete_scanned_file(sdid)
 
     return redirect('/')
+
+
+@app.route("/api/create_document/<cid>", methods=["POST"])
+def api_create_document(cid: str) -> Any:
+    urls_or_paths = request.form.getlist('files')
+    # TODO(fyhuang): customize summary, tags, etc.

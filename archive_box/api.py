@@ -2,7 +2,7 @@ import shutil
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict
 
 from . import storage, scanner
 from .collection import Collection, ProcessorState
@@ -42,7 +42,17 @@ class ArchiveBoxApi(object):
 
         sdid = file_to_sdid(dest_filename)
         self.local_store.move_inplace(sdid, dest_filename)
+        # TODO(fyhuang): include any document metadata fields from the caller
         self._add_from_store(sdid, Path(url_components.path).name)
+
+    def create_document(self,
+            urls_or_paths: List[str],
+            document_info: Dict[str, str],
+            user_metadat: Dict[str, str],
+            # for local files, the base directory which original filenames will be calculated relative to
+            base_path: Optional[Path] = None,
+            ) -> None:
+        pass
 
     def first_time_process(self, doc_id: str) -> None:
         self.processor_state.add_work_item(doc_id, "transcode_video") # transcode first, in case user doesn't want to keep original
