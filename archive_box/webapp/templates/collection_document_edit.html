@@ -7,7 +7,7 @@
 
 <div class="breadcrumb"><a href="{{ url_for("collection_document", cid=collection_id, docid=document.id) }}">&#171 Back</a></div>
 
-<h1>Editing: {{ document.display_name }}</h1>
+<h1>Editing: {{ document.title }}</h1>
 
 <form method="POST" action="" class="pure-form pure-form-stacked">
     <p><label>
@@ -17,7 +17,7 @@
 
     <p><label>
         Title
-        <input type="text" name="display_name" value="{{ document.display_name }}">
+        <input type="text" name="title" value="{{ document.title }}">
     </label></p>
 
     <p>

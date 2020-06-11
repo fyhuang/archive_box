@@ -75,7 +75,7 @@ def collection_document_edit(cid: str, docid: str):
 @app.route("/c/<cid>/d/<docid>/edit", methods=["POST"])
 def collection_document_edit_submit(cid: str, docid: str):
     checkbox_fields = ["needs_review"]
-    text_fields = ["display_name", "description"]
+    text_fields = ["title", "description"]
     list_fields = ["tags"]
 
     collection = globals.factory.new_collection(cid)

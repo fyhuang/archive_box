@@ -7,7 +7,7 @@
 
 <div class="breadcrumb"><a href="{{ url_for("collection_index", cid=collection_id) }}">&#171 Back</a></div>
 
-<h1>{{ document.display_name }}</h1>
+<h1>{{ document.title }}</h1>
 
 <div id="doc_viewer">
     <div class="pure-g">
@@ -51,7 +51,7 @@
 <p>{{ document.description }}</p>
 
 <h2>Tags</h2>
-<p>
+<p class="tag_list">
 {% for tag in document.tags %}
 <span class="tag_name">{{ tag }}</span>
 {% endfor %}

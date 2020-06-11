@@ -27,6 +27,7 @@ _EXT_TO_MIMETYPE = {
         ".tif": "image/tiff",
         ".tiff": "image/tiff",
         ".ts": "video/mp2t",
+        ".txt": "text/plain",
         ".wav": "audio/wav",
         ".weba": "audio/webm",
         ".webm": "video/webm",

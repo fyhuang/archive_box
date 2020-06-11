@@ -30,7 +30,7 @@
         <td>
             {% for collection in collections %}
             <form method="post" action="/api/add_document">
-                <input type="hidden" name="sdid" value="{{ file.sdid.to_strid() }}">
+                <input type="hidden" name="sdid" value="{{ file.sdid }}">
                 <input type="hidden" name="filename" value="{{ file.path }}">
                 <input type="hidden" name="cid" value="{{ collection.id }}">
                 <input type="submit" value="{{ collection.name }}">

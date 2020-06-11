@@ -43,7 +43,9 @@ class Collection(object):
         self.search_index.first_time_setup()
         self.synced_db.first_time_setup()
 
+    # TODO(fyhuang): just move this to api.py
     def add_document(self, sdid: str, orig_filename: str) -> str:
+        # DEPRECATED, see ArchiveBoxApi.create_document
         document = pb2.Document()
         document.id = util.new_id()
         document.data.main.sdid = sdid
@@ -53,7 +55,7 @@ class Collection(object):
         document.creation_time_ms = _now_ms()
         document.last_mod_time_ms = _now_ms()
     
-        document.display_name = orig_filename
+        document.title = orig_filename
         document.orig_filename = orig_filename
     
         self.docs.update(document)

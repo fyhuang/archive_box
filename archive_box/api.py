@@ -1,12 +1,28 @@
+import functools
+import datetime
 import shutil
 import urllib.parse
-import urllib.request
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import cast, Optional, Union, Tuple, List, Set, Dict
 
-from . import storage, scanner
-from .collection import Collection, ProcessorState
+import requests
+
+from . import util, storage, scanner
+from . import archive_box_pb2 as pb2
+from .collection import Collection, ProcessorState, document_files
 from .sdid import file_to_sdid
+
+
+def _now_ms() -> int:
+    return int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000.0)
+
+
+def _is_url(url_or_path: Union[Path, str]) -> bool:
+    if isinstance(url_or_path, Path):
+        return False
+    if "://" in url_or_path:
+        return True
+    return False
 
 
 class ArchiveBoxApi(object):
@@ -19,40 +35,77 @@ class ArchiveBoxApi(object):
         self.processor_state = processor_state
         self.local_store = local_store
 
-    def _add_from_store(self, sdid: str, orig_filename: str) -> None:
-        doc_id = self.collection.add_document(sdid, orig_filename)
-        self.first_time_process(doc_id)
-
-    def add_document_from_file(self, filepath: Path, base_path: Optional[Path] = None) -> None:
-        if base_path is None:
-            base_path = Path(filepath.anchor)
-
-        sdid = file_to_sdid(filepath)
-        self.local_store.upload(sdid, filepath)
-        self._add_from_store(sdid, str(filepath.relative_to(base_path)))
-
-    def add_document_from_url(self, url: str) -> None:
+    # TODO(fyhuang): break these out into a "Loader" class?
+    def put_url_into_store(self, url) -> Tuple[str, str, str]:
         dest_filename = self.local_store.get_temp_filename()
-        with urllib.request.urlopen(url) as response:
-            with dest_filename.open('wb') as f:
-                shutil.copyfileobj(response, f)
+
+        response = requests.get(url)
+        orig_mime = response.headers["Content-Type"].partition(';')[0]
+        with dest_filename.open('wb') as f:
+            for chunk in response.iter_content(1024 * 1024):
+                f.write(chunk)
 
         # TODO(fyhuang): use filename from Content-Disposition if there is one
         url_components = urllib.parse.urlparse(url)
 
         sdid = file_to_sdid(dest_filename)
         self.local_store.move_inplace(sdid, dest_filename)
-        # TODO(fyhuang): include any document metadata fields from the caller
-        self._add_from_store(sdid, Path(url_components.path).name)
+        return sdid, Path(url_components.path).name, orig_mime
+
+    def put_local_file_into_store(self, base_path: Optional[Path], filepath: Path) -> Tuple[str, str, str]:
+        if base_path is None:
+            base_path = Path(filepath.anchor)
+
+        sdid = file_to_sdid(filepath)
+        self.local_store.upload(sdid, filepath)
+        return sdid, str(filepath.relative_to(base_path)), document_files.guess_mimetype(filepath)
 
     def create_document(self,
-            urls_or_paths: List[str],
-            document_info: Dict[str, str],
-            user_metadat: Dict[str, str],
+            url_or_path: Union[str, Path],
+            doc_title: Optional[str] = None,
+            doc_tags: Set[str] = set(),
+            doc_description: str = "",
+            user_metadata: Dict[str, str] = {},
+            orig_url: Optional[str] = None,
             # for local files, the base directory which original filenames will be calculated relative to
             base_path: Optional[Path] = None,
-            ) -> None:
-        pass
+            ) -> Optional[str]:
+
+        if _is_url(url_or_path):
+            put_file_func = self.put_url_into_store
+        else:
+            put_file_func = functools.partial(self.put_local_file_into_store, base_path)
+
+        sdid, orig_filename, orig_mime = put_file_func(url_or_path)
+
+        document = pb2.Document()
+        document.id = util.new_id()
+        document.data.main.sdid = sdid
+        document.data.main.mime = orig_mime
+    
+        document.needs_review = True
+        document.creation_time_ms = _now_ms()
+        document.last_mod_time_ms = _now_ms()
+
+        document.orig_filename = orig_filename
+        if _is_url(url_or_path):
+            document.downloaded_from_url = cast(str, url_or_path)
+        elif orig_url is not None:
+            document.downloaded_from_url = orig_url
+    
+        if doc_title is not None:
+            document.title = doc_title
+        else:
+            document.title = orig_filename
+
+        document.tags.extend(doc_tags)
+        document.description = doc_description
+        document.metadata.update(user_metadata)
+
+        self.collection.docs.update(document)
+        self.first_time_process(document.id)
+        return document.id
+
 
     def first_time_process(self, doc_id: str) -> None:
         self.processor_state.add_work_item(doc_id, "transcode_video") # transcode first, in case user doesn't want to keep original

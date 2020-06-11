@@ -143,7 +143,7 @@ class Document(google___protobuf___message___Message):
     creation_time_ms = ... # type: builtin___int
     last_mod_time_ms = ... # type: builtin___int
     needs_review = ... # type: builtin___bool
-    display_name = ... # type: typing___Text
+    title = ... # type: typing___Text
     tags = ... # type: google___protobuf___internal___containers___RepeatedScalarFieldContainer[typing___Text]
     description = ... # type: typing___Text
     orig_filename = ... # type: typing___Text
@@ -164,7 +164,7 @@ class Document(google___protobuf___message___Message):
         creation_time_ms : typing___Optional[builtin___int] = None,
         last_mod_time_ms : typing___Optional[builtin___int] = None,
         needs_review : typing___Optional[builtin___bool] = None,
-        display_name : typing___Optional[typing___Text] = None,
+        title : typing___Optional[typing___Text] = None,
         tags : typing___Optional[typing___Iterable[typing___Text]] = None,
         description : typing___Optional[typing___Text] = None,
         metadata : typing___Optional[typing___Mapping[typing___Text, typing___Text]] = None,
@@ -181,6 +181,6 @@ class Document(google___protobuf___message___Message):
         def FromString(cls, s: typing___Union[builtin___bytes, builtin___buffer, builtin___unicode]) -> Document: ...
     def MergeFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
     def CopyFrom(self, other_msg: google___protobuf___message___Message) -> None: ...
-    def HasField(self, field_name: typing_extensions___Literal[u"auto_summary",b"auto_summary",u"creation_time_ms",b"creation_time_ms",u"data",b"data",u"description",b"description",u"display_name",b"display_name",u"downloaded_from_url",b"downloaded_from_url",u"id",b"id",u"last_mod_time_ms",b"last_mod_time_ms",u"needs_review",b"needs_review",u"orig_filename",b"orig_filename"]) -> builtin___bool: ...
-    def ClearField(self, field_name: typing_extensions___Literal[u"auto_keywords",b"auto_keywords",u"auto_summary",b"auto_summary",u"creation_time_ms",b"creation_time_ms",u"data",b"data",u"description",b"description",u"display_name",b"display_name",u"downloaded_from_url",b"downloaded_from_url",u"id",b"id",u"last_mod_time_ms",b"last_mod_time_ms",u"metadata",b"metadata",u"needs_review",b"needs_review",u"orig_filename",b"orig_filename",u"tags",b"tags"]) -> None: ...
+    def HasField(self, field_name: typing_extensions___Literal[u"auto_summary",b"auto_summary",u"creation_time_ms",b"creation_time_ms",u"data",b"data",u"description",b"description",u"downloaded_from_url",b"downloaded_from_url",u"id",b"id",u"last_mod_time_ms",b"last_mod_time_ms",u"needs_review",b"needs_review",u"orig_filename",b"orig_filename",u"title",b"title"]) -> builtin___bool: ...
+    def ClearField(self, field_name: typing_extensions___Literal[u"auto_keywords",b"auto_keywords",u"auto_summary",b"auto_summary",u"creation_time_ms",b"creation_time_ms",u"data",b"data",u"description",b"description",u"downloaded_from_url",b"downloaded_from_url",u"id",b"id",u"last_mod_time_ms",b"last_mod_time_ms",u"metadata",b"metadata",u"needs_review",b"needs_review",u"orig_filename",b"orig_filename",u"tags",b"tags",u"title",b"title"]) -> None: ...
 global___Document = Document

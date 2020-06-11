@@ -47,14 +47,14 @@ class SqliteDocumentSearchIndexTests(unittest.TestCase):
 
         doc = pb2.Document()
         doc.id = "abc123"
-        doc.display_name = "My Document"
+        doc.title = "My Document"
         doc.tags.extend(["tag1", "tag2"])
         doc.auto_summary = "Search indexing is fun"
         index.update_index(doc)
 
         r1 = index.query("Document", 1)[0]
         self.assertEqual(doc.id, r1.doc_id)
-        self.assertEqual(Snippet("My Document", (3, 11)), r1.display_name_snippet)
+        self.assertEqual(Snippet("My Document", (3, 11)), r1.title_snippet)
         self.assertEqual(None, r1.tags_snippet)
         self.assertEqual(None, r1.freetext_snippet)
 
@@ -66,3 +66,22 @@ class SqliteDocumentSearchIndexTests(unittest.TestCase):
         r3 = index.query("index", 1)[0]
         assert r3.freetext_snippet is not None
         self.assertEqual("indexing", r3.freetext_snippet.highlighted_str())
+
+    def test_update(self) -> None:
+        index = self.get_index()
+
+        doc = pb2.Document()
+        doc.id = "abc123"
+        doc.title = "Hello"
+        index.update_index(doc)
+
+        r1 = index.query("Hello", 1)
+        self.assertEqual(1, len(r1))
+
+        doc.title = "World"
+        index.update_index(doc)
+        r2 = index.query("Hello", 1)
+        self.assertEqual(0, len(r2))
+
+        r3 = index.query("World", 1)
+        self.assertEqual(1, len(r3))

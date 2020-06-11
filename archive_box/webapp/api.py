@@ -14,8 +14,11 @@ def collection_add_document() -> Any:
     if "StoredData" in sdid:
         raise RuntimeError("bad format?")
 
+    # DEPRECATED, see api_create_document
     api = globals.factory.new_api(cid)
-    api._add_from_store(sdid, filename)
+    collection = globals.factory.new_collection(cid)
+    doc_id = collection.add_document(sdid, filename)
+    api.first_time_process(doc_id)
 
     # remove from scanned files
     globals.factory.new_scanner_state().delete_scanned_file(sdid)
@@ -25,5 +28,19 @@ def collection_add_document() -> Any:
 
 @app.route("/api/create_document/<cid>", methods=["POST"])
 def api_create_document(cid: str) -> Any:
-    urls_or_paths = request.form.getlist('files')
-    # TODO(fyhuang): customize summary, tags, etc.
+    request_data = request.get_json()
+    api = globals.factory.new_api(cid)
+
+    print(request_data)
+
+    api.create_document(
+        request_data["source"],
+        doc_title=request_data["title"],
+        doc_tags=set(request_data["tags"]),
+        doc_description=request_data["description"],
+        user_metadata=request_data["metadata"],
+        orig_url=request_data.get("orig_url", None),
+        base_path=request_data.get("base_path", None),
+    )
+
+    return r'{"status": "OK"}'

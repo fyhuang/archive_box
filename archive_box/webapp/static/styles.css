@@ -30,10 +30,15 @@ img.icon {
     height: 50px;
 }
 
+p.tag_list {
+    line-height: 2.0;
+}
+
 span.tag_name {
     padding: 4pt;
     background-color: #F0E0F0;
     border-radius: 2pt;
+    white-space: nowrap;
 }
 
 select#tag_select {

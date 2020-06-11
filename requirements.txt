@@ -2,6 +2,7 @@ toml
 flask
 protobuf==3.12.1
 typing_extensions
+requests
 
 # text/PDF processing
 pdfminer.six[process_text]

@@ -37,7 +37,7 @@ class Snippet(NamedTuple):
 
 class SearchResult(NamedTuple):
     doc_id: str
-    display_name_snippet: Optional[Snippet]
+    title_snippet: Optional[Snippet]
     tags_snippet: Optional[Snippet]
     freetext_snippet: Optional[Snippet]
 
@@ -46,10 +46,16 @@ class SqliteDocumentSearchIndex(object):
     def __init__(self, conn: sqlite3.Connection) -> None:
         self.conn = conn
 
+    def _index_contains_doc(self, cursor, doc_id: str) -> bool:
+        row = cursor.execute('SELECT doc_id FROM doc_fts_index WHERE doc_id = ?', (doc_id,)).fetchone()
+        if row is None:
+            return False
+        return True
+
     def first_time_setup(self) -> None:
         schema = '''CREATE VIRTUAL TABLE doc_fts_index USING fts5 (
             doc_id UNINDEXED,
-            display_name,
+            title,
             tags,
             freetext,
             tokenize = porter
@@ -68,15 +74,23 @@ class SqliteDocumentSearchIndex(object):
             doc.downloaded_from_url,
             doc.auto_summary,
             ' '.join(doc.auto_keywords),
-            # TODO(fyhuang): metadata
+            '\n'.join("{} {}".format(k, v) for k, v in doc.metadata.items()),
         ]).strip()
 
         with self.conn:
-            # TODO(fyhuang): pretty sure this won't work b/c "doc_id" isn't primary key!
-            self.conn.execute('''INSERT OR REPLACE INTO doc_fts_index
-                (doc_id, display_name, tags, freetext)
-            VALUES (?, ?, ?, ?)''',
-                (doc.id, doc.display_name, tags_encoded, freetext_encoded))
+            cursor = self.conn.cursor()
+            cursor.execute('BEGIN')
+
+            if self._index_contains_doc(cursor, doc.id):
+                cursor.execute('''UPDATE doc_fts_index SET
+                    title=?, tags=?, freetext=?
+                WHERE doc_id=?''',
+                    (doc.title, tags_encoded, freetext_encoded, doc.id))
+            else:
+                cursor.execute('''INSERT INTO doc_fts_index
+                    (doc_id, title, tags, freetext)
+                VALUES (?, ?, ?, ?)''',
+                    (doc.id, doc.title, tags_encoded, freetext_encoded))
 
     def query(self, query: str, num_results: int) -> List[SearchResult]:
         select_query = '''

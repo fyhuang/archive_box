@@ -28,8 +28,8 @@ message Document {
 
     // Initially true if the file was ingested without user review
     required bool needs_review = 20 [(dtsdb.field).merge = "latest"];
-    // TODO(fyhuang): "title" is a better name
-    optional string display_name = 21 [(dtsdb.field).merge = "latest"];
+
+    optional string title = 21 [(dtsdb.field).merge = "latest"];
     repeated string tags = 22 [(dtsdb.field).merge = "set_union"];
     optional string description = 23 [(dtsdb.field).merge = "latest"];
 
@@ -37,7 +37,7 @@ message Document {
 
     // Automatically generated (non-user-editable) metadata
     optional string orig_filename = 100;
-    optional string downloaded_from_url = 101;
+    optional string orig_url = 101;
 
     optional string auto_summary = 200;
     repeated string auto_keywords = 201 [(dtsdb.field).merge = "set_union"];
