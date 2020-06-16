@@ -44,6 +44,10 @@
             <a href="{{ url_for("collection_document_edit", cid=collection_id, docid=document.id) }}"
                 class="pure-menu-link">Edit Info</a>
         </li>
+        <li class="pure-menu-item">
+            <a href="{{ url_for("api_reprocess_document", cid=collection_id, docid=document.id) }}"
+                class="pure-menu-link">Reprocess</a>
+        </li>
     </ul>
 </div>
 

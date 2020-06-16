@@ -71,7 +71,7 @@ class SqliteDocumentSearchIndex(object):
         freetext_encoded = '\n\n'.join([
             doc.description,
             doc.orig_filename,
-            doc.downloaded_from_url,
+            doc.orig_url,
             doc.auto_summary,
             ' '.join(doc.auto_keywords),
             '\n'.join("{} {}".format(k, v) for k, v in doc.metadata.items()),

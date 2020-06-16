@@ -62,6 +62,7 @@ class ArchiveBoxApi(object):
 
     def create_document(self,
             url_or_path: Union[str, Path],
+            needs_review: bool = True,
             doc_title: Optional[str] = None,
             doc_tags: Set[str] = set(),
             doc_description: str = "",
@@ -69,6 +70,7 @@ class ArchiveBoxApi(object):
             orig_url: Optional[str] = None,
             # for local files, the base directory which original filenames will be calculated relative to
             base_path: Optional[Path] = None,
+            skip_duplicates: bool = True,
             ) -> Optional[str]:
 
         if _is_url(url_or_path):
@@ -76,6 +78,21 @@ class ArchiveBoxApi(object):
         else:
             put_file_func = functools.partial(self.put_local_file_into_store, base_path)
 
+        if orig_url is None:
+            # generate the original URL from url_or_path
+            if _is_url(url_or_path):
+                orig_url = cast(str, url_or_path)
+            else:
+                orig_url = Path(url_or_path).resolve().as_uri()
+
+        # optionally check for duplicates
+        if skip_duplicates:
+            # TODO(fyhuang): index
+            other_docs = self.collection.docs.queryall(filter=lambda d: d.orig_url == orig_url)
+            if len(other_docs) > 0:
+                return None
+
+        # download the file and create the document
         sdid, orig_filename, orig_mime = put_file_func(url_or_path)
 
         document = pb2.Document()
@@ -83,15 +100,12 @@ class ArchiveBoxApi(object):
         document.data.main.sdid = sdid
         document.data.main.mime = orig_mime
     
-        document.needs_review = True
+        document.needs_review = needs_review
         document.creation_time_ms = _now_ms()
         document.last_mod_time_ms = _now_ms()
 
         document.orig_filename = orig_filename
-        if _is_url(url_or_path):
-            document.downloaded_from_url = cast(str, url_or_path)
-        elif orig_url is not None:
-            document.downloaded_from_url = orig_url
+        document.orig_url = orig_url
     
         if doc_title is not None:
             document.title = doc_title
@@ -114,5 +128,6 @@ class ArchiveBoxApi(object):
         self.processor_state.add_work_item(doc_id, "index_for_search")
 
     def reprocess(self, doc_id: str) -> None:
+        # TODO(fyhuang): re-transcode video in case the original is still around
         self.processor_state.add_work_item(doc_id, "auto_summarize")
         self.processor_state.add_work_item(doc_id, "index_for_search")

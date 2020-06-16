@@ -1,3 +1,4 @@
+import json
 from typing import Any
 from flask import request, redirect
 
@@ -33,14 +34,28 @@ def api_create_document(cid: str) -> Any:
 
     print(request_data)
 
-    api.create_document(
+    doc_id = api.create_document(
         request_data["source"],
+        needs_review=request_data.get("needs_review", True),
         doc_title=request_data["title"],
         doc_tags=set(request_data["tags"]),
         doc_description=request_data["description"],
         user_metadata=request_data["metadata"],
         orig_url=request_data.get("orig_url", None),
         base_path=request_data.get("base_path", None),
+        skip_duplicates=request_data.get("skip_duplicates", True),
     )
 
-    return r'{"status": "OK"}'
+    result = {
+        "status": "OK",
+    }
+    if doc_id is not None:
+        result["doc_id"] = doc_id
+    return json.dumps(result)
+
+
+@app.route("/api/reprocess_document/<cid>/d/<docid>")
+def api_reprocess_document(cid: str, docid: str) -> Any:
+    api = globals.factory.new_api(cid)
+    api.reprocess(docid)
+    return redirect(request.referrer)

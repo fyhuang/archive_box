@@ -1,7 +1,7 @@
 .PHONY: tags check_all test_all proto
 
 PROTOC=extern/protoc/bin/protoc
-PACKAGES=archive_box dtsdb cfgparse
+PACKAGES=archive_box dtsdb cfgparse tools
 
 tags:
 	ctags -R $(PACKAGES)
