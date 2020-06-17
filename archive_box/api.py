@@ -52,7 +52,8 @@ class ArchiveBoxApi(object):
         self.local_store.move_inplace(sdid, dest_filename)
         return sdid, Path(url_components.path).name, orig_mime
 
-    def put_local_file_into_store(self, base_path: Optional[Path], filepath: Path) -> Tuple[str, str, str]:
+    def put_local_file_into_store(self, base_path: Optional[Path], filepath: Union[str, Path]) -> Tuple[str, str, str]:
+        filepath = Path(filepath)
         if base_path is None:
             base_path = Path(filepath.anchor)
 

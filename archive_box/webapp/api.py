@@ -37,10 +37,10 @@ def api_create_document(cid: str) -> Any:
     doc_id = api.create_document(
         request_data["source"],
         needs_review=request_data.get("needs_review", True),
-        doc_title=request_data["title"],
+        doc_title=request_data.get("title", None),
         doc_tags=set(request_data["tags"]),
-        doc_description=request_data["description"],
-        user_metadata=request_data["metadata"],
+        doc_description=request_data.get("description", ""),
+        user_metadata=request_data.get("metadata", {}),
         orig_url=request_data.get("orig_url", None),
         base_path=request_data.get("base_path", None),
         skip_duplicates=request_data.get("skip_duplicates", True),

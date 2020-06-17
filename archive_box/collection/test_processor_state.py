@@ -24,22 +24,22 @@ class ProcessorStateTests(unittest.TestCase):
         self.assertEqual(0, self.ps.get_queue_size())
 
     def test_add_one(self) -> None:
-        self.ps.add_work_item("doc1", "upload", self.timestamp(100))
+        self.ps.add_work_item("doc1", "upload")
         self.assertEqual(1, self.ps.get_queue_size())
-        wi = WorkItem(self.timestamp(100), "doc1", "upload")
+        wi = WorkItem(1, "doc1", "upload")
         self.assertEqual(wi, self.ps.peek_next_item())
         self.assertEqual([wi], self.ps.get_items_for_doc("doc1"))
 
     def test_queue_order(self) -> None:
-        self.ps.add_work_item("doc1", "upload", self.timestamp(100))
-        self.ps.add_work_item("doc2", "upload", self.timestamp(50))
+        self.ps.add_work_item("doc2", "upload")
+        self.ps.add_work_item("doc1", "upload")
         item = self.ps.peek_next_item()
         assert item is not None
-        self.assertEqual(self.timestamp(50), item.timestamp)
+        self.assertEqual("doc2", item.document_id)
 
     def test_delete(self) -> None:
-        self.ps.add_work_item("doc1", "upload", self.timestamp(100))
-        self.ps.add_work_item("doc2", "upload", self.timestamp(50))
+        self.ps.add_work_item("doc2", "upload")
+        self.ps.add_work_item("doc1", "upload")
         self.assertEqual(2, self.ps.get_queue_size())
 
         first = self.ps.peek_next_item()
@@ -49,7 +49,7 @@ class ProcessorStateTests(unittest.TestCase):
 
         item = self.ps.peek_next_item()
         assert item is not None
-        self.assertEqual(self.timestamp(100), item.timestamp)
+        self.assertEqual("doc1", item.document_id)
 
     def test_wait(self) -> None:
         with tempfile.TemporaryDirectory() as tempdir:
