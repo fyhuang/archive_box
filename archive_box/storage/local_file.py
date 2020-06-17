@@ -4,7 +4,7 @@ import shutil
 import functools
 import datetime
 from pathlib import Path
-from typing import Optional, Tuple, Union, Any
+from typing import Optional, Tuple, Union, Any, Generator
 from typing_extensions import Protocol
 
 from archive_box import util
@@ -37,21 +37,35 @@ class LocalFileStorage(object):
         self.root = Path(root_dir).resolve()
         self.tempdir = self.root / "temp"
         os.makedirs(self.tempdir, exist_ok=True)
-        self.url_base: Optional[str] = None
-
-    def path_to(self, sdid: str) -> Path:
-        schema, id = parse_sdid(sdid)
-        first_part = schema + id[:2]
-        return self.root / first_part / sdid
 
     def _is_path_in_root(self, path: Path) -> bool:
         path_abs = path.resolve()
         ancestor = _common_ancestor(self.root, path_abs)
         return ancestor == self.root
 
+    def path_to(self, sdid: str) -> Path:
+        schema, id = parse_sdid(sdid)
+        first_part = schema + id[:2]
+        return self.root / first_part / sdid
+
     def contains(self, sdid: str) -> bool:
         path = self.path_to(sdid)
         return path.exists()
+
+    def list(self) -> Generator[str, None, None]:
+        # list the SDIDs stored
+        for root, dirs, files in os.walk(self.root):
+            if "temp" in dirs:
+                # don't traverse the tempdir
+                dirs.remove("temp")
+
+            for file in files:
+                try:
+                    # make sure it is an SDID
+                    schema, id = parse_sdid(file)
+                    yield file
+                except ValueError:
+                    continue
 
     def upload(self, sdid: str, src_file: Path) -> None:
         path = self.path_to(sdid)
@@ -65,14 +79,9 @@ class LocalFileStorage(object):
         os.rename(temp_path, path)
 
     def delete(self, sdid: str) -> None:
-        raise NotImplementedError()
-
-    # TODO(fyhuang): not sure how to support this yet
-    #def url_to(self, sdid: str) -> str:
-    #    if self.url_base is None:
-    #        raise RuntimeError("Not linked to an HTTP server!")
-    #    rel_path = self.path_to(sdid).relative_to(self.root)
-    #    return "{}/{}".format(self.url_base, rel_path)
+        path = self.path_to(sdid)
+        os.remove(path)
+        os.removedirs(path.parent)
 
     def download_stat(self, sdid: str) -> StoredStat:
         path = self.path_to(sdid)
@@ -96,9 +105,6 @@ class LocalFileStorage(object):
         with self.download_bytes(sdid) as src_f:
             with dest_filename.open("wb") as dest_f:
                 shutil.copyfileobj(src_f, dest_f)
-
-    def set_url_base(self, url_base):
-        self.url_base = url_base
 
     def get_temp_filename(self) -> Path:
         # Get a filename that is compatible with `move_inplace`

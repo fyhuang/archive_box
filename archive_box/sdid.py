@@ -5,11 +5,8 @@ from typing import Tuple, NamedTuple
 
 def parse_sdid(sid: str) -> Tuple[str, str]:
     schema_part, _, id_part = sid.partition("_")
-    if schema_part is None or id_part is None:
-        raise RuntimeError("Couldn't parse {}".format(sid))
-    if len(schema_part) == 0 or len(id_part) == 0:
-        raise RuntimeError("Couldn't parse {}".format(sid))
-
+    if len(schema_part) != 2 or len(id_part) == 0:
+        raise ValueError("Couldn't parse {}".format(sid))
     return (schema_part, id_part)
 
 

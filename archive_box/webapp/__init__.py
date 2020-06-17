@@ -68,7 +68,6 @@ class LocalStoreDispatcher(object):
 def init(workspace: Workspace, factory: Factory) -> None:
     globals.workspace = workspace
     globals.factory = factory
-    factory.set_collection_storage_url_pattern("/local/{cid}")
 
 
 def run() -> None:

@@ -55,3 +55,23 @@ class LocalFileStorageTests(unittest.TestCase):
         lfs.download_to(sdid, self.path / "out.txt")
         with (self.path / "out.txt").open("r") as f:
             self.assertEqual("Hello, world!", f.read())
+
+    def test_list(self) -> None:
+        lfs = LocalFileStorage(self.path / "store")
+        contents = list(lfs.list())
+        self.assertEqual([], contents)
+
+        sdid = file_to_sdid(self.path / "test.txt")
+        lfs.upload(sdid, self.path / "test.txt")
+        contents = list(lfs.list())
+        self.assertEqual([sdid], contents)
+
+    def test_delete(self) -> None:
+        sdid = file_to_sdid(self.path / "test.txt")
+        lfs = LocalFileStorage(self.path / "store")
+
+        lfs.upload(sdid, self.path / "test.txt")
+        self.assertTrue(lfs.contains(sdid))
+
+        lfs.delete(sdid)
+        self.assertFalse(lfs.contains(sdid))

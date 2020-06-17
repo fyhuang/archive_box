@@ -17,8 +17,6 @@ class Factory(object):
         self.scanner_cpool = scanner_cpool
         self.collection_cpool = collection_cpool
         self.local_store = storage.LocalFileStorage(self.workspace.internal_path / "local_store")
-        # TODO(fyhuang): is all this passing around really necessary? wonder if it can be done in config file
-        self.collection_storage_url_pattern: Optional[str] = None
         self.processor_cv = threading.Condition()
 
     def first_time_setup(self) -> None:
@@ -26,9 +24,6 @@ class Factory(object):
         for cid in self.workspace.cids():
             self.new_processor_state(cid).first_time_setup()
             self.new_collection(cid).first_time_setup()
-
-    def set_collection_storage_url_pattern(self, pattern) -> None:
-        self.collection_storage_url_pattern = pattern
 
     def new_scanner_state(self) -> scanner.ScannerState:
         conn = self.scanner_cpool()
@@ -44,10 +39,7 @@ class Factory(object):
     def new_collection_storage(self, cid: str) -> storage.LocalFileStorage:
         config = self.workspace.collection_config(cid)
         if config.storage == "local":
-            result = storage.LocalFileStorage(config.local_storage["root"])
-            if self.collection_storage_url_pattern is not None:
-                result.set_url_base(self.collection_storage_url_pattern.format(cid=cid))
-            return result
+            return storage.LocalFileStorage(config.local_storage["root"])
         else:
             raise RuntimeError("Unknown storage type {}".format(config.storage))
 
