@@ -1,7 +1,7 @@
 import os
 import secrets
 from pathlib import Path
-from typing import Any, Set, Mapping, NamedTuple
+from typing import Any, Union, Set, Mapping, NamedTuple
 
 import toml
 import cfgparse
@@ -26,7 +26,8 @@ class Workspace(NamedTuple):
     node_config: NodeConfig
 
     @staticmethod
-    def load_from_path(root_path: Path) -> 'Workspace':
+    def load_from_path(root_path: Union[str, Path]) -> 'Workspace':
+        root_path = Path(root_path)
         if not root_path.exists():
             raise RuntimeError("Workspace {} must exist already".format(root_path))
 
