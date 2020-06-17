@@ -1,5 +1,6 @@
 import os
 import secrets
+import socket
 from pathlib import Path
 from typing import Any, Union, Set, Mapping, NamedTuple
 
@@ -39,7 +40,7 @@ class Workspace(NamedTuple):
             with node_config_path.open("r") as f:
                 node_config = NodeConfig.from_toml(f.read())
         else:
-            node_config = NodeConfig(secrets.randbelow(2**63), _default_node_name())
+            node_config = Workspace.new_node_config()
             with node_config_path.open("w") as f:
                 f.write(node_config.to_toml())
 
@@ -47,6 +48,10 @@ class Workspace(NamedTuple):
             config = toml.load(f)
 
         return Workspace(root_path, internal, config, node_config)
+
+    @staticmethod
+    def new_node_config() -> NodeConfig:
+        return NodeConfig(secrets.randbelow(2**63), _default_node_name())
 
     def inbox_path(self) -> Path:
         return Path(self.config["server"]["inbox"])

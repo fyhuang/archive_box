@@ -115,7 +115,7 @@ class MessageMerger(object):
 
 
 class SyncedDb(object):
-    """A database which is automatically synced"""
+    """A database which supports synchronization"""
     def __init__(self,
             conn: sqlite3.Connection,
             node_config: NodeConfig,

@@ -19,6 +19,14 @@ class Factory(object):
         self.local_store = storage.LocalFileStorage(self.workspace.internal_path / "local_store")
         self.processor_cv = threading.Condition()
 
+    @staticmethod
+    def with_naive_cpools(workspace: Workspace) -> 'Factory':
+        return Factory(
+                workspace,
+                lambda: sqlite3.connect(str(workspace.scanner_db_path())),
+                lambda c: sqlite3.connect(str(workspace.collection_db_path(c))),
+        )
+
     def first_time_setup(self) -> None:
         self.new_scanner_state().first_time_setup()
         for cid in self.workspace.cids():
