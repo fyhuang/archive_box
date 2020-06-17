@@ -12,7 +12,7 @@ checks:
 
 coverage:
 	coverage run -m unittest
-	coverage html -m $(PACKAGES)
+	find $(PACKAGES) -name '*.py' -exec coverage html '{}' +
 
 proto:
 	mkdir -p temp
