@@ -51,4 +51,7 @@
 </div>
 {% endfor %}
 
+{# Pagination #}
+<div><a href="{{ search_url }}&offset={{ documents_offset + documents_limit }}">Next page</a></div>
+
 {% endblock %}

@@ -113,6 +113,7 @@ class ProtoTable(Generic[MsgT]):
             sortkey: Optional[Callable[[MsgT], Any]] = None,
             reverse: bool = False,
             limit: Optional[int] = None,
+            offset: Optional[int] = None,
             ) -> List[MsgT]:
         """Filter and order documents, in software, with the provided filter func."""
         results = []
@@ -130,8 +131,10 @@ class ProtoTable(Generic[MsgT]):
             after_sort.sort(key=sortkey, reverse=reverse)
 
         # limit
+        if offset is not None:
+            after_sort = after_sort[offset:]
         if limit is not None:
-            return after_sort[:limit]
+            after_sort = after_sort[:limit]
         return after_sort
 
     def update(self, updated_msg: Message, call_cb: bool = True) -> None:

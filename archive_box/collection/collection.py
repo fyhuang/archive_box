@@ -61,16 +61,18 @@ class Collection(object):
         self.docs.update(document)
         return document.id
 
-    def docs_recent(self) -> List[pb2.Document]:
+    def docs_recent(self, offset: int, limit: int) -> List[pb2.Document]:
         return self.docs.queryall(
                 sortkey=lambda d: d.creation_time_ms,
                 reverse=True,
-                limit=10
+                limit=limit,
+                offset=offset,
         )
 
-    def docs_needs_review(self) -> List[pb2.Document]:
+    def docs_needs_review(self, offset: int, limit: int) -> List[pb2.Document]:
         return self.docs.queryall(
                 filter=lambda d: d.needs_review,
                 sortkey=lambda d: d.creation_time_ms,
-                limit=10
+                limit=limit,
+                offset=offset,
         )

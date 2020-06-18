@@ -8,18 +8,31 @@ from . import app, globals
 
 @app.route("/c/<cid>", methods=["GET"])
 def collection_index(cid: str):
+    offset = int(request.args.get("offset", "0"))
+    limit = int(request.args.get("limit", "30"))
+
     collection = globals.factory.new_collection(cid)
     if "q" in request.args:
         search_query = request.args["q"]
         search_name = "Search: {}".format(search_query)
 
-        results = collection.search_index.query(search_query, 30)
+        # TODO(fyhuang): support pagination on search results
+        results = collection.search_index.query(search_query, limit)
         documents = collection.docs.getall([r.doc_id for r in results])
+        search_url = url_for('collection_index', cid=cid, q=search_query)
     else:
-        filter = request.args.get("filter", "Recent")
-        search_name = filter
-        search_query = ""
-        documents = collection.docs_recent()
+        filter = request.args.get("filter", "recent")
+        if filter.lower() == "recent":
+            search_name = "Recent"
+            search_query = ""
+            documents = collection.docs_recent(offset, limit)
+        elif filter.lower() == "needs_review":
+            search_name = "Needs review"
+            search_query = ""
+            documents = collection.docs_needs_review(offset, limit)
+        else:
+            raise NotImplementedError()
+        search_url = url_for('collection_index', cid=cid, filter=filter)
 
     return render_template(
             "collection_index.html",
@@ -27,7 +40,10 @@ def collection_index(cid: str):
             collection_name=collection.config.display_name,
             search_name=search_name,
             search_query=search_query,
-            documents=documents
+            search_url=search_url,
+            documents=documents,
+            documents_offset=offset,
+            documents_limit=limit,
     )
 
 
