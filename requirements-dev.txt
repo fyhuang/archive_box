@@ -2,4 +2,3 @@ setuptools
 coverage
 mypy
 mypy-protobuf
-jupyter

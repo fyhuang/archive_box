@@ -53,7 +53,7 @@ class RemoteSyncB2(object):
                     collection.synced_db.sync(other_conn)
             except FileNotPresent:
                 # This is fine, we'll just upload our copy of the db
-                pass
+                print("No remote DB to sync with")
 
             # Our DB file now has the latest changes, and can be uploaded
             bucket.upload_local_file(
@@ -62,3 +62,4 @@ class RemoteSyncB2(object):
                 # TODO(fyhuang): any file infos needed?
                 # TODO(fyhuang): turn off auto_continue?
             )
+            print("Uploaded merged DB to b2 ({})".format(remote_target_name))
