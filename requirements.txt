@@ -1,6 +1,6 @@
 toml
 flask
-protobuf==3.12.1
+protobuf==3.18.3
 typing_extensions
 requests
 
